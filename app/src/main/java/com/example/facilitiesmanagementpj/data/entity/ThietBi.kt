@@ -20,5 +20,6 @@ data class ThietBi(
     val ngayBaoDuongTiepTheo: Long?, // ✅ Ngày dự kiến bảo dưỡng tiếp theo
     val baoDuongDinhKy: Int?, // ✅ Số ngày giữa các lần bảo dưỡng
     val loaiBaoDuong: String?, // ✅ Kiểu bảo dưỡng (VD: "Vệ sinh", "Thay linh kiện")
-    val ghiChuBaoDuong: String? // ✅ Ghi chú về bảo dưỡng
+    val ghiChuBaoDuong: String?, // ✅ Ghi chú về bảo dưỡng
+    val moTa: String? = null // ✅ Thêm trường mô tả
 )

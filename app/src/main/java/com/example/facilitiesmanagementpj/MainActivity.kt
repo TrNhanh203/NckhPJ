@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.facilitiesmanagementpj.data.database.AppDatabase
+import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.TangScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
@@ -32,7 +33,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             //MyApp()
             //TangScreen()
-            PhongScreen()
+            //PhongScreen()
+            AddThietBiScreen()
         }
     }
 }
