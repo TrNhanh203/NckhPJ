@@ -10,6 +10,8 @@ import javax.inject.Singleton
 @Singleton
 class PhongRepository @Inject constructor(private val phongDao: PhongDao) {
     fun getAllPhong(): Flow<List<Phong>> = phongDao.getAll()
+
+    //fun getPhongTheoDay(): Flow<List<Phong>> = phongDao.getPhongTheoDay()
     suspend fun insert(phong: Phong) = phongDao.insert(phong)
     suspend fun update(phong: Phong) = phongDao.update(phong)
     suspend fun delete(phong: Phong) = phongDao.delete(phong)

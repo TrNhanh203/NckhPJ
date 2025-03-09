@@ -14,6 +14,8 @@ import javax.inject.Inject
 class PhongViewModel @Inject constructor(private val repository: PhongRepository) : ViewModel() {
     val allPhong: Flow<List<Phong>> = repository.getAllPhong()
 
+    //val allPhongTheoDay: Flow<List<Phong>> = repository.getPhongTheoDay()
+
     fun insert(phong: Phong) = viewModelScope.launch {
         repository.insert(phong)
     }
