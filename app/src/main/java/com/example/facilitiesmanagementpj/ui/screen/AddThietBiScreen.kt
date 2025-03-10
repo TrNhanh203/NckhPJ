@@ -70,9 +70,9 @@ fun AddThietBiScreen(
             selectedLoaiThietBiId = danhSachLoaiThietBi[it].id
         })
 
-//        DropdownMenuSelector("Chọn đơn vị quản lý", danhSachDonVi.map { it.tenDonVi }, onSelect = {
-//            selectedDonViId = danhSachDonVi[it].id
-//        })
+        DropdownMenuSelector("Chọn đơn vị quản lý", danhSachDonVi.map { it.tenDonVi }, onSelect = {
+            selectedDonViId = danhSachDonVi[it].id
+        })
 
         Button(onClick = {
             viewModel.insert(

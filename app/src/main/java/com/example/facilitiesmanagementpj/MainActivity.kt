@@ -18,6 +18,7 @@ import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.TangScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
+import com.example.facilitiesmanagementpj.ui.viewmodel.PhongViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.ThietBiViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.VaiTroViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +26,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: ThietBiViewModel by viewModels()
+    private val viewModel: PhongViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
             //PhongScreen()
             AddThietBiScreen()
         }
+
     }
 }
 
