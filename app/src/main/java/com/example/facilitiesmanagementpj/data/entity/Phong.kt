@@ -9,5 +9,6 @@ data class Phong(
     val tenPhong: String,
     val tangId: Int,
     val dayId: Int,
-    val loaiPhongId: Int?
+    val loaiPhongId: Int?,
+    val donViId: Int?
 )

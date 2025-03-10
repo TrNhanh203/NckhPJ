@@ -136,6 +136,7 @@ fun PhongScreen(
                             tenPhong = tenPhong,
                             tangId = selectedTangId!!,
                             dayId = selectedDayId!!,
+                            donViId = null,
                             loaiPhongId = selectedLoaiPhongId
                         )
                     )

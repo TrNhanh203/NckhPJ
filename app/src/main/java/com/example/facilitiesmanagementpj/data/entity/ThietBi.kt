@@ -15,7 +15,6 @@ data class ThietBi(
     val ngayDaCat: Long? = null,
     val ngayDungSuDung: Long? = null,
     val ghiChu: String? = null,
-    val donViId: Int,
     val ngayBaoDuongGanNhat: Long?, // ✅ Ngày thực hiện bảo dưỡng gần nhất
     val ngayBaoDuongTiepTheo: Long?, // ✅ Ngày dự kiến bảo dưỡng tiếp theo
     val baoDuongDinhKy: Int?, // ✅ Số ngày giữa các lần bảo dưỡng

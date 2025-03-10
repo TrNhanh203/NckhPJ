@@ -28,7 +28,7 @@ object AppModule {
             AppDatabase::class.java,
             "app_database"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -70,6 +70,46 @@ object AppModule {
         }
     }
 
+    private val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // ✅ Thêm cột `donViId` vào bảng `phong`
+            db.execSQL("ALTER TABLE phong ADD COLUMN donViId INTEGER")
+
+            // ✅ Xóa cột `donViId` khỏi bảng `thiet_bi`
+            // Cách Room xử lý xóa cột: tạo bảng mới, sao chép dữ liệu, xóa bảng cũ, đổi tên bảng mới thành bảng cũ
+            db.execSQL("""
+            CREATE TABLE thiet_bi_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                tenThietBi TEXT NOT NULL,
+                loaiThietBiId INTEGER NOT NULL,
+                phongId INTEGER,
+                tangId INTEGER,
+                trangThai TEXT NOT NULL DEFAULT 'binh_thuong',
+                ngayDaCat INTEGER,
+                ngayDungSuDung INTEGER,
+                ghiChu TEXT,
+                ngayBaoDuongGanNhat INTEGER,
+                ngayBaoDuongTiepTheo INTEGER,
+                baoDuongDinhKy INTEGER,
+                loaiBaoDuong TEXT,
+                ghiChuBaoDuong TEXT,
+                moTa TEXT
+            )
+        """)
+
+            // ✅ Sao chép dữ liệu từ bảng cũ sang bảng mới (ngoại trừ cột `donViId` bị loại bỏ)
+            db.execSQL("""
+            INSERT INTO thiet_bi_new (id, tenThietBi, loaiThietBiId, phongId, tangId, trangThai, ngayDaCat, ngayDungSuDung, ghiChu, ngayBaoDuongGanNhat, ngayBaoDuongTiepTheo, baoDuongDinhKy, loaiBaoDuong, ghiChuBaoDuong, moTa)
+            SELECT id, tenThietBi, loaiThietBiId, phongId, tangId, trangThai, ngayDaCat, ngayDungSuDung, ghiChu, ngayBaoDuongGanNhat, ngayBaoDuongTiepTheo, baoDuongDinhKy, loaiBaoDuong, ghiChuBaoDuong, moTa FROM thiet_bi
+        """)
+
+            // ✅ Xóa bảng `thiet_bi` cũ
+            db.execSQL("DROP TABLE thiet_bi")
+
+            // ✅ Đổi tên bảng `thiet_bi_new` thành `thiet_bi`
+            db.execSQL("ALTER TABLE thiet_bi_new RENAME TO thiet_bi")
+        }
+    }
 
 
     @Provides
