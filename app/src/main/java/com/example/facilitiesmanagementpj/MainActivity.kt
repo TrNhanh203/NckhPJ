@@ -12,11 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.facilitiesmanagementpj.data.database.AppDatabase
 import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
+import com.example.facilitiesmanagementpj.ui.screen.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongTheoDonViScreen
+import com.example.facilitiesmanagementpj.ui.screen.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.TangScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhongViewModel
@@ -31,12 +36,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            //MyApp()
+            val navController = rememberNavController()
+
+            NavHost(navController, startDestination = "splash") {
+                composable("splash") { SplashScreen(navController) }
+                composable("home") { HomeScreen(navController) }
+            }
             //TangScreen()
             //PhongScreen()
-            AddThietBiScreen()
+            //AddThietBiScreen(navController)
             //PhongTheoDonViScreen()
         }
 

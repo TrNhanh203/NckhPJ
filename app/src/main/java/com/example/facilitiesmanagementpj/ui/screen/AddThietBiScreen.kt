@@ -10,12 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.entity.ThietBi
 import com.example.facilitiesmanagementpj.ui.viewmodel.*
 import java.util.*
 
 @Composable
 fun AddThietBiScreen(
+    navController: NavController,
     thietBiViewModel: ThietBiViewModel = viewModel(),
     dayViewModel: DayViewModel = viewModel(),
     tangViewModel: TangViewModel = viewModel(),
