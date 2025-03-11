@@ -25,4 +25,7 @@ interface TangDao {
         INNER JOIN day ON tang.dayId = day.id
     """)
     fun getTangWithDay(): Flow<List<TangWithDay>>
+
+    @Query("SELECT * FROM tang WHERE dayId = :dayId")
+    fun getTangByDayId(dayId: Int): Flow<List<Tang>>
 }

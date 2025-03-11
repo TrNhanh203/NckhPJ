@@ -22,4 +22,14 @@ class PhongRepository @Inject constructor(private val phongDao: PhongDao) {
         return phongDao.getAllList() // ✅ Trả về List<Phong>
     }
 
+    fun getPhongTheoDonVi(donViId: Int): Flow<List<Phong>> {
+        return phongDao.getPhongTheoDonVi(donViId)
+    }
+
+    fun getAllPhongWithLoaiPhong(): Flow<List<PhongWithLoaiPhong>> = phongDao.getPhongWithLoaiPhong()
+
+    fun getAllPhongWithDetails(): Flow<List<PhongWithDetails>> = phongDao.getPhongWithDetails()
+
+    fun getPhongByTangId(tangId: Int): Flow<List<Phong>> = phongDao.getPhongByTangId(tangId)
+
 }

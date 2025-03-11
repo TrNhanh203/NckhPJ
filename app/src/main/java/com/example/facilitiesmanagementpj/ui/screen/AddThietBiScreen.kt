@@ -3,121 +3,178 @@ package com.example.facilitiesmanagementpj.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.facilitiesmanagementpj.data.entity.ThietBi
 import com.example.facilitiesmanagementpj.ui.viewmodel.*
+import java.util.*
 
 @Composable
 fun AddThietBiScreen(
-    viewModel: ThietBiViewModel = hiltViewModel(),
-    dayViewModel: DayViewModel = hiltViewModel(),
-    tangViewModel: TangViewModel = hiltViewModel(),
-    phongViewModel: PhongViewModel = hiltViewModel(),
-    loaiThietBiViewModel: LoaiThietBiViewModel = hiltViewModel(),
-    donViViewModel: DonViViewModel = hiltViewModel()
+    thietBiViewModel: ThietBiViewModel = viewModel(),
+    dayViewModel: DayViewModel = viewModel(),
+    tangViewModel: TangViewModel = viewModel(),
+    phongViewModel: PhongViewModel = viewModel(),
+    loaiThietBiViewModel: LoaiThietBiViewModel = viewModel()
 ) {
+    // Trạng thái chọn lựa
     var tenThietBi by remember { mutableStateOf("") }
-    var moTa by remember { mutableStateOf("") } // New state for description
+    var moTa by remember { mutableStateOf("") }
+    var expandedDay by remember { mutableStateOf(false) }
+    var expandedTang by remember { mutableStateOf(false) }
+    var expandedPhong by remember { mutableStateOf(false) }
+
     var selectedDayId by remember { mutableStateOf<Int?>(null) }
     var selectedTangId by remember { mutableStateOf<Int?>(null) }
     var selectedPhongId by remember { mutableStateOf<Int?>(null) }
-    var selectedLoaiThietBiId by remember { mutableStateOf<Int?>(null) }
-    var selectedDonViId by remember { mutableStateOf<Int?>(null) }
-    var trangThai by remember { mutableStateOf("Bình thường") }
+    var selectiedLoaiThietBiId by remember { mutableStateOf<Int?>(null) }
 
     val danhSachDay by dayViewModel.allDay.collectAsState(initial = emptyList())
-    val danhSachTang by tangViewModel.allTang.collectAsState(initial = emptyList())
-    val danhSachPhong by phongViewModel.allPhong.collectAsState(initial = emptyList())
+    val danhSachTang by tangViewModel.getTangByDayId(selectedDayId).collectAsState(initial = emptyList())
+    val danhSachPhong by phongViewModel.getPhongByTangId(selectedTangId).collectAsState(initial = emptyList())
     val danhSachLoaiThietBi by loaiThietBiViewModel.allLoaiThietBi.collectAsState(initial = emptyList())
-    val danhSachDonVi by donViViewModel.allDonVi.collectAsState(initial = emptyList())
+
+    val danhSachThietBi by thietBiViewModel.allThietBi.collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        TextField(
+        Text("Thêm Thiết Bị Mới", style = MaterialTheme.typography.headlineMedium)
+
+        // Ô nhập tên thiết bị
+        OutlinedTextField(
             value = tenThietBi,
             onValueChange = { tenThietBi = it },
             label = { Text("Tên thiết bị") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        TextField(
-            value = moTa,
-            onValueChange = { moTa = it },
-            label = { Text("Mô tả") }, // New TextField for description
-            modifier = Modifier.fillMaxWidth()
+        // Chọn Loại Thiết Bị
+        DropdownMenuField(
+            label = "Chọn Loại Thiết Bị",
+            options = danhSachLoaiThietBi.map { it.id to it.tenLoai },
+            selectedOption = selectiedLoaiThietBiId,
+            onOptionSelected = { selectiedLoaiThietBiId = it;}
         )
 
-        DropdownMenuSelector("Chọn dãy", danhSachDay.map { it.tenDay }, onSelect = {
-            selectedDayId = danhSachDay[it].id
-            selectedTangId = null
-            selectedPhongId = null
-        })
+        // Chọn Dãy
+        DropdownMenuField(
+            label = "Chọn Dãy",
+            options = danhSachDay.map { it.id to it.tenDay },
+            selectedOption = selectedDayId,
+            onOptionSelected = { selectedDayId = it; selectedTangId = null; selectedPhongId = null }
+        )
 
-        DropdownMenuSelector("Chọn tầng", danhSachTang.filter { it.dayId == selectedDayId }.map { "Tầng ${it.tenTang}" }, onSelect = {
-            selectedTangId = danhSachTang[it].id
-            selectedPhongId = null
-        })
+        // Chọn Tầng (lọc theo Dãy)
+        DropdownMenuField(
+            label = "Chọn Tầng",
+            options = danhSachTang.map { it.id to it.tenTang },
+            selectedOption = selectedTangId,
+            onOptionSelected = { selectedTangId = it; selectedPhongId = null }
+        )
 
-        DropdownMenuSelector("Chọn phòng", danhSachPhong.filter { it.tangId == selectedTangId }.map { it.tenPhong }, onSelect = {
-            selectedPhongId = danhSachPhong[it].id
-        })
+        // Chọn Phòng (có thể để trống nếu thiết bị đặt ngoài hành lang)
+        DropdownMenuField(
+            label = "Chọn Phòng (Tùy chọn)",
+            options = danhSachPhong.map { it.id to it.tenPhong },
+            selectedOption = selectedPhongId,
+            onOptionSelected = { selectedPhongId = it }
+        )
 
-        DropdownMenuSelector("Chọn loại thiết bị", danhSachLoaiThietBi.map { it.tenLoai }, onSelect = {
-            selectedLoaiThietBiId = danhSachLoaiThietBi[it].id
-        })
+        // Ô nhập mô tả có giới hạn chiều cao
+        OutlinedTextField(
+            value = moTa,
+            onValueChange = { moTa = it },
+            label = { Text("Mô tả") },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp, max = 120.dp)
+        )
 
-        DropdownMenuSelector("Chọn đơn vị quản lý", danhSachDonVi.map { it.tenDonVi }, onSelect = {
-            selectedDonViId = danhSachDonVi[it].id
-        })
-
-        Button(onClick = {
-            viewModel.insert(
-                ThietBi(
-                    tenThietBi = tenThietBi,
-                    loaiThietBiId = selectedLoaiThietBiId!!,
-                    phongId = selectedPhongId,
-                    tangId = selectedTangId,
-                    trangThai = trangThai,
-                    ngayBaoDuongGanNhat = null,
-                    ngayBaoDuongTiepTheo = null,
-                    baoDuongDinhKy = null,
-                    loaiBaoDuong = null,
-                    ghiChuBaoDuong = null,
-                    moTa = moTa // Pass the description to the entity
-                )
-            )
-            tenThietBi = ""
-            moTa = "" // Reset description input
-        }, modifier = Modifier.fillMaxWidth()) {
+        // Nút thêm thiết bị
+        Button(
+            onClick = {
+                if (tenThietBi.isNotBlank() && selectedTangId != null) {
+                    val ngayCaiDat = System.currentTimeMillis()
+                    val newThietBi = ThietBi(
+                        tenThietBi = tenThietBi,
+                        loaiThietBiId = selectiedLoaiThietBiId ?: 1, // Mặc định là điều hòa
+                        phongId = selectedPhongId, // Nếu null, thiết bị sẽ được gắn ở tầng (hành lang)
+                        tangId = selectedTangId,
+                        trangThai = "binh_thuong",
+                        ngayDaCat = ngayCaiDat,
+                        ngayDungSuDung = null,
+                        ghiChu = null,
+                        ngayBaoDuongGanNhat = null,
+                        ngayBaoDuongTiepTheo = null,
+                        baoDuongDinhKy = null,
+                        loaiBaoDuong = null,
+                        ghiChuBaoDuong = null,
+                        moTa = moTa
+                    )
+                    thietBiViewModel.insert(newThietBi)
+                    tenThietBi = ""
+                    moTa = ""
+                    selectedDayId = null
+                    selectedTangId = null
+                    selectedPhongId = null
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Thêm Thiết Bị")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Hiển thị danh sách thiết bị
+        Text("Danh sách thiết bị:", style = MaterialTheme.typography.titleLarge)
+        LazyColumn {
+            items(danhSachThietBi) { thietBi ->
+                Text("${thietBi.tenThietBi} - ${thietBi.tangId ?: "Hành lang"} - ${thietBi.phongId ?: "Không có phòng"}")
+            }
         }
     }
 }
 
+// Component Dropdown chọn Dãy, Tầng, Phòng
 @Composable
-fun DropdownMenuSelector(label: String, items: List<String>, onSelect: (Int) -> Unit) {
+fun DropdownMenuField(
+    label: String,
+    options: List<Pair<Int, String>>,
+    selectedOption: Int?,
+    onOptionSelected: (Int) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(label) }
+    var selectedLabel by remember { mutableStateOf("") }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-        Button(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
-            Text(selectedText)
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            items.forEachIndexed { index, item ->
-                DropdownMenuItem(
-                    text = { Text(item) },
-                    onClick = {
-                        selectedText = item
-                        onSelect(index)
-                        expanded = false
-                    }
-                )
+    OutlinedTextField(
+        value = selectedLabel,
+        onValueChange = {},
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = true,
+        trailingIcon = {
+            IconButton(onClick = { expanded = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             }
+        }
+    )
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false }
+    ) {
+        options.forEach { (id, name) ->
+            DropdownMenuItem(
+                text = { Text(name) },
+                onClick = {
+                    selectedLabel = name
+                    onOptionSelected(id)
+                    expanded = false
+                }
+            )
         }
     }
 }

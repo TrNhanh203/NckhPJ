@@ -16,6 +16,7 @@ import androidx.room.Room
 import com.example.facilitiesmanagementpj.data.database.AppDatabase
 import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
+import com.example.facilitiesmanagementpj.ui.screen.PhongTheoDonViScreen
 import com.example.facilitiesmanagementpj.ui.screen.TangScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhongViewModel
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
             //TangScreen()
             //PhongScreen()
             AddThietBiScreen()
+            //PhongTheoDonViScreen()
         }
 
     }

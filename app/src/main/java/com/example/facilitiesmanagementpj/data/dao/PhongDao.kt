@@ -24,4 +24,30 @@ interface PhongDao {
     // ✅ Thêm phương thức cập nhật chỉ `donViId`
     @Query("UPDATE phong SET donViId = :donViId WHERE id = :phongId")
     suspend fun capNhatDonViId(phongId: Int, donViId: Int)
+
+    @Query("SELECT * FROM phong WHERE donViId = :donViId")
+    fun getPhongTheoDonVi(donViId: Int): Flow<List<Phong>>
+
+
+    @Query("""
+        SELECT phong.id AS phongId, phong.tenPhong, phong.tangId, phong.dayId, 
+               phong.loaiPhongId, phong.donViId, loai_phong.tenLoaiPhong
+        FROM phong
+        LEFT JOIN loai_phong ON phong.loaiPhongId = loai_phong.id
+    """)
+    fun getPhongWithLoaiPhong(): Flow<List<PhongWithLoaiPhong>>
+
+    @Query("""
+        SELECT phong.id AS phongId, phong.tenPhong, 
+               loai_phong.tenLoaiPhong, don_vi.tenDonVi
+        FROM phong
+        LEFT JOIN loai_phong ON phong.loaiPhongId = loai_phong.id
+        LEFT JOIN don_vi ON phong.donViId = don_vi.id
+    """)
+    fun getPhongWithDetails(): Flow<List<PhongWithDetails>>
+
+
+    @Query("SELECT * FROM phong WHERE tangId = :tangId")
+    fun getPhongByTangId(tangId: Int): Flow<List<Phong>>
+
 }

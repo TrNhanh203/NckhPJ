@@ -7,6 +7,11 @@ import com.example.facilitiesmanagementpj.data.entity.*
 import com.example.facilitiesmanagementpj.data.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PhongViewModel @Inject constructor(private val repository: PhongRepository) : ViewModel() {
     val allPhong: Flow<List<Phong>> = repository.getAllPhong()
-
+    val allPhongWithLoaiPhong: Flow<List<PhongWithLoaiPhong>> = repository.getAllPhongWithLoaiPhong()
+    val allPhongWithDetails: Flow<List<PhongWithDetails>> = repository.getAllPhongWithDetails()
     //val allPhongTheoDay: Flow<List<Phong>> = repository.getPhongTheoDay()
 
     fun insert(phong: Phong) = viewModelScope.launch {
@@ -28,6 +34,31 @@ class PhongViewModel @Inject constructor(private val repository: PhongRepository
     }
 
 
+
+    private val _donViIdChon = MutableStateFlow<Int?>(null)
+    val donViIdChon: StateFlow<Int?> = _donViIdChon
+
+    val danhSachPhong: Flow<List<Phong>> = _donViIdChon
+        .filterNotNull()
+        .flatMapLatest { donViId ->
+            repository.getPhongTheoDonVi(donViId)
+        }
+
+    fun setDonViId(donViId: Int) {
+        _donViIdChon.value = donViId
+    }
+
+    fun getPhongByTangId(tangId: Int?): Flow<List<Phong>> {
+        return if (tangId != null) {
+            repository.getPhongByTangId(tangId)
+        } else {
+            flowOf(emptyList()) // Trả về danh sách rỗng nếu chưa chọn tầng
+        }
+    }
+
+    fun capNhatDonViId(phongId: Int, donViId: Int) = viewModelScope.launch {
+        repository.capNhatDonViId(phongId, donViId)
+    }
 
 
     fun ganDonViChoTatCaPhong() {
@@ -56,15 +87,7 @@ class PhongViewModel @Inject constructor(private val repository: PhongRepository
                 31 to listOf(30),
             )
 
-//            allPhong.collect { listPhong ->
-//                listPhong.forEach { phong ->
-//                    val danhSachDonVi = mapping[phong.tenPhong]
-//                    val donViIdMoi = danhSachDonVi?.randomOrNull() // Chọn ngẫu nhiên đơn vị phù hợp
-//                    if (donViIdMoi != null) {
-//                        repository.capNhatDonViId(phong.id, donViIdMoi)
-//                    }
-//                }
-//            }
+
             listPhong.forEach { phong ->
                 val loaiPhongId = phong.loaiPhongId
                 if (loaiPhongId == null) {

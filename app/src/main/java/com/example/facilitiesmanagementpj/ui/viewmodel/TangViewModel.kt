@@ -6,6 +6,7 @@ import com.example.facilitiesmanagementpj.data.entity.*
 import com.example.facilitiesmanagementpj.data.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,4 +25,14 @@ class TangViewModel @Inject constructor(private val repository: TangRepository) 
     fun delete(tang: Tang) = viewModelScope.launch {
         repository.delete(tang)
     }
+
+    fun getTangByDayId(dayId: Int?): Flow<List<Tang>> {
+        return if (dayId != null) {
+            repository.getTangByDayId(dayId)
+        } else {
+            flowOf(emptyList()) // Trả về danh sách rỗng nếu chưa chọn dãy
+        }
+    }
+
+
 }
