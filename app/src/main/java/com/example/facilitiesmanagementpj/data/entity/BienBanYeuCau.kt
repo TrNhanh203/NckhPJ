@@ -5,17 +5,17 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "bien_ban_bao_loi",
+    tableName = "bien_ban_yeu_cau",
     foreignKeys = [
-        ForeignKey(entity = BaoCaoSuCo::class,
+        ForeignKey(entity = YeuCau::class,
             parentColumns = ["id"],
-            childColumns = ["baoCaoId"],
+            childColumns = ["yeuCauId"],
             onDelete = ForeignKey.CASCADE)
     ]
 )
-data class BienBanBaoLoi(
+data class BienBanYeuCau(
     @PrimaryKey(autoGenerate = true) val id: Int,
-    val baoCaoId: Int,  // ✅ Mỗi biên bản gắn với 1 báo cáo sự cố
+    val yeuCauId: Int,  // ✅ Mỗi biên bản gắn với 1 báo cáo sự cố
     val ngayLap: Long,   // ✅ Thời gian lập biên bản (timestamp)
     val noiDung: String, // ✅ Mô tả nội dung biên bản
     val fileDinhKem: String? // ✅ Lưu đường dẫn file đính kèm (PDF, ảnh)

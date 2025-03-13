@@ -39,14 +39,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            NavHost(navController, startDestination = "splash") {
-                composable("splash") { SplashScreen(navController) }
-                composable("home") { HomeScreen(navController) }
-            }
+//            NavHost(navController, startDestination = "splash") {
+//                composable("splash") { SplashScreen(navController) }
+//                composable("home") { HomeScreen(navController) }
+//            }
             //TangScreen()
-            //PhongScreen()
+            PhongScreen()
             //AddThietBiScreen(navController)
             //PhongTheoDonViScreen()
+            //MyApp()
         }
 
     }

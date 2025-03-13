@@ -5,13 +5,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(
     entities = [
@@ -26,17 +21,16 @@ import kotlinx.coroutines.launch
         ChuyenMon::class,
         KyThuatVien::class,
         PhanCong::class,
-        PhanCongThietBi::class,
         PhanCongKtv::class,
-        BaoCaoSuCo::class,
-        ChiTietBaoCao::class,
+        YeuCau::class,
+        ChiTietYeuCau::class,
         AnhMinhChungBaoCao::class,
         AnhMinhChungLamViec::class,
         ChuyenMonKtv::class,
         DonVi::class,
-        BienBanBaoLoi::class
+        BienBanYeuCau::class
     ],
-    version = 4,
+    version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -52,15 +46,14 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chuyenMonDao(): ChuyenMonDao
     abstract fun kyThuatVienDao(): KyThuatVienDao
     abstract fun phanCongDao(): PhanCongDao
-    abstract fun phanCongThietBiDao(): PhanCongThietBiDao
     abstract fun phanCongKTVDao(): PhanCongKtvDao
-    abstract fun baoCaoSuCoDao(): BaoCaoSuCoDao
-    abstract fun chiTietBaoCaoDao(): ChiTietBaoCaoDao
+    abstract fun yeuCauDao(): YeuCauDao
+    abstract fun chiTietYeuCauDao(): ChiTietYeuCauDao
     abstract fun anhMinhChungBaoCaoDao(): AnhMinhChungBaoCaoDao
     abstract fun anhMinhChungLamViecDao(): AnhMinhChungLamViecDao
     abstract fun chuyenMonKTVDao(): ChuyenMonKtvDao
     abstract fun donViDao(): DonViDao
-    abstract fun bienBanBaoLoiDao(): BienBanBaoLoiDao
+    abstract fun bienBanBaoLoiDao(): BienBanYeuCauDao
 
     companion object {
         @Volatile
