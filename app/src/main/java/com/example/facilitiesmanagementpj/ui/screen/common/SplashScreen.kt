@@ -1,8 +1,6 @@
-package com.example.facilitiesmanagementpj.ui.screen
+package com.example.facilitiesmanagementpj.ui.screen.common
 
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -15,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import com.example.facilitiesmanagementpj.R
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -24,7 +23,7 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2000) // Đợi 2 giây
         isLoading = false
-        navController.navigate("home")
+        navController.navigate(Screen.Home.route)
         {
             popUpTo("splash") { inclusive = true }
         }// Điều hướng đến màn hình chính

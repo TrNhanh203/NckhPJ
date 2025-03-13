@@ -13,38 +13,45 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.facilitiesmanagementpj.data.entity.Phong
 import com.example.facilitiesmanagementpj.ui.viewmodel.DayViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.DonViViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.LoaiPhongViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhongViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.TangViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun PhongScreen(
     viewModel: PhongViewModel = hiltViewModel(),
     dayViewModel: DayViewModel = hiltViewModel(),
     tangViewModel: TangViewModel = hiltViewModel(),
-    loaiPhongViewModel: LoaiPhongViewModel = hiltViewModel()
+    loaiPhongViewModel: LoaiPhongViewModel = hiltViewModel(),
+    donViViewModel: DonViViewModel = hiltViewModel()
 ) {
     var tenPhong by remember { mutableStateOf("") }
     var expandedDay by remember { mutableStateOf(false) }
     var expandedTang by remember { mutableStateOf(false) }
     var expandedLoaiPhong by remember { mutableStateOf(false) }
+    var expandedDonVi by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
     var selectedDayName by remember { mutableStateOf("Chọn dãy") }
     var selectedTangName by remember { mutableStateOf("Chọn tầng") }
     var selectedLoaiPhongName by remember { mutableStateOf("Chọn loại phòng") }
+    var selectedDonViName by remember { mutableStateOf("Chọn đơn vị") }
 
     var selectedDayId by remember { mutableStateOf<Int?>(null) }
     var selectedTangId by remember { mutableStateOf<Int?>(null) }
     var selectedLoaiPhongId by remember { mutableStateOf<Int?>(null) }
+    var selectedDonViId by remember { mutableStateOf<Int?>(null) }
 
     val danhSachDay by dayViewModel.allDay.collectAsState(initial = emptyList())
     val danhSachTang by tangViewModel.allTang.collectAsState(initial = emptyList())
     val danhSachLoaiPhong by loaiPhongViewModel.allLoaiPhong.collectAsState(initial = emptyList())
     val danhSachPhong by viewModel.allPhong.collectAsState(initial = emptyList())
-    //val danhSachPhongTheoDay by viewModel.allPhongTheoDay.collectAsState(initial = emptyList())
+    val danhSachDonVi by donViViewModel.allDonVi.collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
         // Dropdown chọn dãy
         Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.TopStart)) {
             Button(onClick = { expandedDay = true }, modifier = Modifier.fillMaxWidth()) {
@@ -100,8 +107,28 @@ fun PhongScreen(
             }
         }
 
+        // Dropdown chọn đơn vị quản lý
+        Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.TopStart)) {
+            Button(onClick = { expandedDonVi = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(selectedDonViName)
+            }
+            DropdownMenu(expanded = expandedDonVi, onDismissRequest = { expandedDonVi = false }) {
+                danhSachDonVi.forEach { donVi ->
+                    DropdownMenuItem(text = { Text(donVi.tenDonVi) }, onClick = {
+                        selectedDonViId = donVi.id
+                        selectedDonViName = donVi.tenDonVi
+                        expandedDonVi = false
+                    })
+                }
+            }
+        }
+
         // Nút xác nhận trước khi thêm phòng
-        Button(onClick = { showDialog = true }, modifier = Modifier.align(Alignment.CenterHorizontally), enabled = tenPhong.isNotBlank() && selectedTangId != null) {
+        Button(
+            onClick = { showDialog = true },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            enabled = tenPhong.isNotBlank() && selectedTangId != null
+        ) {
             Text("Thêm Phòng")
         }
 
@@ -114,7 +141,8 @@ fun PhongScreen(
                     }
                     items(phongList) { phong ->
                         val loaiPhongName = danhSachLoaiPhong.find { it.id == phong.loaiPhongId }?.tenLoaiPhong ?: "Không xác định"
-                        Text(text = "    - ${phong.tenPhong} ($loaiPhongName)", fontSize = 18.sp)
+                        val donViName = danhSachDonVi.find { it.id == phong.donViId }?.tenDonVi ?: "Không có đơn vị"
+                        Text(text = "    - ${phong.tenPhong} ($loaiPhongName) - $donViName", fontSize = 18.sp)
                     }
                 }
             }
@@ -127,7 +155,7 @@ fun PhongScreen(
             onDismissRequest = { showDialog = false },
             title = { Text("Xác nhận thêm phòng") },
             text = {
-                Text("Bạn có chắc muốn thêm phòng '$tenPhong' tại $selectedTangName, thuộc dãy $selectedDayName và loại phòng $selectedLoaiPhongName?")
+                Text("Bạn có chắc muốn thêm phòng '$tenPhong' tại $selectedTangName, thuộc dãy $selectedDayName, loại phòng $selectedLoaiPhongName và đơn vị $selectedDonViName?")
             },
             confirmButton = {
                 Button(onClick = {
@@ -136,7 +164,7 @@ fun PhongScreen(
                             tenPhong = tenPhong,
                             tangId = selectedTangId!!,
                             dayId = selectedDayId!!,
-                            donViId = null,
+                            donViId = selectedDonViId,
                             loaiPhongId = selectedLoaiPhongId
                         )
                     )
@@ -151,10 +179,7 @@ fun PhongScreen(
                     Text("Hủy")
                 }
             }
-
-
         )
     }
-
-
 }
+
