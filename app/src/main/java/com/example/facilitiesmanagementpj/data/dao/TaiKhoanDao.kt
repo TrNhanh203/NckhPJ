@@ -9,19 +9,29 @@ data class TaiKhoanWithRole(
     val tenTaiKhoan: String,
     val matKhau: String,
     val vaiTroId: Int,
-    val tenVaiTro: String // ✅ Lấy luôn tên vai trò từ bảng VaiTro
+    val tenVaiTro: String, // ✅ Lấy tên vai trò từ bảng VaiTro
+    val hoTen: String?,  // ✅ Họ và tên
+    val email: String?,  // ✅ Email
+    val soDienThoai: String?,  // ✅ Số điện thoại
+    val trangThai: String,  // ✅ Trạng thái
+    val lastLogin: Long?,  // ✅ Lần đăng nhập cuối cùng
+    val donViId: Int?  // ✅ Đơn vị trực thuộc (nếu có)
 )
+
 // 7. TaiKhoanDao
 @Dao
 interface TaiKhoanDao {
     @Transaction
     @Query("""
-        SELECT tai_khoan.*, vai_tro.tenVaiTro 
-        FROM tai_khoan 
-        INNER JOIN vai_tro ON tai_khoan.vaiTroId = vai_tro.id
-        ORDER BY tai_khoan.hoTen ASC
-    """)
+    SELECT tai_khoan.id, tai_khoan.tenTaiKhoan, tai_khoan.matKhau, tai_khoan.vaiTroId, 
+           vai_tro.tenVaiTro, tai_khoan.hoTen, tai_khoan.email, tai_khoan.soDienThoai, 
+           tai_khoan.trangThai, tai_khoan.lastLogin, tai_khoan.donViId
+    FROM tai_khoan 
+    INNER JOIN vai_tro ON tai_khoan.vaiTroId = vai_tro.id
+    ORDER BY tai_khoan.hoTen ASC
+""")
     fun getAllWithRole(): Flow<List<TaiKhoanWithRole>> // ✅ Lấy danh sách tài khoản có vai trò
+
 
     @Query("SELECT DISTINCT trangThai FROM tai_khoan")
     fun getAllTrangThai(): Flow<List<String>> // ✅ Lấy danh sách trạng thái duy nhất

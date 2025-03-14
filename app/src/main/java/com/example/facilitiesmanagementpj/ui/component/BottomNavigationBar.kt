@@ -18,6 +18,7 @@ import com.example.facilitiesmanagementpj.ui.navigation.Screen
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) } // ✅ Biến để hiển thị thông báo
+    val currentUser = SessionManager.currentUser // ✅ Lấy thông tin tài khoản đang đăng nhập
 
     NavigationBar(
         modifier = Modifier.height(56.dp),
@@ -25,6 +26,28 @@ fun BottomNavigationBar(navController: NavController) {
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
+
+        // Nút Dashboard (Điều hướng theo vai trò)
+        NavigationBarItem(
+            label = { Text("Dashboard", color = Color.White) },
+            selected = currentRoute in listOf(Screen.AdminDashboard.route, Screen.KtvDashboard.route, Screen.DonViDashboard.route),
+            onClick = {
+                if (currentUser == null) {
+                    showDialog = true // ✅ Hiển thị cảnh báo nếu chưa đăng nhập
+                } else {
+                    val dashboardRoute = when (currentUser.tenVaiTro) {
+                        "Admin" -> Screen.AdminDashboard.route
+                        "Kỹ thuật viên" -> Screen.KtvDashboard.route
+                        "Quản lý đơn vị" -> Screen.DonViDashboard.route
+                        else -> null
+                    }
+                    if (dashboardRoute != null) {
+                        navController.navigate(dashboardRoute)
+                    }
+                }
+            },
+            icon = { Icon(Icons.Default.DateRange, contentDescription = "Dashboard", tint = Color.White) }
+        )
 
         // Nút Trang chủ
         NavigationBarItem(
@@ -39,7 +62,7 @@ fun BottomNavigationBar(navController: NavController) {
             label = { Text("Hồ sơ", color = Color.White) },
             selected = currentRoute == Screen.Profile.route,
             onClick = {
-                if (SessionManager.currentUser == null) {
+                if (currentUser == null) {
                     showDialog = true // ✅ Hiển thị cảnh báo nếu chưa đăng nhập
                 } else {
                     navController.navigate(Screen.Profile.route) // ✅ Nếu đã đăng nhập, chuyển đến trang Profile

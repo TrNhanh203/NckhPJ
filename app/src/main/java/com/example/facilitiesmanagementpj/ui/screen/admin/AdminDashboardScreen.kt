@@ -10,14 +10,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 
 @Composable
 fun AdminDashboardScreen(navController: NavController) {
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text("Admin dashboard", style = MaterialTheme.typography.headlineMedium)
+    ScaffoldLayout(title = "Admin DashBoard", navController = navController, showBottomBar = true) { modifier ->
+        Column(
+            modifier = Modifier.fillMaxSize().then(modifier),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Admin dashboard", style = MaterialTheme.typography.headlineMedium)
+        }
     }
+
+
 }
