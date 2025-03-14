@@ -13,4 +13,12 @@ class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDa
     suspend fun insert(taiKhoan: TaiKhoan) = taiKhoanDao.insert(taiKhoan)
     suspend fun update(taiKhoan: TaiKhoan) = taiKhoanDao.update(taiKhoan)
     suspend fun delete(taiKhoan: TaiKhoan) = taiKhoanDao.delete(taiKhoan)
+
+    suspend fun getTaiKhoan(username: String, password: String): TaiKhoan? {
+        return taiKhoanDao.getTaiKhoan(username, password)
+    }
+
+    suspend fun validateLogin(username: String, password: String): TaiKhoanWithRole? {
+        return taiKhoanDao.getTaiKhoanWithRole(username, password)
+    }
 }

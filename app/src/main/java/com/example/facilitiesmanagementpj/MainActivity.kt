@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.facilitiesmanagementpj.ui.navigation.AppNavigation
+import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
 import com.example.facilitiesmanagementpj.ui.theme.FacilitiesManagementPJTheme
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
 //            }
             //TangScreen()
 //            PhongScreen()
-            //AddThietBiScreen(navController)
+            //AddThietBiScreen()
             //PhongTheoDonViScreen()
             //MyApp()
         }

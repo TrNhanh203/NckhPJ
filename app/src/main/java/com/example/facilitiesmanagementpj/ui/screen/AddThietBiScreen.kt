@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.entity.ThietBi
@@ -17,12 +18,11 @@ import java.util.*
 
 @Composable
 fun AddThietBiScreen(
-    navController: NavController,
-    thietBiViewModel: ThietBiViewModel = viewModel(),
-    dayViewModel: DayViewModel = viewModel(),
-    tangViewModel: TangViewModel = viewModel(),
-    phongViewModel: PhongViewModel = viewModel(),
-    loaiThietBiViewModel: LoaiThietBiViewModel = viewModel()
+    thietBiViewModel: ThietBiViewModel = hiltViewModel(),
+    dayViewModel: DayViewModel = hiltViewModel(),
+    tangViewModel: TangViewModel = hiltViewModel(),
+    phongViewModel: PhongViewModel = hiltViewModel(),
+    loaiThietBiViewModel: LoaiThietBiViewModel = hiltViewModel()
 ) {
     // Trạng thái chọn lựa
     var tenThietBi by remember { mutableStateOf("") }

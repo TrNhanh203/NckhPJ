@@ -7,10 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
-import com.example.facilitiesmanagementpj.ui.screen.common.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.profile.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
 
 
@@ -24,6 +25,7 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         composable(Screen.Home.route) { HomeScreen(navController) }
 
         composable(Screen.Login.route) { LoginScreen(navController) }
+        composable(Screen.Profile.route) { ProfileScreen(navController) }
 //        composable(Screen.ForgotPassword.route) { ForgotPasswordScreen(navController) }
 //        composable(Screen.ChangePassword.route) { ChangePasswordScreen(navController) }
 

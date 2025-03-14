@@ -33,6 +33,7 @@ sealed class Screen(val route: String) {
 //    object WorkHistory : Screen("work_history")
 
     // User Screens (Sinh viên, Giảng viên)
+    object Profile : Screen("profile")
 //    object UserSearch : Screen("user_search")
 //    object RoomInfo : Screen("room_info")
 }
