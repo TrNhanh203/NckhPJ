@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
@@ -22,8 +23,11 @@ class ProfileViewModel @Inject constructor(private val repository: TaiKhoanRepos
         if (currentUser != null) {
             viewModelScope.launch {
                 val user = repository.getTaiKhoan(currentUser.tenTaiKhoan, currentUser.matKhau)
+                Log.d("TK","Lấy thông tin tài khoản từ Room: $user")
                 _taiKhoan.value = user
             }
+        } else {
+            Log.d("TK","Không tìm thấy tài khoản trong SessionManager!")
         }
     }
 }

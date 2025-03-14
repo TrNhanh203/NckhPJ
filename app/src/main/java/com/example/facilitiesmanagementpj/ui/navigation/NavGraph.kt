@@ -9,9 +9,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
+import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
-import com.example.facilitiesmanagementpj.ui.screen.profile.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
 
 

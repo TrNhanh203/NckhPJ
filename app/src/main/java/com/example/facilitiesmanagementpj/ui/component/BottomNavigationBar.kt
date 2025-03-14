@@ -4,52 +4,70 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val items = listOf(
-        Screen.Home
-
-    )
+    var showDialog by remember { mutableStateOf(false) } // ✅ Biến để hiển thị thông báo
 
     NavigationBar(
         modifier = Modifier.height(56.dp),
-        containerColor = Color.Black // Màu nền đen
+        containerColor = Color.Black
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
-        items.forEach { screen ->
-            NavigationBarItem(
-                label = { Text(screen.route, color = Color.White) }, // Màu chữ trắng
-                selected = currentRoute == screen.route,
-                onClick = { navController.navigate(screen.route) },
-                icon = { Icon(Icons.Default.DateRange, contentDescription = screen.route, tint = Color.White) }
-            )
+        // Nút Trang chủ
+        NavigationBarItem(
+            label = { Text("Trang chủ", color = Color.White) },
+            selected = currentRoute == Screen.Home.route,
+            onClick = { navController.navigate(Screen.Home.route) },
+            icon = { Icon(Icons.Default.Home, contentDescription = "Trang chủ", tint = Color.White) }
+        )
 
-            NavigationBarItem(
-                label = { Text(screen.route, color = Color.White) }, // Màu chữ trắng
-                selected = currentRoute == screen.route,
-                onClick = { navController.navigate(screen.route) },
-                icon = { Icon(Icons.Default.Home, contentDescription = screen.route, tint = Color.White) }
-            )
+        // Nút Profile (Kiểm tra đăng nhập)
+        NavigationBarItem(
+            label = { Text("Hồ sơ", color = Color.White) },
+            selected = currentRoute == Screen.Profile.route,
+            onClick = {
+                if (SessionManager.currentUser == null) {
+                    showDialog = true // ✅ Hiển thị cảnh báo nếu chưa đăng nhập
+                } else {
+                    navController.navigate(Screen.Profile.route) // ✅ Nếu đã đăng nhập, chuyển đến trang Profile
+                }
+            },
+            icon = { Icon(Icons.Default.Person, contentDescription = "Hồ sơ", tint = Color.White) }
+        )
+    }
 
-            NavigationBarItem(
-                label = { Text(screen.route, color = Color.White) }, // Màu chữ trắng
-                selected = currentRoute == screen.route,
-                onClick = { navController.navigate(screen.route) },
-                icon = { Icon(Icons.Default.Person, contentDescription = screen.route, tint = Color.White) }
-            )
-        }
+    // ✅ Dialog cảnh báo nếu chưa đăng nhập
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Bạn chưa đăng nhập") },
+            text = { Text("Bạn có muốn chuyển đến trang đăng nhập không?") },
+            confirmButton = {
+                Button(onClick = {
+                    navController.navigate(Screen.Login.route)
+                    showDialog = false
+                }) {
+                    Text("Đến đăng nhập")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Hủy")
+                }
+            }
+        )
     }
 }

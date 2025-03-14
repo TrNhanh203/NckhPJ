@@ -19,6 +19,22 @@ interface TaiKhoanDao {
         SELECT tai_khoan.*, vai_tro.tenVaiTro 
         FROM tai_khoan 
         INNER JOIN vai_tro ON tai_khoan.vaiTroId = vai_tro.id
+        ORDER BY tai_khoan.hoTen ASC
+    """)
+    fun getAllWithRole(): Flow<List<TaiKhoanWithRole>> // ✅ Lấy danh sách tài khoản có vai trò
+
+    @Query("SELECT DISTINCT trangThai FROM tai_khoan")
+    fun getAllTrangThai(): Flow<List<String>> // ✅ Lấy danh sách trạng thái duy nhất
+
+    @Query("SELECT * FROM vai_tro")
+    fun getAllVaiTro(): Flow<List<VaiTro>> // ✅ Lấy danh sách vai trò
+
+
+    @Transaction
+    @Query("""
+        SELECT tai_khoan.*, vai_tro.tenVaiTro 
+        FROM tai_khoan 
+        INNER JOIN vai_tro ON tai_khoan.vaiTroId = vai_tro.id
         WHERE tai_khoan.tenTaiKhoan = :username AND tai_khoan.matKhau = :password
         LIMIT 1
     """)

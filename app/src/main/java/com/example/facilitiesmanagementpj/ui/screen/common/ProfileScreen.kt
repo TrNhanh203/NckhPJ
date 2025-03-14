@@ -1,5 +1,6 @@
-package com.example.facilitiesmanagementpj.ui.screen.profile
+package com.example.facilitiesmanagementpj.ui.screen.common
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,12 +17,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
     val taiKhoan by viewModel.taiKhoan.collectAsState()
 
     if (taiKhoan == null) {
-        // Nếu chưa đăng nhập, điều hướng về màn hình đăng nhập
-        LaunchedEffect(Unit) {
-            navController.navigate(Screen.Login.route) {
-                popUpTo(Screen.Profile.route) { inclusive = true }
-            }
-        }
+        Text("Đang tải dữ liệu...", modifier = Modifier.fillMaxSize()) // ✅ Hiển thị loading thay vì điều hướng về Login
         return
     }
 
@@ -42,9 +38,8 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Nút cập nhật thông tin cá nhân
         Button(
-            onClick = {  },
+            onClick = { },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Cập nhật thông tin")
@@ -52,7 +47,6 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Nút đổi mật khẩu
         Button(
             onClick = { navController.navigate(Screen.ChangePassword.route) },
             modifier = Modifier.fillMaxWidth(),

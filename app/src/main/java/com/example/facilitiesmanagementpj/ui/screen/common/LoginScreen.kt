@@ -68,11 +68,16 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
         loginResult?.let {
             if (!it.success && !it.errorMessage.isNullOrBlank()) { // ✅ Kiểm tra errorMessage không null
                 Text(text = it.errorMessage, color = Color.Red, modifier = Modifier.padding(bottom = 8.dp))
-            } else {
-
             }
         }
 
+        LaunchedEffect(loginResult?.success) {
+            if (loginResult?.success == true) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true } // ✅ Xóa màn hình Login khỏi backstack
+                }
+            }
+        }
 
         Button(
             onClick = { viewModel.login(username, password) },
