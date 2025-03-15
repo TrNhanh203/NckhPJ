@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.repository.TaiKhoanRepository
 import com.example.facilitiesmanagementpj.data.session.SessionManager
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 data class LoginResult(val success: Boolean, val errorMessage: String? = null, val role: String? = null)
 
@@ -23,23 +23,39 @@ class AuthViewModel @Inject constructor(private val repository: TaiKhoanReposito
         viewModelScope.launch {
             _loginResult.value = LoginResult(false, errorMessage = null, role = null)
 
-            val trimmedUsername = username.trim()
-            val trimmedPassword = password.trim()
-
-            if (trimmedUsername.isBlank() || trimmedPassword.isBlank()) {
-                _loginResult.value = LoginResult(false, "Tài khoản và mật khẩu không được để trống")
-                return@launch
-            }
-
-            val user = repository.validateLogin(trimmedUsername, trimmedPassword)
+            val user = repository.validateLogin(username.trim(), password.trim())
 
             if (user != null) {
-                SessionManager.login(user) // ✅ Lưu tài khoản vào session
-                _loginResult.value = LoginResult(true, role = user.tenVaiTro)
+                when (user.trangThai) {
+                    TrangThaiTaiKhoan.BI_KHOA -> {
+                        _loginResult.value = LoginResult(false, "Tài khoản của bạn đã bị khóa.")
+                    }
+                    TrangThaiTaiKhoan.CHO_XAC_THUC -> {
+                        _loginResult.value = LoginResult(false, "Tài khoản đang chờ xác thực. Vui lòng liên hệ quản trị viên.")
+                    }
+                    else -> {
+                        repository.updateTrangThai(user.id, TrangThaiTaiKhoan.TRUC_TUYEN) // ✅ Cập nhật trạng thái "TRỰC TUYẾN"
+                        user.trangThai = TrangThaiTaiKhoan.TRUC_TUYEN
+                        SessionManager.login(user)
+                        _loginResult.value = LoginResult(true, role = user.tenVaiTro)
+                    }
+                }
             } else {
-                _loginResult.value = LoginResult(false, "Tài khoản hoặc mật khẩu không đúng")
+                _loginResult.value = LoginResult(false, "Tài khoản hoặc mật khẩu không đúng.")
             }
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            SessionManager.logout { userId, status ->
+                launch { // ✅ Đảm bảo updateTrangThai được gọi từ coroutine
+                    repository.updateTrangThai(userId, status)
+                }
+            }
+        }
+    }
+
+
 }
 

@@ -4,6 +4,7 @@ package com.example.facilitiesmanagementpj.ui.navigation
 sealed class Screen(val route: String) {
     object SplashScreen : Screen("splash_screen")
     object Home : Screen("home")
+    object Register : Screen("register")
 
     // Auth Screens
     object Login : Screen("login")
@@ -12,7 +13,7 @@ sealed class Screen(val route: String) {
 
     // Admin Screens
     object AdminDashboard : Screen("admin_dashboard")
-//    object UserManagement : Screen("user_management")
+    object AdminAccount : Screen("admin_account")
 //    object PhongManagement : Screen("phong_management")
 //    object DeviceManagement : Screen("device_management")
 //    object ReportApproval : Screen("report_approval")

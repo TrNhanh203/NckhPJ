@@ -13,14 +13,23 @@ data class TaiKhoanWithRole(
     val hoTen: String?,  // ✅ Họ và tên
     val email: String?,  // ✅ Email
     val soDienThoai: String?,  // ✅ Số điện thoại
-    val trangThai: String,  // ✅ Trạng thái
-    val lastLogin: Long?,  // ✅ Lần đăng nhập cuối cùng
+    var trangThai: String,  // ✅ Trạng thái
+    var lastLogin: Long?,  // ✅ Lần đăng nhập cuối cùng
     val donViId: Int?  // ✅ Đơn vị trực thuộc (nếu có)
 )
 
 // 7. TaiKhoanDao
 @Dao
 interface TaiKhoanDao {
+    @Query("UPDATE tai_khoan SET trangThai = :trangThai WHERE id = :userId")
+    suspend fun updateTrangThai(userId: Int, trangThai: String) // ✅ Cập nhật trạng thái tài khoản
+
+    @Query("SELECT * FROM don_vi ORDER BY tenDonVi ASC")
+    fun getAllDonVi(): Flow<List<DonVi>> // ✅ Lấy danh sách đơn vị
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertTaiKhoan(taiKhoan: TaiKhoan)
+
     @Transaction
     @Query("""
     SELECT tai_khoan.id, tai_khoan.tenTaiKhoan, tai_khoan.matKhau, tai_khoan.vaiTroId, 

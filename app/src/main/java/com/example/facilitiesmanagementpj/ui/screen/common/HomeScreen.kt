@@ -17,7 +17,7 @@ import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    ScaffoldLayout(title = "Trang chủ", navController = navController, showBottomBar = true) { modifier ->
+    ScaffoldLayout(title = "Trang chủ", navController = navController) { modifier ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

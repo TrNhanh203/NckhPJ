@@ -6,10 +6,12 @@ import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.facilitiesmanagementpj.ui.screen.admin.AdminAccountScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
+import com.example.facilitiesmanagementpj.ui.screen.common.RegisterScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
@@ -23,6 +25,7 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         // Màn hình chung
         composable(Screen.SplashScreen.route) { SplashScreen(navController) }
         composable(Screen.Home.route) { HomeScreen(navController) }
+        composable(Screen.Register.route) { RegisterScreen(navController) }
 
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Profile.route) { ProfileScreen(navController) }
@@ -31,7 +34,7 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
 
         // Màn hình Admin
         composable(Screen.AdminDashboard.route) { AdminDashboardScreen(navController) }
-
+        composable(Screen.AdminAccount.route) { AdminAccountScreen(navController) }
 
         // Màn hình Quản lý đơn vị
         composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }

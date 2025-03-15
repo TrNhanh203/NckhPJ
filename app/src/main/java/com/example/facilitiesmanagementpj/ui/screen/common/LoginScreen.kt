@@ -26,7 +26,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val loginResult by viewModel.loginResult
+    val loginResult = viewModel.loginResult.value
 
     Column(
         modifier = Modifier
@@ -90,6 +90,12 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
 
         TextButton(onClick = { navController.navigate(Screen.ForgotPassword.route) }) {
             Text("Quên mật khẩu?")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextButton(onClick = { navController.navigate(Screen.Register.route) }) {
+            Text("Đăng ký")
         }
     }
 }
