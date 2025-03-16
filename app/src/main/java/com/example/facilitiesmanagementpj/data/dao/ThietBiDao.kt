@@ -23,6 +23,11 @@ data class ThietBiWithDetails(
 // 8. ThietBiDao
 @Dao
 interface ThietBiDao {
+    @Query("SELECT * FROM thiet_bi WHERE id = :id")
+    suspend fun getThietBiById(id: Int): ThietBi?
+
+
+
     @Query("""
     SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai,
            phong.tenPhong, day.tenDay, tang.tenTang

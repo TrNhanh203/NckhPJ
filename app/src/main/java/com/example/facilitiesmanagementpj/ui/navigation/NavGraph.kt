@@ -24,6 +24,7 @@ import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVPhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoDVScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThemYeuCauMoiScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThietBiDetailScreen
 
 
 @Composable
@@ -74,6 +75,17 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toInt() ?: 0
             QLDVThietBiTheoDVScreen(navController, isSelectMode = true, yeuCauId = yeuCauId)
         }
+
+
+        //QLDV chi tiet thiet bi - chi tiet yeu cau
+        composable(Screen.ThietBiDetail.route) { backStackEntry ->
+            val thietBiId = backStackEntry.arguments?.getString("thietBiId")?.toInt() ?: 0
+            val isEditMode = backStackEntry.arguments?.getString("isEditMode").toBoolean()
+            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+            ThietBiDetailScreen(navController, thietBiId, isEditMode, yeuCauId)
+        }
+
+
 
 
 

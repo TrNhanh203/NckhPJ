@@ -15,6 +15,7 @@ import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVThietBiViewModel
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
 @Composable
 fun QLDVThietBiTheoDVScreen(
@@ -81,9 +82,11 @@ fun QLDVThietBiTheoDVScreen(
                         .padding(8.dp)
                         .clickable {
                             if (isSelectMode && yeuCauId != null) {
-                                navController.navigate("edit_chi_tiet_bao_cao/$yeuCauId/${thietBi.id}")
+                                //navController.navigate("edit_chi_tiet_bao_cao/$yeuCauId/${thietBi.id}")
+                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
                             } else {
-                                navController.navigate("chi_tiet_thiet_bi/${thietBi.id}")
+                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id))
+
                             }
                         }
                 ) {
@@ -94,6 +97,7 @@ fun QLDVThietBiTheoDVScreen(
                         Text("Trạng thái: ${thietBi.trangThai}")
                     }
                 }
+
             }
         }
     }
