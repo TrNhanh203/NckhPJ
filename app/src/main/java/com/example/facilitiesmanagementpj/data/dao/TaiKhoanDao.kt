@@ -45,8 +45,6 @@ interface TaiKhoanDao {
     @Query("SELECT DISTINCT trangThai FROM tai_khoan")
     fun getAllTrangThai(): Flow<List<String>> // ✅ Lấy danh sách trạng thái duy nhất
 
-    @Query("SELECT * FROM vai_tro")
-    fun getAllVaiTro(): Flow<List<VaiTro>> // ✅ Lấy danh sách vai trò
 
 
     @Transaction

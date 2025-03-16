@@ -10,37 +10,71 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.dao.TaiKhoanWithRole
+import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminAccountViewModel
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.viewmodel.VaiTroViewModel
 
 @Composable
 fun AdminAccountScreen(navController: NavController, viewModel: AdminAccountViewModel = hiltViewModel()) {
-    val taiKhoanList by viewModel.taiKhoanList.collectAsState()
+    val filteredTaiKhoanList by viewModel.filteredTaiKhoanList.collectAsState()
+    val vaiTroList by viewModel.vaiTroList.collectAsState()
+    val trangThaiList by viewModel.trangThaiList.collectAsState()
 
     ScaffoldLayout(
         title = "Quản lý tài khoản",
         navController = navController,
-        showBottomBar = false // ❌ Không hiển thị BottomAppBar
+        showBottomBar = false
     ) { modifier ->
         Column(modifier = Modifier.fillMaxSize().then(modifier).padding(16.dp)) {
             Text("Quản lý tài khoản", style = MaterialTheme.typography.headlineMedium)
 
-            Button(onClick = {  }, modifier = Modifier.fillMaxWidth()) {
-                Text("Thêm tài khoản mới")
+            // Bộ lọc
+//            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+//                DropdownMenuFilter(
+//                    label = "Vai trò",
+//                    items = vaiTroList.map { it.tenVaiTro },
+//                    selected = viewModel.selectedVaiTro.collectAsState().value,
+//                    onSelectedChange = { viewModel.setVaiTroFilter(it) }
+//                )
+//
+//                DropdownMenuFilter(
+//                    label = "Trạng thái",
+//                    items = trangThaiList,
+//                    selected = viewModel.selectedTrangThai.collectAsState().value,
+//                    onSelectedChange = { viewModel.setTrangThaiFilter(it) }
+//                )
+//            }
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                DropdownMenuFilter(
+                    label = "Vai trò",
+                    items = vaiTroList.map { it.tenVaiTro },
+                    selected = viewModel.selectedVaiTro.collectAsState().value,
+                    onSelectedChange = { viewModel.setVaiTroFilter(it) }
+                )
+
+                DropdownMenuFilter(
+                    label = "Trạng thái",
+                    items = trangThaiList,
+                    selected = viewModel.selectedTrangThai.collectAsState().value,
+                    onSelectedChange = { viewModel.setTrangThaiFilter(it) }
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            //Spacer(modifier = Modifier.height(16.dp))
 
             // Danh sách tài khoản
             LazyColumn {
-                items(taiKhoanList) { taiKhoan ->
+                items(filteredTaiKhoanList) { taiKhoan ->
                     AccountItem(taiKhoan, navController)
                 }
             }
         }
     }
 }
+
 
 // Component hiển thị từng tài khoản
 @Composable

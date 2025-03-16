@@ -1,8 +1,11 @@
 package com.example.facilitiesmanagementpj.data.repository
 
+import android.util.Log
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +26,8 @@ class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDa
 
     fun getAllTrangThai(): Flow<List<String>> = taiKhoanDao.getAllTrangThai()
 
-    fun getAllVaiTro(): Flow<List<VaiTro>> = taiKhoanDao.getAllVaiTro()
+
+
 
 
     fun getAllTaiKhoan(): Flow<List<TaiKhoan>> = taiKhoanDao.getAll()
