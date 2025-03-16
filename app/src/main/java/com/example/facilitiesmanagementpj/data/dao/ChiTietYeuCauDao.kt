@@ -5,6 +5,12 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 15. ChiTietBaoCaoDao
 @Dao
 interface ChiTietYeuCauDao {
+    @Insert
+    suspend fun insertChiTietYeuCau(chiTietYeuCau: ChiTietYeuCau)
+
+    @Query("SELECT * FROM chi_tiet_yeu_cau WHERE yeuCauId = :yeuCauId")
+    fun getChiTietYeuCauByYeuCau(yeuCauId: Int): Flow<List<ChiTietYeuCau>>
+
     @Query("SELECT * FROM chi_tiet_yeu_cau")
     fun getAll(): Flow<List<ChiTietYeuCau>>
 

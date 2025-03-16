@@ -18,10 +18,12 @@ import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.RegisterScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DanhSachYeuCauScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVPhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoDVScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThemYeuCauMoiScreen
 
 
 @Composable
@@ -61,6 +63,13 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             QLDVThietBiScreen(navController, phongId)
         }
         composable(Screen.QLDVThietBiTheoDV.route) { QLDVThietBiTheoDVScreen(navController) }
+        //composable(Screen.ThemYeuCauMoi.route) { ThemYeuCauMoiScreen(navController) }
+        composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
+        composable("them_yeu_cau_moi/{yeuCauId}?", arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })) { backStackEntry ->
+            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+            ThemYeuCauMoiScreen(navController, yeuCauId)
+        }
+
 
 
         // Màn hình Kỹ thuật viên

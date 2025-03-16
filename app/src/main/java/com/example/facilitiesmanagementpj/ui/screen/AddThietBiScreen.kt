@@ -109,8 +109,8 @@ fun AddThietBiScreen(
                         ngayDungSuDung = null,
                         ghiChu = null,
                         ngayBaoDuongGanNhat = null,
-                        ngayBaoDuongTiepTheo = null,
-                        baoDuongDinhKy = null,
+                        ngayBaoDuongTiepTheo = System.currentTimeMillis() + 180 * 86400000L,
+                        baoDuongDinhKy = 180,
                         loaiBaoDuong = null,
                         ghiChuBaoDuong = null,
                         moTa = moTa

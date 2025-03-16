@@ -48,14 +48,14 @@ fun DonViDashboardScreen(navController: NavController) {
                 title = "Danh sách báo cáo",
                 icon = Icons.Default.Settings,
                 color = Color.Green,
-                onClick = {  }
+                onClick = { navController.navigate(Screen.QLDVDanhSachYeuCau.route) }
             )
 
             DashboardOption(
                 title = "Tạo Yêu Cầu Mới",
                 icon = Icons.Default.Settings,
-                color = Color.Yellow,
-                onClick = {  }
+                color = Color.DarkGray,
+                onClick = { navController.navigate(Screen.ThemYeuCauMoi.createRoute(null)) }
             )
 
             DashboardOption(

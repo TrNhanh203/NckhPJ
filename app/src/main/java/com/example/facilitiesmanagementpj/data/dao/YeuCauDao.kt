@@ -5,6 +5,17 @@ import com.example.facilitiesmanagementpj.data.entity.*
 
 @Dao
 interface YeuCauDao {
+
+
+    @Query("SELECT * FROM yeu_cau WHERE donViId = :donViId")
+    fun getYeuCauByDonVi(donViId: Int): Flow<List<YeuCau>>
+
+    @Insert
+    suspend fun insertYeuCau(yeuCau: YeuCau): Long // tra ve id yeu cau moi vua them
+
+    @Query("SELECT * FROM yeu_cau WHERE id = :id")
+    suspend fun getYeuCauById(id: Int): YeuCau?
+
     @Query("SELECT * FROM yeu_cau")
     fun getAll(): Flow<List<YeuCau>>
 

@@ -31,6 +31,12 @@ sealed class Screen(val route: String) {
         fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
     }
     object QLDVThietBiTheoDV : Screen("quanlydonvi_thietbi_theodv")
+    object ThemYeuCauMoi : Screen("them_yeu_cau_moi/{yeuCauId}") {
+        fun createRoute(yeuCauId: Int?) = if (yeuCauId != null) "them_yeu_cau_moi/$yeuCauId" else "them_yeu_cau_moi/"
+    }
+
+
+    object QLDVDanhSachYeuCau : Screen("danh_sach_yeu_cau")
 //    object PhongList : Screen("phong_list")
 //    object DeviceList : Screen("device_list")
 //    object Request : Screen("request")
