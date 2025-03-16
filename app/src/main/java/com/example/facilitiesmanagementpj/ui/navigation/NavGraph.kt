@@ -63,12 +63,18 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             QLDVThietBiScreen(navController, phongId)
         }
         composable(Screen.QLDVThietBiTheoDV.route) { QLDVThietBiTheoDVScreen(navController) }
-        //composable(Screen.ThemYeuCauMoi.route) { ThemYeuCauMoiScreen(navController) }
+
         composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
         composable("them_yeu_cau_moi/{yeuCauId}?", arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })) { backStackEntry ->
             val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
             ThemYeuCauMoiScreen(navController, yeuCauId)
         }
+
+        composable("chon_thiet_bi/{yeuCauId}") { backStackEntry ->  //vao chung mh ds thiet bị theo dv nhung de chọn thiet bi cho yêu cầu
+            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toInt() ?: 0
+            QLDVThietBiTheoDVScreen(navController, isSelectMode = true, yeuCauId = yeuCauId)
+        }
+
 
 
 
