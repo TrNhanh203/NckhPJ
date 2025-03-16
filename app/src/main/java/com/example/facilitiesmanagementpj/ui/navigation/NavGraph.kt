@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.facilitiesmanagementpj.ui.screen.DebugLoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminAccountScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
@@ -18,6 +19,8 @@ import com.example.facilitiesmanagementpj.ui.screen.common.RegisterScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVPhongScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiScreen
 
 
 @Composable
@@ -31,6 +34,8 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         composable(Screen.Register.route) { RegisterScreen(navController) }
 
         composable(Screen.Login.route) { LoginScreen(navController) }
+        composable(Screen.DebugLogin.route) { DebugLoginScreen(navController) }
+
         composable(Screen.Profile.route) { ProfileScreen(navController) }
 //        composable(Screen.ForgotPassword.route) { ForgotPasswordScreen(navController) }
 //        composable(Screen.ChangePassword.route) { ChangePasswordScreen(navController) }
@@ -49,6 +54,11 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
 
         // Màn hình Quản lý đơn vị
         composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
+        composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
+        composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
+            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
+            QLDVThietBiScreen(navController, phongId)
+        }
 
 
         // Màn hình Kỹ thuật viên

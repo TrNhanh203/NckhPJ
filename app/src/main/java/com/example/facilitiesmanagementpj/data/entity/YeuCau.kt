@@ -10,5 +10,6 @@ data class YeuCau(
     val ngayYeuCau: Long = System.currentTimeMillis(),
     val taiKhoanId: Int,
     val trangThai: String = "cho_xu_ly",
-    val donViId: Int
+    val donViId: Int,
+    val moTa: String = "" // ✅ Thêm cột mô tả
 )

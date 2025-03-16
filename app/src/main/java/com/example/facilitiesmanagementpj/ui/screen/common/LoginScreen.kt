@@ -41,6 +41,11 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
             modifier = Modifier.size(120.dp)
         )
 
+        Button(onClick = { navController.navigate(Screen.DebugLogin.route) }) {
+            Text("Mở Debug Login")
+        }
+
+
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(

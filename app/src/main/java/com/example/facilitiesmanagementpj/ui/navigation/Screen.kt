@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object ForgotPassword : Screen("forgot_password")
     object ChangePassword : Screen("change_password")
+    object DebugLogin : Screen("debug_login")
 
     // Admin Screens
     object AdminDashboard : Screen("admin_dashboard")
@@ -25,6 +26,10 @@ sealed class Screen(val route: String) {
 
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")
+    object QLDVPhong : Screen("quanlydonvi_phong")
+    object QLDVThietBi : Screen("quanlydonvi_thietbi/{phongId}"){
+        fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
+    }
 //    object PhongList : Screen("phong_list")
 //    object DeviceList : Screen("device_list")
 //    object Request : Screen("request")

@@ -9,6 +9,12 @@ import javax.inject.Singleton
 // 5. PhongRepository
 @Singleton
 class PhongRepository @Inject constructor(private val phongDao: PhongDao) {
+
+    fun getPhongByDonVi(donViId: Int): Flow<List<PhongWithDetails>> {
+        return phongDao.getPhongByDonVi(donViId)
+    }
+
+
     fun getAllPhong(): Flow<List<Phong>> = phongDao.getAll()
 
     //fun getPhongTheoDay(): Flow<List<Phong>> = phongDao.getPhongTheoDay()
@@ -28,7 +34,7 @@ class PhongRepository @Inject constructor(private val phongDao: PhongDao) {
 
     fun getAllPhongWithLoaiPhong(): Flow<List<PhongWithLoaiPhong>> = phongDao.getPhongWithLoaiPhong()
 
-    fun getAllPhongWithDetails(): Flow<List<PhongWithDetails>> = phongDao.getPhongWithDetails()
+
 
     fun getPhongByTangId(tangId: Int): Flow<List<Phong>> = phongDao.getPhongByTangId(tangId)
 

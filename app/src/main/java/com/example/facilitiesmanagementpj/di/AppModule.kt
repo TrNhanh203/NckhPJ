@@ -27,11 +27,17 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).build()
+        ).addMigrations(MIGRATION_1_2)
+            .build()
         //return AppDatabase.getDatabase(context)
     }
 
 
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("ALTER TABLE yeu_cau ADD COLUMN moTa TEXT NOT NULL DEFAULT ''")
+        }
+    }
 
 
 

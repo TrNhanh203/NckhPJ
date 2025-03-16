@@ -37,8 +37,8 @@ fun BottomNavigationBar(navController: NavController) {
                 } else {
                     val dashboardRoute = when (currentUser.tenVaiTro) {
                         "Admin" -> Screen.AdminDashboard.route
-                        "Kỹ thuật viên" -> Screen.KtvDashboard.route
-                        "Quản lý đơn vị" -> Screen.DonViDashboard.route
+                        "Kỹ Thuật Viên" -> Screen.KtvDashboard.route
+                        "Quản Lý Đơn Vị" -> Screen.DonViDashboard.route
                         else -> null
                     }
                     if (dashboardRoute != null) {

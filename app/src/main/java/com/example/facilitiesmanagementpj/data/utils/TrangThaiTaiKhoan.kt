@@ -6,6 +6,8 @@ object TrangThaiTaiKhoan {
     const val BI_KHOA = "bi_khoa"
     const val CHO_XAC_THUC = "cho_xac_thuc"
 
+    //tu choi xac thuc thi phai co ly do chu
+
     val ALL = listOf(NGOAI_TUYEN, TRUC_TUYEN, BI_KHOA, CHO_XAC_THUC)
 
     fun isValid(trangThai: String): Boolean {
