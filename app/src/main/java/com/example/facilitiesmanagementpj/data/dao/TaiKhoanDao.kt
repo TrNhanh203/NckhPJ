@@ -18,9 +18,33 @@ data class TaiKhoanWithRole(
     val donViId: Int?  // ✅ Đơn vị trực thuộc (nếu có)
 )
 
+data class TaiKhoanChiTiet(
+    val id: Int,
+    val tenTaiKhoan: String,
+    val hoTen: String?,
+    val email: String?,
+    val soDienThoai: String?,
+    val trangThai: String,
+    val tenVaiTro: String,
+    val tenDonVi: String? // Chỉ có nếu là Quản lý đơn vị
+)
+
+
 // 7. TaiKhoanDao
 @Dao
 interface TaiKhoanDao {
+
+    @Transaction
+    @Query("""
+    SELECT tai_khoan.*, vai_tro.tenVaiTro, don_vi.tenDonVi 
+    FROM tai_khoan
+    INNER JOIN vai_tro ON tai_khoan.vaiTroId = vai_tro.id
+    LEFT JOIN don_vi ON tai_khoan.donViId = don_vi.id
+    WHERE tai_khoan.id = :taiKhoanId
+    """)
+    suspend fun getTaiKhoanChiTiet(taiKhoanId: Int): TaiKhoanChiTiet?
+
+
     @Query("UPDATE tai_khoan SET trangThai = :trangThai WHERE id = :userId")
     suspend fun updateTrangThai(userId: Int, trangThai: String) // ✅ Cập nhật trạng thái tài khoản
 

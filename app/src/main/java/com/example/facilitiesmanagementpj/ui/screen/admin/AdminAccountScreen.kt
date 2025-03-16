@@ -87,7 +87,7 @@ fun AccountItem(taiKhoan: TaiKhoanWithRole, navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(onClick = { }) { // Chưa xử lý điều hướng
+            Button(onClick = { navController.navigate(Screen.AdminViewDetailProfile.createRoute(taiKhoan.id))}) { // Chưa xử lý điều hướng
                 Text("Xem chi tiết")
             }
         }

@@ -12,6 +12,11 @@ import javax.inject.Singleton
 // 7. TaiKhoanRepository
 @Singleton
 class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDao) {
+
+    suspend fun getTaiKhoanChiTiet(userId: Int): TaiKhoanChiTiet? {
+        return taiKhoanDao.getTaiKhoanChiTiet(userId)
+    }
+
     suspend fun updateTrangThai(userId: Int, trangThai: String) {
         taiKhoanDao.updateTrangThai(userId, trangThai) // ✅ Gọi hàm cập nhật trạng thái từ DAO
     }

@@ -14,6 +14,9 @@ sealed class Screen(val route: String) {
     // Admin Screens
     object AdminDashboard : Screen("admin_dashboard")
     object AdminAccount : Screen("admin_account")
+    object AdminViewDetailProfile : Screen("admin_view_detail_profile/{taiKhoanId}"){
+        fun createRoute(taiKhoanId: Int) = "admin_view_detail_profile/$taiKhoanId"
+    }
 //    object PhongManagement : Screen("phong_management")
 //    object DeviceManagement : Screen("device_management")
 //    object ReportApproval : Screen("report_approval")
