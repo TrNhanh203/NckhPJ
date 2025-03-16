@@ -30,6 +30,7 @@ sealed class Screen(val route: String) {
     object QLDVThietBi : Screen("quanlydonvi_thietbi/{phongId}"){
         fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
     }
+    object QLDVThietBiTheoDV : Screen("quanlydonvi_thietbi_theodv")
 //    object PhongList : Screen("phong_list")
 //    object DeviceList : Screen("device_list")
 //    object Request : Screen("request")

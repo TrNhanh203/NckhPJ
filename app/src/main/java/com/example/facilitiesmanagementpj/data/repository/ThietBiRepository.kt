@@ -10,6 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class ThietBiRepository @Inject constructor(private val thietBiDao: ThietBiDao) {
 
+    fun getThietBiByDonVi(donViId: Int): Flow<List<ThietBiWithDetails>> {
+        return thietBiDao.getThietBiByDonVi(donViId)
+    }
+
     fun getThietBiByPhong(phongId: Int): Flow<List<ThietBiWithLoai>> {
         return thietBiDao.getThietBiByPhong(phongId)
     }

@@ -9,10 +9,32 @@ data class ThietBiWithLoai(
     val trangThai: String,
     val tenLoai: String
 )
+data class ThietBiWithDetails(
+    val id: Int,
+    val tenThietBi: String,
+    val trangThai: String,
+    val tenLoai: String,
+    val tenPhong: String,
+    val tenDay: String,
+    val tenTang: String
+)
+
 
 // 8. ThietBiDao
 @Dao
 interface ThietBiDao {
+    @Query("""
+    SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai,
+           phong.tenPhong, day.tenDay, tang.tenTang
+    FROM thiet_bi
+    INNER JOIN loai_thiet_bi ON thiet_bi.loaiThietBiId = loai_thiet_bi.id
+    INNER JOIN phong ON thiet_bi.phongId = phong.id
+    INNER JOIN day ON phong.dayId = day.id
+    INNER JOIN tang ON phong.tangId = tang.id
+    WHERE phong.donViId = :donViId""")
+    fun getThietBiByDonVi(donViId: Int): Flow<List<ThietBiWithDetails>>
+
+
     @Query("""
     SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai
     FROM thiet_bi

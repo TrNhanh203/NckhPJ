@@ -51,6 +51,20 @@ fun DonViDashboardScreen(navController: NavController) {
                 onClick = {  }
             )
 
+            DashboardOption(
+                title = "Tạo Yêu Cầu Mới",
+                icon = Icons.Default.Settings,
+                color = Color.Yellow,
+                onClick = {  }
+            )
+
+            DashboardOption(
+                title = "Ds thiết bị của dvi",
+                icon = Icons.Default.Settings,
+                color = Color.Magenta,
+                onClick = { navController.navigate(Screen.QLDVThietBiTheoDV.route) }
+            )
+
 
         }
 
