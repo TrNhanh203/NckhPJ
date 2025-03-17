@@ -15,7 +15,7 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVThietBiViewModel
 
 
 @Composable
-fun QLDVThietBiScreen(navController: NavController, phongId: Int, viewModel: QLDVThietBiViewModel = hiltViewModel()) {
+fun QLDVThietBiTheoPhongScreen(navController: NavController, phongId: Int, viewModel: QLDVThietBiViewModel = hiltViewModel()) {
     val thietBiList by viewModel.thietBiList.collectAsState()
 
     LaunchedEffect(Unit) {

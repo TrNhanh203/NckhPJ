@@ -100,4 +100,8 @@ dependencies {
     //navigation
     implementation(libs.androidx.navigation.compose)
 
+    //bộ lọc ngang
+    implementation (libs.accompanist.flowlayout)
+    
+
 }

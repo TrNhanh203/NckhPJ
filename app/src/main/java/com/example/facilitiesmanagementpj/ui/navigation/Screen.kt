@@ -21,7 +21,7 @@ sealed class Screen(val route: String) {
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")
     object QLDVPhong : Screen("quanlydonvi_phong")
-    object QLDVThietBi : Screen("quanlydonvi_thietbi/{phongId}") {
+    object QLDVThietBiTheoPhong : Screen("quanlydonvi_thietbi/{phongId}") {
         fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
     }
     object QLDVThietBiTheoDV : Screen("quanlydonvi_thietbi_theodv")

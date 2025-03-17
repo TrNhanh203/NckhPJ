@@ -17,6 +17,13 @@ import javax.inject.Inject
 class QLDVCreateYeuCauViewModel @Inject constructor(
     private val repository: YeuCauRepository
 ) : ViewModel() {
+    fun removeChiTietYeuCau(chiTietId: Int) {
+        viewModelScope.launch {
+            repository.removeChiTietYeuCau(chiTietId)
+            _chiTietYeuCauList.value = _chiTietYeuCauList.value.filter { it.id != chiTietId }
+        }
+    }
+
 
     private val _yeuCauId = MutableStateFlow<Int?>(null)
     val yeuCauId: StateFlow<Int?> = _yeuCauId

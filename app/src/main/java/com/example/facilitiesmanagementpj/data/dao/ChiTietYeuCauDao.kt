@@ -5,6 +5,9 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 15. ChiTietBaoCaoDao
 @Dao
 interface ChiTietYeuCauDao {
+    @Query("DELETE FROM chi_tiet_yeu_cau WHERE id = :chiTietId")
+    suspend fun deleteChiTietYeuCau(chiTietId: Int)
+
     @Insert
     suspend fun insertChiTietYeuCau(chiTietYeuCau: ChiTietYeuCau)
 

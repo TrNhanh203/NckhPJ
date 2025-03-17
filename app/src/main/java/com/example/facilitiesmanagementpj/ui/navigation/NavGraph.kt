@@ -21,7 +21,7 @@ import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScre
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DanhSachYeuCauScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVPhongScreen
-import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiScreen
+import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoPhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoDVScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThemYeuCauMoiScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThietBiDetailScreen
@@ -61,7 +61,7 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
         composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
             val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
-            QLDVThietBiScreen(navController, phongId)
+            QLDVThietBiTheoPhongScreen(navController, phongId)
         }
         composable(Screen.QLDVThietBiTheoDV.route) { QLDVThietBiTheoDVScreen(navController) }
 

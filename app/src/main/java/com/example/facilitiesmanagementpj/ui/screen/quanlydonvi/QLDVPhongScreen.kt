@@ -33,7 +33,7 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .clickable { navController.navigate(Screen.QLDVThietBi.createRoute(phongId = phong.id)) }
+                        .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id)) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Tên phòng: ${phong.tenPhong}")

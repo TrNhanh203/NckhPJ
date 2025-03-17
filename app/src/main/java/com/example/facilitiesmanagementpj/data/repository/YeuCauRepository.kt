@@ -11,6 +11,11 @@ class YeuCauRepository @Inject constructor(
     private val yeuCauDao: YeuCauDao,
     private val chiTietYeuCauDao: ChiTietYeuCauDao
 ) {
+    suspend fun removeChiTietYeuCau(chiTietId: Int) {
+        chiTietYeuCauDao.deleteChiTietYeuCau(chiTietId)
+    }
+
+
     suspend fun getYeuCauById(yeuCauId: Int): YeuCau? {
         return yeuCauDao.getYeuCauById(yeuCauId)
     }

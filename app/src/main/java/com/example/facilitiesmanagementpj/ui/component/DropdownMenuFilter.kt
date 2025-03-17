@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-
 @Composable
 fun DropdownMenuFilter(
     label: String,
@@ -20,7 +19,7 @@ fun DropdownMenuFilter(
 
     Column(modifier = Modifier.padding(8.dp)) {
         Text(text = label, style = MaterialTheme.typography.bodySmall)
-        Button(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { expanded = true }, modifier = Modifier.wrapContentWidth()) {
             Text(selectedText)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -53,7 +52,7 @@ fun DropdownMenuFilter(
 //    onSelectedChange: (String?) -> Unit
 //) {
 //    var expanded by remember { mutableStateOf(false) }
-//    val selectedText = selected ?: "Chọn..." // ✅ Nếu selected null, hiển thị "Chọn..."
+//    val selectedText = selected ?: "Tất cả"
 //
 //    Column(modifier = Modifier.padding(8.dp)) {
 //        Text(text = label, style = MaterialTheme.typography.bodySmall)
@@ -62,9 +61,9 @@ fun DropdownMenuFilter(
 //        }
 //        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
 //            DropdownMenuItem(
-//                text = { Text("Chọn...") },
+//                text = { Text("Tất cả") },
 //                onClick = {
-//                    onSelectedChange(null) // ✅ Chọn giá trị null
+//                    onSelectedChange(null)
 //                    expanded = false
 //                }
 //            )
@@ -80,4 +79,7 @@ fun DropdownMenuFilter(
 //        }
 //    }
 //}
+
+
+
 

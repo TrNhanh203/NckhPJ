@@ -1,6 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -16,6 +19,9 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVThietBiViewModel
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
+import com.google.accompanist.flowlayout.FlowRow
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun QLDVThietBiTheoDVScreen(
@@ -37,7 +43,12 @@ fun QLDVThietBiTheoDVScreen(
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             DropdownMenuFilter(
                 label = "Dãy",
                 items = thietBiList.map { it.tenDay }.distinct(),
@@ -66,12 +77,18 @@ fun QLDVThietBiTheoDVScreen(
                 onSelectedChange = { viewModel.setTrangThaiFilter(it) }
             )
 
-            DropdownMenuFilter( // ✅ Thêm bộ lọc Loại Thiết Bị
+            DropdownMenuFilter(
                 label = "Loại Thiết Bị",
                 items = thietBiList.map { it.tenLoai }.distinct(),
                 selected = viewModel.selectedLoaiThietBi.collectAsState().value,
                 onSelectedChange = { viewModel.setLoaiThietBiFilter(it) }
             )
+
+            Button(onClick = {
+                viewModel.resetFilters()
+            }) {
+                Text("Reset")
+            }
         }
 
         LazyColumn {
@@ -82,11 +99,9 @@ fun QLDVThietBiTheoDVScreen(
                         .padding(8.dp)
                         .clickable {
                             if (isSelectMode && yeuCauId != null) {
-                                //navController.navigate("edit_chi_tiet_bao_cao/$yeuCauId/${thietBi.id}")
                                 navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
                             } else {
                                 navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id))
-
                             }
                         }
                 ) {
@@ -97,19 +112,17 @@ fun QLDVThietBiTheoDVScreen(
                         Text("Trạng thái: ${thietBi.trangThai}")
                     }
                 }
-
             }
         }
     }
 }
 
 
-
 //@Composable
 //fun QLDVThietBiTheoDVScreen(
 //    navController: NavController,
-//    isSelectMode: Boolean = false, // ✅ Thêm chế độ chọn thiết bị
-//    yeuCauId: Int? = null, // ✅ Nếu chọn thiết bị, cần biết yêu cầu nào
+//    isSelectMode: Boolean = false,
+//    yeuCauId: Int? = null,
 //    viewModel: QLDVThietBiViewModel = hiltViewModel()
 //) {
 //    val thietBiList by viewModel.filteredThietBiList.collectAsState()
@@ -147,31 +160,18 @@ fun QLDVThietBiTheoDVScreen(
 //                onSelectedChange = { viewModel.setPhongFilter(it) }
 //            )
 //
-//
-//
 //            DropdownMenuFilter(
 //                label = "Trạng thái",
-//                items = listOf(TrangThaiThietBi.MOI_TIEP_NHAN,
-//                    TrangThaiThietBi.SAN_SANG_SU_DUNG,
-//                    TrangThaiThietBi.DANG_SU_DUNG,
-//                    TrangThaiThietBi.DANG_BAO_TRI,
-//                    TrangThaiThietBi.CHO_BAO_TRI,
-//                    TrangThaiThietBi.DANG_BAO_DUONG,
-//                    TrangThaiThietBi.CHO_BAO_DUONG,
-//                    TrangThaiThietBi.CHO_SUA_CHUA,
-//                    TrangThaiThietBi.DANG_SUA_CHUA,
-//                    TrangThaiThietBi.HONG,
-//                    TrangThaiThietBi.KHONG_KHA_DUNG,
-//                    TrangThaiThietBi.DA_NGUNG_SU_DUNG,
-//                    TrangThaiThietBi.THANH_LY,
-//                    TrangThaiThietBi.CHO_KIEM_DINH,
-//                    TrangThaiThietBi.DANG_KIEM_DINH,
-//                    TrangThaiThietBi.DANG_THU_NGHIEM,
-//                    TrangThaiThietBi.CHO_DUYET,
-//                    TrangThaiThietBi.THAT_LAC,
-//                    TrangThaiThietBi.DANG_TIM_KIEM),
+//                items = listOf("Bình thường", "Hỏng", "Đang bảo trì"),
 //                selected = viewModel.selectedTrangThai.collectAsState().value,
 //                onSelectedChange = { viewModel.setTrangThaiFilter(it) }
+//            )
+//
+//            DropdownMenuFilter( // ✅ Thêm bộ lọc Loại Thiết Bị
+//                label = "Loại Thiết Bị",
+//                items = thietBiList.map { it.tenLoai }.distinct(),
+//                selected = viewModel.selectedLoaiThietBi.collectAsState().value,
+//                onSelectedChange = { viewModel.setLoaiThietBiFilter(it) }
 //            )
 //        }
 //
@@ -183,9 +183,11 @@ fun QLDVThietBiTheoDVScreen(
 //                        .padding(8.dp)
 //                        .clickable {
 //                            if (isSelectMode && yeuCauId != null) {
-//                                navController.navigate("edit_chi_tiet_bao_cao/$yeuCauId/${thietBi.id}")
+//                                //navController.navigate("edit_chi_tiet_bao_cao/$yeuCauId/${thietBi.id}")
+//                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
 //                            } else {
-//                                navController.navigate("chi_tiet_thiet_bi/${thietBi.id}")
+//                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id))
+//
 //                            }
 //                        }
 //                ) {
@@ -196,11 +198,10 @@ fun QLDVThietBiTheoDVScreen(
 //                        Text("Trạng thái: ${thietBi.trangThai}")
 //                    }
 //                }
+//
 //            }
 //        }
 //    }
 //}
-//
-//
-//
+
 

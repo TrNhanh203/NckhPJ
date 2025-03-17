@@ -1,4 +1,5 @@
 [versions]
+accompanistFlowlayout = "0.24.13-rc"
 activityComposeVersion = "1.8.2"
 agp = "8.8.2"
 composeBomVersion = "2023.10.01"
@@ -22,6 +23,7 @@ roomRuntime = "2.6.1"
 hilt = "2.48"
 
 [libraries]
+accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
 androidx-activity-compose-v182 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-compose-bom-v20231001 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
