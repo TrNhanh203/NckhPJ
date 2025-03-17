@@ -2,6 +2,7 @@ package com.example.facilitiesmanagementpj.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.facilitiesmanagementpj.data.entity.ChiTietYeuCau
 import com.example.facilitiesmanagementpj.data.entity.ThietBi
 import com.example.facilitiesmanagementpj.data.repository.ThietBiRepository
 import com.example.facilitiesmanagementpj.data.repository.YeuCauRepository
@@ -31,6 +32,19 @@ class ThietBiDetailViewModel @Inject constructor(
     fun addChiTietYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String) {
         viewModelScope.launch {
             yeuCauRepository.addThietBiToYeuCau(yeuCauId, thietBiId, loaiYeuCau, moTa)
+        }
+    }
+
+    fun updateChiTietYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String) {
+        viewModelScope.launch {
+            yeuCauRepository.updateChiTietYeuCau(yeuCauId, thietBiId, loaiYeuCau, moTa)
+        }
+    }
+
+    fun loadChiTietYeuCau(yeuCauId: Int, thietBiId: Int, onLoaded: (ChiTietYeuCau) -> Unit) {
+        viewModelScope.launch {
+            val chiTietYeuCau = yeuCauRepository.getChiTietYeuCauByYeuCauAndThietBi(yeuCauId, thietBiId)
+            chiTietYeuCau?.let { onLoaded(it) }
         }
     }
 }

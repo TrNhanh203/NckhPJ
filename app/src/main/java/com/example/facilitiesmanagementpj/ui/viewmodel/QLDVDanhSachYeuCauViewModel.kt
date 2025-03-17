@@ -14,6 +14,11 @@ import javax.inject.Inject
 class QLDVDanhSachYeuCauViewModel @Inject constructor(
     private val repository: YeuCauRepository
 ) : ViewModel() {
+    fun deleteYeuCau(yeuCauId: Int) {
+        viewModelScope.launch {
+            repository.deleteYeuCau(yeuCauId)
+        }
+    }
 
     private val _yeuCauList = MutableStateFlow<List<YeuCau>>(emptyList())
     val yeuCauList: StateFlow<List<YeuCau>> = _yeuCauList

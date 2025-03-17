@@ -46,6 +46,14 @@ class QLDVThietBiViewModel @Inject constructor(
     private val _chiTietYeuCauList = MutableStateFlow<List<ChiTietYeuCau>>(emptyList()) // ✅ Lưu chi tiết yêu cầu
     val chiTietYeuCauList: StateFlow<List<ChiTietYeuCau>> = _chiTietYeuCauList
 
+    fun loadThietBiListByPhong(phongId: Int) {
+        viewModelScope.launch {
+            thietBiRepository.getThietBiByPhong(phongId).collect {
+                _thietBiList.value = it
+            }
+        }
+    }
+
     fun loadThietBiList(donViId: Int) {
         viewModelScope.launch {
             thietBiRepository.getThietBiByDonVi(donViId).collect {

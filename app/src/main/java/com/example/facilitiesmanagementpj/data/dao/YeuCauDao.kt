@@ -5,7 +5,8 @@ import com.example.facilitiesmanagementpj.data.entity.*
 
 @Dao
 interface YeuCauDao {
-
+    @Query("DELETE FROM yeu_cau WHERE id = :yeuCauId")
+    suspend fun deleteYeuCau(yeuCauId: Int)
 
     @Query("SELECT * FROM yeu_cau WHERE donViId = :donViId")
     fun getYeuCauByDonVi(donViId: Int): Flow<List<YeuCau>>

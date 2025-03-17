@@ -12,8 +12,6 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.viewmodel.ThietBiDetailViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 
-
-
 @Composable
 fun ThietBiDetailScreen(
     navController: NavController,
@@ -26,9 +24,18 @@ fun ThietBiDetailScreen(
     var moTa by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedLoaiYeuCau by remember { mutableStateOf<String?>(null) } // ✅ Lưu lựa chọn loại yêu cầu
+    var isExistingDetail by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         viewModel.loadThietBi(thietBiId)
+        if (yeuCauId != null) {
+            viewModel.loadChiTietYeuCau(yeuCauId, thietBiId) { chiTietYeuCau ->
+                moTa = chiTietYeuCau.moTa
+                selectedLoaiYeuCau = chiTietYeuCau.loaiYeuCau
+                isExistingDetail = true
+            }
+        }
     }
 
     ScaffoldLayout(
@@ -81,14 +88,18 @@ fun ThietBiDetailScreen(
                     Button(
                         onClick = {
                             if (yeuCauId != null && selectedLoaiYeuCau != null) {
-                                viewModel.addChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa)
+                                if (isExistingDetail) {
+                                    viewModel.updateChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa)
+                                } else {
+                                    viewModel.addChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa)
+                                }
                                 navController.popBackStack()
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = selectedLoaiYeuCau != null && moTa.isNotBlank()
                     ) {
-                        Text("Thêm vào yêu cầu")
+                        Text(if (isExistingDetail) "Cập nhật yêu cầu" else "Thêm vào yêu cầu")
                     }
                 }
             } ?: run {
@@ -97,4 +108,99 @@ fun ThietBiDetailScreen(
         }
     }
 }
+
+//@Composable
+//fun ThietBiDetailScreen(
+//    navController: NavController,
+//    thietBiId: Int,
+//    yeuCauId: Int? = null,
+//    viewModel: ThietBiDetailViewModel = hiltViewModel()
+//) {
+//    val thietBi by viewModel.thietBi.collectAsState()
+//    var moTa by remember { mutableStateOf("") }
+//    var expanded by remember { mutableStateOf(false) }
+//    var selectedLoaiYeuCau by remember { mutableStateOf<String?>(null) }
+//    var isExistingDetail by remember { mutableStateOf(false) }
+//
+//    LaunchedEffect(Unit) {
+//        viewModel.loadThietBi(thietBiId)
+//        if (yeuCauId != null) {
+//            viewModel.loadChiTietYeuCau(yeuCauId, thietBiId) { chiTietYeuCau ->
+//                moTa = chiTietYeuCau.moTa
+//                selectedLoaiYeuCau = chiTietYeuCau.loaiYeuCau
+//                isExistingDetail = true
+//            }
+//        }
+//    }
+//
+//    ScaffoldLayout(
+//        title = thietBi?.tenThietBi ?: "Chi tiết thiết bị",
+//        navController = navController,
+//        showBottomBar = true
+//    ) { modifier ->
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(16.dp)
+//                .then(modifier)
+//        ) {
+//            thietBi?.let {
+//                Text("Tên thiết bị: ${it.tenThietBi}")
+//                Text("Loại: ${it.loaiThietBiId}")
+//                Text("Trạng thái: ${it.trangThai}")
+//                Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
+//
+//                if (yeuCauId != null) {
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    Text("Nhập chi tiết yêu cầu", style = MaterialTheme.typography.headlineMedium)
+//
+//                    Text("Loại yêu cầu:")
+//                    Box(modifier = Modifier.fillMaxWidth()) {
+//                        Button(onClick = { expanded = true }) {
+//                            Text(selectedLoaiYeuCau ?: "Chọn loại yêu cầu")
+//                        }
+//                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+//                            LoaiYeuCau.ALL.forEach { loai ->
+//                                DropdownMenuItem(
+//                                    text = { Text(loai) },
+//                                    onClick = {
+//                                        selectedLoaiYeuCau = loai
+//                                        expanded = false
+//                                    }
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                    OutlinedTextField(
+//                        value = moTa,
+//                        onValueChange = { moTa = it },
+//                        label = { Text("Mô tả chi tiết") }
+//                    )
+//
+//                    Button(
+//                        onClick = {
+//                            if (yeuCauId != null && selectedLoaiYeuCau != null) {
+//                                if (isExistingDetail) {
+//                                    viewModel.updateChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa)
+//                                } else {
+//                                    viewModel.addChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa)
+//                                }
+//                                navController.popBackStack()
+//                            }
+//                        },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        enabled = selectedLoaiYeuCau != null && moTa.isNotBlank()
+//                    ) {
+//                        Text(if (isExistingDetail) "Cập nhật yêu cầu" else "Thêm vào yêu cầu")
+//                    }
+//                }
+//            } ?: run {
+//                Text("Đang tải dữ liệu...", modifier = Modifier.fillMaxSize().padding(16.dp))
+//            }
+//        }
+//    }
+//}
+
+
 

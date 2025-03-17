@@ -38,7 +38,7 @@ sealed class Screen(val route: String) {
             return if (isEditMode) {
                 "thiet_bi_detail/$thietBiId/true/${yeuCauId ?: ""}"
             } else {
-                "thiet_bi_detail/$thietBiId/false"
+                "thiet_bi_detail/$thietBiId/false/${yeuCauId ?: ""}"
             }
         }
     }

@@ -10,16 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVThietBiViewModel
-
-
 
 @Composable
 fun QLDVThietBiTheoPhongScreen(navController: NavController, phongId: Int, viewModel: QLDVThietBiViewModel = hiltViewModel()) {
     val thietBiList by viewModel.thietBiList.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadThietBiList(phongId)
+    LaunchedEffect(phongId) {
+        viewModel.loadThietBiListByPhong(phongId)
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -31,7 +30,7 @@ fun QLDVThietBiTheoPhongScreen(navController: NavController, phongId: Int, viewM
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .clickable { navController.navigate("chi_tiet_thiet_bi/${thietBi.id}") }
+                        .clickable { navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = false, yeuCauId = null)) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Tên thiết bị: ${thietBi.tenThietBi}")

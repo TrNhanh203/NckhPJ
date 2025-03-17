@@ -5,6 +5,19 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 15. ChiTietBaoCaoDao
 @Dao
 interface ChiTietYeuCauDao {
+    @Query("DELETE FROM chi_tiet_yeu_cau WHERE yeuCauId = :yeuCauId")
+    suspend fun deleteByYeuCauId(yeuCauId: Int)
+
+    @Query("""
+    UPDATE chi_tiet_yeu_cau
+    SET loaiYeuCau = :loaiYeuCau, moTa = :moTa
+    WHERE yeuCauId = :yeuCauId AND thietBiId = :thietBiId
+    """)
+    suspend fun updateChiTietYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String)
+
+    @Query("SELECT * FROM chi_tiet_yeu_cau WHERE yeuCauId = :yeuCauId AND thietBiId = :thietBiId LIMIT 1")
+    suspend fun getChiTietYeuCauByYeuCauAndThietBi(yeuCauId: Int, thietBiId: Int): ChiTietYeuCau?
+
     @Query("DELETE FROM chi_tiet_yeu_cau WHERE id = :chiTietId")
     suspend fun deleteChiTietYeuCau(chiTietId: Int)
 
