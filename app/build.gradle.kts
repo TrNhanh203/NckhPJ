@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -42,6 +43,19 @@ android {
 }
 
 dependencies {
+    implementation (libs.androidx.compose.material3.material3)
+
+    implementation (libs.androidx.activity.compose.v161)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v251)
+
+    // Coil để hiển thị hình ảnh
+    implementation (libs.coil.compose.v210) // Để hiển thị ảnh
+    // Accompanist để cấp quyền
+    implementation (libs.accompanist.permissions)
+
+    //google services
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -51,6 +65,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

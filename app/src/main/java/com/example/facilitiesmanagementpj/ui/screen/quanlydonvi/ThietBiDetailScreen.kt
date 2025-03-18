@@ -9,8 +9,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.utils.LoaiYeuCau
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
+import com.example.facilitiesmanagementpj.ui.component.ImageVideoPickerScreen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ThietBiDetailViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.component.picker.ImagePickerSection
+import com.example.facilitiesmanagementpj.ui.component.picker.VideoPickerSection
 
 @Composable
 fun ThietBiDetailScreen(
@@ -84,6 +87,12 @@ fun ThietBiDetailScreen(
                         onValueChange = { moTa = it },
                         label = { Text("Mô tả chi tiết") }
                     )
+
+                    //ImageVideoPickerScreen()
+                    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                        ImagePickerSection()  // Hiển thị ảnh
+                        VideoPickerSection()  // Hiển thị video
+                    }
 
                     Button(
                         onClick = {

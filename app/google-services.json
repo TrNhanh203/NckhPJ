@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "282644367522",
+    "project_id": "facilitiesmanagement-edaef",
+    "storage_bucket": "facilitiesmanagement-edaef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282644367522:android:abf33ebadc552a8b002ffb",
+        "android_client_info": {
+          "package_name": "com.example.facilitiesmanagementpj"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE1-zwUGpeW_FSJak4AtoX7uiHiX__abk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
