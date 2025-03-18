@@ -58,49 +58,54 @@ fun DanhSachYeuCauScreen(navController: NavController, viewModel: QLDVDanhSachYe
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Danh sách yêu cầu", style = MaterialTheme.typography.headlineMedium)
+    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
+    { modifier ->
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(modifier)) {
+            Text("Danh sách yêu cầu", style = MaterialTheme.typography.headlineMedium)
 
-        DropdownMenuFilter(
-            label = "Trạng thái",
-            items = TrangThaiYeuCau.ALL,
-            selected = viewModel.selectedTrangThai.collectAsState().value,
-            onSelectedChange = { viewModel.setTrangThaiFilter(it) }
-        )
+            DropdownMenuFilter(
+                label = "Trạng thái",
+                items = TrangThaiYeuCau.ALL,
+                selected = viewModel.selectedTrangThai.collectAsState().value,
+                onSelectedChange = { viewModel.setTrangThaiFilter(it) }
+            )
 
-        LazyColumn {
-            items(yeuCauList) { yeuCau ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+            LazyColumn {
+                items(yeuCauList) { yeuCau ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
 //                        .clickable {
 //                            navController.navigate(Screen.ThemYeuCauMoi.createRoute(yeuCau.id))
 //                        }
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    if (yeuCau.trangThai == TrangThaiYeuCau.NHAP) {
-                                        selectedYeuCau = yeuCau
-                                        showDialog = true
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        if (yeuCau.trangThai == TrangThaiYeuCau.NHAP) {
+                                            selectedYeuCau = yeuCau
+                                            showDialog = true
+                                        }
+                                    },
+                                    onTap = {
+                                        navController.navigate(Screen.ThemYeuCauMoi.createRoute(yeuCau.id))
                                     }
-                                },
-                                onTap = {
-                                    navController.navigate(Screen.ThemYeuCauMoi.createRoute(yeuCau.id))
-                                }
 
-                            )
+                                )
+                            }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Mô tả: ${yeuCau.moTa}")
+                            Text("Trạng thái: ${yeuCau.trangThai}")
+                            Text("Ngày yêu cầu: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(yeuCau.ngayYeuCau))}")
                         }
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Mô tả: ${yeuCau.moTa}")
-                        Text("Trạng thái: ${yeuCau.trangThai}")
-                        Text("Ngày yêu cầu: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(yeuCau.ngayYeuCau))}")
                     }
                 }
             }
         }
     }
+
+
 }
 
 

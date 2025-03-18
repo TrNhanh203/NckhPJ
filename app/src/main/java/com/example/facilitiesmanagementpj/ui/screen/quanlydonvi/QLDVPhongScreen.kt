@@ -23,25 +23,30 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
     LaunchedEffect(Unit) {
         viewModel.loadPhongList(donViId)
     }
+    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
+    { modifier ->
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(modifier)) {
+            Text("Danh sách phòng", style = MaterialTheme.typography.headlineMedium)
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Danh sách phòng", style = MaterialTheme.typography.headlineMedium)
-
-        LazyColumn {
-            items(phongList) { phong ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id)) }
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Tên phòng: ${phong.tenPhong}")
-                        Text("Dãy: ${phong.tenDay} - Tầng: ${phong.tenTang}")
-                        Text("Số lượng thiết bị: ${phong.soLuongThietBi}")
+            LazyColumn {
+                items(phongList) { phong ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id)) }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Tên phòng: ${phong.tenPhong}")
+                            Text("Dãy: ${phong.tenDay} - Tầng: ${phong.tenTang}")
+                            Text("Số lượng thiết bị: ${phong.soLuongThietBi}")
+                        }
                     }
                 }
             }
         }
     }
+
+
+
 }

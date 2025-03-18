@@ -76,7 +76,7 @@ fun ThemYeuCauMoiScreen(
     ScaffoldLayout(
         title = moTa.ifBlank { "Chỉnh sửa yêu cầu" }, // ✅ Hiển thị mô tả trên thanh tiêu đề
         navController = navController,
-        showBottomBar = true
+        showBottomBar = false
     ) { modifier ->
         Column(
             modifier = Modifier
@@ -91,6 +91,15 @@ fun ThemYeuCauMoiScreen(
                 style = MaterialTheme.typography.titleLarge, // ✅ Tiêu đề lớn
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+
+            Button(onClick = {
+                viewModel.yeuCauId.value?.let {
+                    navController.navigate("chon_thiet_bi/$it")
+                }
+            }) {
+                Text("Thêm thiết bị")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn {
                 items(chiTietList) { chiTiet ->
@@ -121,13 +130,9 @@ fun ThemYeuCauMoiScreen(
                 }
             }
 
-            Button(onClick = {
-                viewModel.yeuCauId.value?.let {
-                    navController.navigate("chon_thiet_bi/$it")
-                }
-            }) {
-                Text("Thêm thiết bị")
-            }
+
+
+
 
         }
     }

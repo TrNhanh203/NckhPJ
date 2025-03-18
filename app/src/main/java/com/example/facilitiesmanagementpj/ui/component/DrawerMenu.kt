@@ -15,8 +15,8 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.AuthViewModel
 
 @Composable
 fun DrawerMenu(navController: NavController, closeDrawer: () -> Unit) {
-    val loggedInUser = SessionManager.currentUser // ✅ Kiểm tra trạng thái đăng nhập
-    val viewModel: AuthViewModel = hiltViewModel()// ✅ Lấy ViewModel
+    val loggedInUser = SessionManager.currentUser //  Kiểm tra trạng thái đăng nhập
+    val viewModel: AuthViewModel = hiltViewModel()// Lấy ViewModel
     ModalDrawerSheet(
         drawerContainerColor = Color.Black, // Màu nền đen
         modifier = Modifier.width(240.dp) // Chiếm 2/3 màn hình
@@ -56,7 +56,7 @@ fun DrawerMenu(navController: NavController, closeDrawer: () -> Unit) {
                     selected = false,
                     onClick = {
 
-                        viewModel.logout() // ❌ Xóa session khi đăng xuất
+                        viewModel.logout() // Xóa session khi đăng xuất
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }

@@ -41,88 +41,93 @@ fun QLDVThietBiTheoDVScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            if (isSelectMode) "Chọn thiết bị cho yêu cầu" else "Danh sách thiết bị",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DropdownMenuFilter(
-                label = "Dãy",
-                items = thietBiList.map { it.tenDay }.distinct(),
-                selected = viewModel.selectedDay.collectAsState().value,
-                onSelectedChange = { viewModel.setDayFilter(it) }
+    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
+    { modifier ->
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(modifier)) {
+            Text(
+                if (isSelectMode) "Chọn thiết bị cho yêu cầu" else "Danh sách thiết bị",
+                style = MaterialTheme.typography.headlineMedium
             )
 
-            DropdownMenuFilter(
-                label = "Tầng",
-                items = thietBiList.map { it.tenTang }.distinct(),
-                selected = viewModel.selectedTang.collectAsState().value,
-                onSelectedChange = { viewModel.setTangFilter(it) }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DropdownMenuFilter(
+                    label = "Dãy",
+                    items = thietBiList.map { it.tenDay }.distinct(),
+                    selected = viewModel.selectedDay.collectAsState().value,
+                    onSelectedChange = { viewModel.setDayFilter(it) }
+                )
 
-            DropdownMenuFilter(
-                label = "Phòng",
-                items = thietBiList.map { it.tenPhong }.distinct(),
-                selected = viewModel.selectedPhong.collectAsState().value,
-                onSelectedChange = { viewModel.setPhongFilter(it) }
-            )
+                DropdownMenuFilter(
+                    label = "Tầng",
+                    items = thietBiList.map { it.tenTang }.distinct(),
+                    selected = viewModel.selectedTang.collectAsState().value,
+                    onSelectedChange = { viewModel.setTangFilter(it) }
+                )
 
-            DropdownMenuFilter(
-                label = "Trạng thái",
-                items = listOf("Bình thường", "Hỏng", "Đang bảo trì"),
-                selected = viewModel.selectedTrangThai.collectAsState().value,
-                onSelectedChange = { viewModel.setTrangThaiFilter(it) }
-            )
+                DropdownMenuFilter(
+                    label = "Phòng",
+                    items = thietBiList.map { it.tenPhong }.distinct(),
+                    selected = viewModel.selectedPhong.collectAsState().value,
+                    onSelectedChange = { viewModel.setPhongFilter(it) }
+                )
 
-            DropdownMenuFilter(
-                label = "Loại Thiết Bị",
-                items = thietBiList.map { it.tenLoai }.distinct(),
-                selected = viewModel.selectedLoaiThietBi.collectAsState().value,
-                onSelectedChange = { viewModel.setLoaiThietBiFilter(it) }
-            )
+                DropdownMenuFilter(
+                    label = "Trạng thái",
+                    items = listOf("Bình thường", "Hỏng", "Đang bảo trì"),
+                    selected = viewModel.selectedTrangThai.collectAsState().value,
+                    onSelectedChange = { viewModel.setTrangThaiFilter(it) }
+                )
 
-            Button(onClick = {
-                viewModel.resetFilters()
-            }) {
-                Text("Reset")
+                DropdownMenuFilter(
+                    label = "Loại Thiết Bị",
+                    items = thietBiList.map { it.tenLoai }.distinct(),
+                    selected = viewModel.selectedLoaiThietBi.collectAsState().value,
+                    onSelectedChange = { viewModel.setLoaiThietBiFilter(it) }
+                )
+
+                Button(onClick = {
+                    viewModel.resetFilters()
+                }) {
+                    Text("Reset")
+                }
             }
-        }
 
-        LazyColumn {
-            items(thietBiList) { thietBi ->
-                val isSelected = selectedThietBiList.contains(thietBi.id)
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable {
-                            if (isSelectMode && yeuCauId != null) {
-                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
-                            } else {
-                                navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = false, yeuCauId = null))
+            LazyColumn {
+                items(thietBiList) { thietBi ->
+                    val isSelected = selectedThietBiList.contains(thietBi.id)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                if (isSelectMode && yeuCauId != null) {
+                                    navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
+                                } else {
+                                    navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = false, yeuCauId = null))
+                                }
                             }
-                        }
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Tên: ${thietBi.tenThietBi}")
-                        Text("Loại: ${thietBi.tenLoai}")
-                        Text("Phòng: ${thietBi.tenPhong} - Tầng: ${thietBi.tenTang} - Dãy: ${thietBi.tenDay}")
-                        Text("Trạng thái: ${thietBi.trangThai}")
-                        if (isSelected) {
-                            Text("Đã chọn", color = Color.Red, fontWeight = FontWeight.Bold)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Tên: ${thietBi.tenThietBi}")
+                            Text("Loại: ${thietBi.tenLoai}")
+                            Text("Phòng: ${thietBi.tenPhong} - Tầng: ${thietBi.tenTang} - Dãy: ${thietBi.tenDay}")
+                            Text("Trạng thái: ${thietBi.trangThai}")
+                            if (isSelected) {
+                                Text("Đã chọn", color = Color.Red, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+
 }
 
 //@Composable

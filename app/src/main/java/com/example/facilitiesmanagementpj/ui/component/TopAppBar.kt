@@ -18,26 +18,58 @@ import com.example.facilitiesmanagementpj.data.session.SessionManager
 fun CustomTopAppBar(
     title: String,
     navController: NavController,
+    isHomeScreen: Boolean = false,
     onNavigationIconClick: (() -> Unit)? = null
 ) {
     val loggedInUser = SessionManager.currentUser
     TopAppBar(
-        title = { Text("${title} vt:${loggedInUser?.vaiTroId }", color = Color.White) }, // Màu chữ trắng
+        title = { Text("${title} vt:${loggedInUser?.vaiTroId }", color = Color.White) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = Color.Black // Màu nền đen
+            containerColor = Color.Black
         ),
-//        navigationIcon = {
-//            onNavigationIconClick?.let {
-//                IconButton(onClick = it) {
-//                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
-//                }
-//            }
-//        },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            if (isHomeScreen) {
+                if (onNavigationIconClick != null) {
+                    IconButton(onClick = onNavigationIconClick) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+                    }
+                }
+            } else {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                }
             }
         },
         modifier = Modifier.fillMaxWidth()
     )
 }
+
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun CustomTopAppBar(
+//    title: String,
+//    navController: NavController,
+//    onNavigationIconClick: (() -> Unit)? = null
+//) {
+//    val loggedInUser = SessionManager.currentUser
+//    TopAppBar(
+//        title = { Text("${title} vt:${loggedInUser?.vaiTroId }", color = Color.White) }, // Màu chữ trắng
+//        colors = TopAppBarDefaults.mediumTopAppBarColors(
+//            containerColor = Color.Black // Màu nền đen
+//        ),
+////        navigationIcon = {
+////            onNavigationIconClick?.let {
+////                IconButton(onClick = it) {
+////                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+////                }
+////            }
+////        },
+//        navigationIcon = {
+//            IconButton(onClick = { navController.popBackStack() }) {
+//                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+//            }
+//        },
+//        modifier = Modifier.fillMaxWidth()
+//    )
+//}
