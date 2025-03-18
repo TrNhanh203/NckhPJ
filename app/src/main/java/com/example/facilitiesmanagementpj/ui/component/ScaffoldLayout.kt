@@ -17,6 +17,7 @@ fun ScaffoldLayout(
     showBottomBar: Boolean = true,  // ✅ Kiểm soát hiển thị BottomAppBar
     showDrawer: Boolean = true,  // ✅ Kiểm soát hiển thị DrawerMenu
     isHomeScreen: Boolean = false,  // ✅ Kiểm soát hiển thị nút Menu hoặc Back
+    onBackClick: () -> Unit = { navController.popBackStack() },
     content: @Composable (Modifier) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -31,7 +32,14 @@ fun ScaffoldLayout(
         modifier = Modifier.fillMaxSize()
     ) {
         Scaffold(
-            topBar = { if (showTopBar) CustomTopAppBar(title = title, navController, isHomeScreen) { scope.launch { drawerState.open() } } },
+            topBar = {
+                if (showTopBar) CustomTopAppBar(
+                    title = title,
+                    navController = navController,
+                    isHomeScreen = isHomeScreen,
+                    onBackClick = onBackClick
+                )
+            },
             bottomBar = { if (showBottomBar) BottomNavigationBar(navController) },
             containerColor = Color.White
         ) { innerPadding ->

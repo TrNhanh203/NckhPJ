@@ -67,6 +67,8 @@ dependencies {
     // Lifecycle - ViewModel & LiveData
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+    // nhan du lieu tra nguoc ve o file themyeucaumoi
+    implementation (libs.androidx.runtime.livedata)
 
     // Coroutine support
     implementation(libs.kotlinx.coroutines.android)

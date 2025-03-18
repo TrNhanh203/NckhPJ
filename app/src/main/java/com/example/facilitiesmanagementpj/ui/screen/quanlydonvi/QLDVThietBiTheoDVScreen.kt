@@ -1,6 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import com.example.facilitiesmanagementpj.ui.component.CustomTopAppBar
 
 @Composable
 fun QLDVThietBiTheoDVScreen(
@@ -41,9 +43,31 @@ fun QLDVThietBiTheoDVScreen(
         }
     }
 
-    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
+    val handleBackNavigation: () -> Unit = {
+        if (yeuCauId != null) {
+            navController.previousBackStackEntry?.savedStateHandle?.set("yeuCauId", yeuCauId)
+        }
+        navController.navigateUp()
+    }
+
+
+    BackHandler {
+        handleBackNavigation()
+    }
+
+    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout(
+        title = "Danh Sách Yêu Cầu",
+        navController = navController,
+        showTopBar = true,
+        showBottomBar = false,
+        showDrawer = false,
+        onBackClick = handleBackNavigation
+    )
     { modifier ->
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(modifier)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .then(modifier)) {
             Text(
                 if (isSelectMode) "Chọn thiết bị cho yêu cầu" else "Danh sách thiết bị",
                 style = MaterialTheme.typography.headlineMedium
@@ -106,9 +130,21 @@ fun QLDVThietBiTheoDVScreen(
                             .padding(8.dp)
                             .clickable {
                                 if (isSelectMode && yeuCauId != null) {
-                                    navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = true, yeuCauId = yeuCauId))
+                                    navController.navigate(
+                                        Screen.ThietBiDetail.createRoute(
+                                            thietBi.id,
+                                            isEditMode = true,
+                                            yeuCauId = yeuCauId
+                                        )
+                                    )
                                 } else {
-                                    navController.navigate(Screen.ThietBiDetail.createRoute(thietBi.id, isEditMode = false, yeuCauId = null))
+                                    navController.navigate(
+                                        Screen.ThietBiDetail.createRoute(
+                                            thietBi.id,
+                                            isEditMode = false,
+                                            yeuCauId = null
+                                        )
+                                    )
                                 }
                             }
                     ) {

@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -24,22 +26,42 @@ fun ThemYeuCauMoiScreen(
     yeuCauId: Int?, // ✅ Nhận tham số yêu cầu, nếu null thì tạo mới
     viewModel: QLDVCreateYeuCauViewModel = hiltViewModel()
 ) {
+    BackHandler { navController.popBackStack() }
+
     val chiTietList by viewModel.chiTietYeuCauList.collectAsState()
     val taiKhoanId = SessionManager.currentUser?.id ?: 0
     val donViId = SessionManager.currentUser?.donViId ?: 0
     var moTa by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(yeuCauId == null) } // ✅ Nếu có `yeuCauId`, bỏ qua nhập mô tả
 
-    LaunchedEffect(yeuCauId) {
-        if (yeuCauId != null) {
-            viewModel.setYeuCauId(yeuCauId)
-            viewModel.loadChiTietYeuCau(yeuCauId)
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val returnedYeuCauIdState = savedStateHandle?.getLiveData<Int>("yeuCauId")?.observeAsState()
+    val returnedYeuCauId = returnedYeuCauIdState?.value
 
-            viewModel.getYeuCauById(yeuCauId) { yeuCau ->
+    LaunchedEffect(yeuCauId, returnedYeuCauId) {
+        val id = returnedYeuCauId ?: yeuCauId
+        if (id != null) {
+            viewModel.setYeuCauId(id)
+            viewModel.loadChiTietYeuCau(id)
+
+            viewModel.getYeuCauById(id) { yeuCau ->
                 moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+                showDialog = false
             }
         }
     }
+//    LaunchedEffect(yeuCauId) {
+//        if (yeuCauId != null) {
+//            viewModel.setYeuCauId(yeuCauId)
+//            viewModel.loadChiTietYeuCau(yeuCauId)
+//
+//            viewModel.getYeuCauById(yeuCauId) { yeuCau ->
+//                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+//            }
+//        }
+//    }
+
+
 
     if (showDialog) { // ✅ Hiển thị `AlertDialog` để nhập mô tả nếu chưa có yêu cầu
         AlertDialog(
@@ -48,7 +70,9 @@ fun ThemYeuCauMoiScreen(
                 Button(onClick = {
                     viewModel.createYeuCau(taiKhoanId, donViId, moTa)
                     showDialog = false
-                }) {
+                },
+                    enabled = (moTa != "")
+                ) {
                     Text("Tạo yêu cầu")
                 }
             },
@@ -94,6 +118,7 @@ fun ThemYeuCauMoiScreen(
 
             Button(onClick = {
                 viewModel.yeuCauId.value?.let {
+                    showDialog = false
                     navController.navigate("chon_thiet_bi/$it")
                 }
             }) {
