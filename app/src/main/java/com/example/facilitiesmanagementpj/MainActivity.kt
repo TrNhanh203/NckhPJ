@@ -10,12 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.facilitiesmanagementpj.data.session.SessionManager
+import com.example.facilitiesmanagementpj.data.session.SessionManager.currentUser
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import com.example.facilitiesmanagementpj.ui.navigation.AppNavigation
 import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen
 import com.example.facilitiesmanagementpj.ui.screen.DebugScreen
 import com.example.facilitiesmanagementpj.ui.screen.PhongScreen
 import com.example.facilitiesmanagementpj.ui.screen.VaiTroScreen
 import com.example.facilitiesmanagementpj.ui.theme.FacilitiesManagementPJTheme
+import com.example.facilitiesmanagementpj.ui.viewmodel.AuthViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhongViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.VaiTroViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: PhongViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +48,15 @@ class MainActivity : ComponentActivity() {
             //MyApp()
         }
 
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateSessionStatus()
+    }
+
+    private fun updateSessionStatus() {
+                authViewModel.logout()
     }
 }
 

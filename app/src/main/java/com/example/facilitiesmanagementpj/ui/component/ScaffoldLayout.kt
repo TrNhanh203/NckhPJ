@@ -30,7 +30,7 @@ fun ScaffoldLayout(
         modifier = Modifier.fillMaxSize()
     ) {
         Scaffold(
-            topBar = { if (showTopBar) CustomTopAppBar(title = title) { scope.launch { drawerState.open() } } },
+            topBar = { if (showTopBar) CustomTopAppBar(title = title, navController) { scope.launch { drawerState.open() } } },
             bottomBar = { if (showBottomBar) BottomNavigationBar(navController) },
             containerColor = Color.White
         ) { innerPadding ->
