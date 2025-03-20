@@ -50,16 +50,7 @@ fun ThemYeuCauMoiScreen(
             }
         }
     }
-//    LaunchedEffect(yeuCauId) {
-//        if (yeuCauId != null) {
-//            viewModel.setYeuCauId(yeuCauId)
-//            viewModel.loadChiTietYeuCau(yeuCauId)
-//
-//            viewModel.getYeuCauById(yeuCauId) { yeuCau ->
-//                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
-//            }
-//        }
-//    }
+
 
 
 

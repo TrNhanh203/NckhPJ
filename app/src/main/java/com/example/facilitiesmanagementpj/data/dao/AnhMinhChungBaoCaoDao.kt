@@ -8,6 +8,12 @@ interface AnhMinhChungBaoCaoDao {
     @Query("SELECT * FROM anh_minh_chung_bao_cao")
     fun getAll(): Flow<List<AnhMinhChungBaoCao>>
 
+    @Query("SELECT * FROM anh_minh_chung_bao_cao WHERE type = 'image' AND chiTietBaoCaoId = :chiTietBaoCaoId")
+    suspend fun getImagesByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<AnhMinhChungBaoCao>
+
+    @Query("SELECT * FROM anh_minh_chung_bao_cao WHERE type = 'video' AND chiTietBaoCaoId = :chiTietBaoCaoId")
+    suspend fun getVideosByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<AnhMinhChungBaoCao>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(anhMinhChung: AnhMinhChungBaoCao)
 

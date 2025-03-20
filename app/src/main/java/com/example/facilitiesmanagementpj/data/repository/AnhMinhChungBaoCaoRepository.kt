@@ -9,6 +9,9 @@ import javax.inject.Singleton
 @Singleton
 class AnhMinhChungBaoCaoRepository @Inject constructor(private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao) {
     fun getAllAnhMinhChungBaoCao(): Flow<List<AnhMinhChungBaoCao>> = anhMinhChungBaoCaoDao.getAll()
+
+    suspend fun getImagesByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<AnhMinhChungBaoCao> = anhMinhChungBaoCaoDao.getImagesByChiTietBaoCaoId(chiTietBaoCaoId)
+    suspend fun getVideosByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<AnhMinhChungBaoCao> = anhMinhChungBaoCaoDao.getVideosByChiTietBaoCaoId(chiTietBaoCaoId)
     suspend fun insert(anhMinhChungBaoCao: AnhMinhChungBaoCao) = anhMinhChungBaoCaoDao.insert(anhMinhChungBaoCao)
     suspend fun update(anhMinhChungBaoCao: AnhMinhChungBaoCao) = anhMinhChungBaoCaoDao.update(anhMinhChungBaoCao)
     suspend fun delete(anhMinhChungBaoCao: AnhMinhChungBaoCao) = anhMinhChungBaoCaoDao.delete(anhMinhChungBaoCao)

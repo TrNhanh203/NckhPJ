@@ -30,7 +30,7 @@ import com.example.facilitiesmanagementpj.data.entity.*
         DonVi::class,
         BienBanYeuCau::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

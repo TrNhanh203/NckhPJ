@@ -9,5 +9,6 @@ data class AnhMinhChungBaoCao(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val chiTietBaoCaoId: Int,
     val urlAnh: String,
+    val type: String,
     val thoiGianTaiLen: Long = System.currentTimeMillis()
 )

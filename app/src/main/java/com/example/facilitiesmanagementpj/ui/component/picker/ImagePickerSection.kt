@@ -29,13 +29,15 @@ import com.example.facilitiesmanagementpj.ui.component.AddNewMediaButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImagePickerSection() {
-    var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
+fun ImagePickerSection(
+    selectedImages: List<Uri>,
+    onImagesSelected: (List<Uri>) -> Unit
+) {
     var showImagePicker by remember { mutableStateOf(false) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         if (uris.isNotEmpty()) {
-            selectedImages = (selectedImages + uris.take(5 - selectedImages.size)).distinct().take(5)
+            onImagesSelected((selectedImages + uris.take(5 - selectedImages.size)).distinct().take(5))
         }
     }
 
@@ -44,7 +46,7 @@ fun ImagePickerSection() {
         LazyRow {
             item { AddNewMediaButton { showImagePicker = true } }
             items(selectedImages) { uri ->
-                MediaPreviewItem(uri, onRemove = { selectedImages = selectedImages - uri })
+                MediaPreviewItem(uri, onRemove = { onImagesSelected(selectedImages - uri) })
             }
         }
     }
@@ -52,7 +54,6 @@ fun ImagePickerSection() {
     if (showImagePicker) {
         ModalBottomSheet(
             onDismissRequest = { showImagePicker = false },
-            //containerColor = Color.Black.copy(alpha = 0.6f),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Column(
@@ -75,6 +76,56 @@ fun ImagePickerSection() {
             }
         }
     }
-
-
 }
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ImagePickerSection() {
+//    var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
+//    var showImagePicker by remember { mutableStateOf(false) }
+//
+//    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+//        if (uris.isNotEmpty()) {
+//            selectedImages = (selectedImages + uris.take(5 - selectedImages.size)).distinct().take(5)
+//        }
+//    }
+//
+//    Column {
+//        Text("Ảnh đã chọn:")
+//        LazyRow {
+//            item { AddNewMediaButton { showImagePicker = true } }
+//            items(selectedImages) { uri ->
+//                MediaPreviewItem(uri, onRemove = { selectedImages = selectedImages - uri })
+//            }
+//        }
+//    }
+//
+//    if (showImagePicker) {
+//        ModalBottomSheet(
+//            onDismissRequest = { showImagePicker = false },
+//            //containerColor = Color.Black.copy(alpha = 0.6f),
+//            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+//        ) {
+//            Column(
+//                modifier = Modifier.fillMaxWidth().padding(16.dp),
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Text("Chọn ảnh", style = MaterialTheme.typography.titleLarge)
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+//                    Text("Chọn ảnh từ thư viện")
+//                }
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Button(onClick = { showImagePicker = false },
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)) {
+//                    Text("Hủy")
+//                }
+//            }
+//        }
+//    }
+//
+//
+//}

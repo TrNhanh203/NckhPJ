@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.common
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,8 @@ fun HomeScreen(navController: NavController) {
                 TextButton(onClick = {
                     showExitDialog = false
                     // Close the app
-                    navController.popBackStack(navController.graph.startDestinationId, true)
+                    (navController.context as Activity).finish()
+                    //navController.popBackStack(navController.graph.startDestinationId, true)
                 }) {
                     Text("Thoát")
                 }

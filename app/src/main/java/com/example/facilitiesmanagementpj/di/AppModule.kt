@@ -9,12 +9,19 @@ import com.example.facilitiesmanagementpj.data.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context): Context {
+        return context
+    }
 
     @Provides
     @Singleton
@@ -27,7 +34,7 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_1_2)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -38,6 +45,19 @@ object AppModule {
             database.execSQL("ALTER TABLE yeu_cau ADD COLUMN moTa TEXT NOT NULL DEFAULT ''")
         }
     }
+
+
+
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // 1. Đổi tên bảng 'anh_minh_chung_bao_cao' thành 'minh_chung_bao_cao' và thêm trường 'type'
+            database.execSQL("ALTER TABLE anh_minh_chung_bao_cao ADD COLUMN type TEXT NOT NULL DEFAULT ''")
+
+            // 2. Đổi tên bảng 'anh_minh_chung_lam_viec' thành 'minh_chung_lam_viec' và thêm trường 'type'
+            database.execSQL("ALTER TABLE anh_minh_chung_lam_viec ADD COLUMN type TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
 
 
 

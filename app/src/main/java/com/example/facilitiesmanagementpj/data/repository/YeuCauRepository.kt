@@ -1,7 +1,14 @@
 package com.example.facilitiesmanagementpj.data.repository
+import android.net.Uri
+import androidx.annotation.OptIn
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -9,8 +16,38 @@ import javax.inject.Singleton
 @Singleton
 class YeuCauRepository @Inject constructor(
     private val yeuCauDao: YeuCauDao,
-    private val chiTietYeuCauDao: ChiTietYeuCauDao
+    private val chiTietYeuCauDao: ChiTietYeuCauDao,
+    private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao
 ) {
+    suspend fun getImageUrlsByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<String> {
+        return anhMinhChungBaoCaoDao.getImagesByChiTietBaoCaoId(chiTietBaoCaoId).map { it.urlAnh }
+    }
+
+    suspend fun getVideoUrlsByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<String> {
+        return anhMinhChungBaoCaoDao.getVideosByChiTietBaoCaoId(chiTietBaoCaoId).map { it.urlAnh }
+    }
+
+    @OptIn(UnstableApi::class)
+    suspend fun insertAnhMinhChung(chiTietBaoCaoId: Int, url: String, type: String) {
+        try {
+            withContext(NonCancellable) {
+                Log.d("insertAnhMinhChung", "Attempting to insert: chiTietBaoCaoId=$chiTietBaoCaoId, url=$url, type=$type")
+                val existingRecords = anhMinhChungBaoCaoDao.getAll().firstOrNull()
+                val existingRecord = existingRecords?.firstOrNull { it.urlAnh == url }
+                if (existingRecord == null) {
+                    val anhMinhChung = AnhMinhChungBaoCao(chiTietBaoCaoId = chiTietBaoCaoId, urlAnh = url, type = type)
+                    anhMinhChungBaoCaoDao.insert(anhMinhChung)
+                    Log.d("insertAnhMinhChung", "Insertion successful: $anhMinhChung")
+                } else {
+                    Log.d("insertAnhMinhChung", "Record already exists: $existingRecord")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("insertAnhMinhChung", "Insertion failed", e)
+        }
+    }
+
+
     suspend fun deleteYeuCau(yeuCauId: Int) {
         chiTietYeuCauDao.deleteByYeuCauId(yeuCauId)
         yeuCauDao.deleteYeuCau(yeuCauId)
@@ -25,7 +62,11 @@ class YeuCauRepository @Inject constructor(
     }
 
     suspend fun removeChiTietYeuCau(chiTietId: Int) {
-        chiTietYeuCauDao.deleteChiTietYeuCau(chiTietId)
+        val chiTietYeuCau = chiTietYeuCauDao.getChiTietYeuCauByChiTietId(chiTietId)
+        chiTietYeuCau?.let {
+            chiTietYeuCauDao.deleteAnhMinhChungByChiTietBaoCaoId(it.id)
+            chiTietYeuCauDao.deleteChiTietYeuCau(it.id)
+        }
     }
 
 

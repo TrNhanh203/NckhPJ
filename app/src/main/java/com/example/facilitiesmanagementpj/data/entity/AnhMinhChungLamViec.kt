@@ -10,5 +10,6 @@ data class AnhMinhChungLamViec(
     val phanCongKTVId: Int,
     val loaiAnh: String,
     val urlAnh: String,
+    val type: String,
     val thoiGianTaiLen: Long = System.currentTimeMillis()
 )
