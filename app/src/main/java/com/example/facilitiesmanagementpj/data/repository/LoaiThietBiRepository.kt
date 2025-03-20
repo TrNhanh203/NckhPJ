@@ -9,6 +9,8 @@ import javax.inject.Singleton
 // 1. LoaiThietBiRepository
 @Singleton
 class LoaiThietBiRepository @Inject constructor(private val loaiThietBiDao: LoaiThietBiDao) {
+    fun getLoaiThietBiByThietBiId(thietBiId: Int): Flow<LoaiThietBi> = loaiThietBiDao.getLoaiThietBiByThietBiId(thietBiId)
+
     fun getAllLoaiThietBi(): Flow<List<LoaiThietBi>> = loaiThietBiDao.getAll()
     suspend fun insert(loaiThietBi: LoaiThietBi) = loaiThietBiDao.insert(loaiThietBi)
     suspend fun update(loaiThietBi: LoaiThietBi) = loaiThietBiDao.update(loaiThietBi)

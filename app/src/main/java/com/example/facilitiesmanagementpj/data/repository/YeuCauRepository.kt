@@ -23,6 +23,11 @@ class YeuCauRepository @Inject constructor(
 ) {
 
 
+    fun getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId: Int): Flow<List<ChiTietYeuCauWithThietBiAndLoaiThietBi>> {
+        return chiTietYeuCauDao.getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId)
+    }
+
+
     suspend fun deleteYeuCauWithDetails(yeuCauId: Int) {
         val chiTietYeuCauList = chiTietYeuCauDao.getChiTietYeuCauByYeuCau(yeuCauId).firstOrNull()
         chiTietYeuCauList?.forEach { chiTietYeuCau ->

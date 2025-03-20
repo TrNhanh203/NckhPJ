@@ -40,16 +40,23 @@ fun AdminDashboardScreen(navController: NavController) {
             )
 
             DashboardOption(
+                title = "Quản lý yêu cầu",
+                icon = Icons.Default.AccountBox,
+                color = Color.Blue,
+                onClick = { navController.navigate(Screen.AdminRequestList.route) }
+            )
+
+            DashboardOption(
                 title = "Quản lý thiết bị",
                 icon = Icons.Default.Settings,
-                color = Color.Green,
+                color = Color.Blue,
                 onClick = {  }
             )
 
             DashboardOption(
                 title = "Quản lý phân công",
                 icon = Icons.Default.AccountBox,
-                color = Color.Red,
+                color = Color.Blue,
                 onClick = {  }
             )
         }

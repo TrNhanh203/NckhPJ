@@ -15,7 +15,7 @@ object LoaiYeuCau {
     const val THAO_DO = "thao_do"
 
     // ✅ Nhóm yêu cầu nâng cấp & cải tiến
-    const val NANG_CAP = "nap_cap"
+    const val NANG_CAP = "nang_cap"
     const val CAI_TIEN = "cai_tien"
 
     // ✅ Nhóm yêu cầu đặc biệt khác

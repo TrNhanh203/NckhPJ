@@ -12,5 +12,6 @@ data class YeuCau(
     val taiKhoanId: Int,
     val trangThai: String = TrangThaiYeuCau.NHAP,
     val donViId: Int,
-    val moTa: String = "" // ✅ Thêm cột mô tả
+    val moTa: String = "" ,
+    val lyDoTuChoi: String? = null
 )

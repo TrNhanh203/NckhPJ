@@ -17,6 +17,11 @@ sealed class Screen(val route: String) {
     object AdminViewDetailProfile : Screen("admin_view_detail_profile/{taiKhoanId}") {
         fun createRoute(taiKhoanId: Int) = "admin_view_detail_profile/$taiKhoanId"
     }
+    object AdminRequestList : Screen("admin_request_list")
+
+    object AdminRequestDetail : Screen("admin_request_detail/{yeuCauId}") {
+        fun createRoute(yeuCauId: Int) = "admin_request_detail/$yeuCauId"
+    }
 
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")

@@ -8,6 +8,9 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 1. LoaiThietBiDao
 @Dao
 interface LoaiThietBiDao {
+    @Query("SELECT * FROM loai_thiet_bi WHERE id = :thietBiId")
+    fun getLoaiThietBiByThietBiId(thietBiId: Int): Flow<LoaiThietBi>
+
     @Query("SELECT * FROM loai_thiet_bi")
     fun getAll(): Flow<List<LoaiThietBi>>
 

@@ -5,6 +5,24 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 15. ChiTietBaoCaoDao
 @Dao
 interface ChiTietYeuCauDao {
+
+    @Query("""
+        SELECT
+            c.id,
+            c.yeuCauId,
+            c.thietBiId,
+            c.loaiYeuCau,
+            c.moTa,
+            t.loaiThietBiId,
+            l.tenLoai AS tenLoaiThietBi,
+            t.tenThietBi
+        FROM chi_tiet_yeu_cau c
+        LEFT JOIN thiet_bi t ON c.thietBiId = t.id
+        LEFT JOIN loai_thiet_bi l ON t.loaiThietBiId = l.id
+        WHERE c.yeuCauId = :yeuCauId
+    """)
+    fun getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId: Int): Flow<List<ChiTietYeuCauWithThietBiAndLoaiThietBi>>
+
     @Query(" SELECT id FROM chi_tiet_yeu_cau WHERE yeuCauId = :yeuCauId AND thietBiId = :thietBiId LIMIT 1")
     suspend fun getChiTietYeuCauIdByYeuCauIdVSThietBiId(yeuCauId: Int, thietBiId: Int): Int
 
