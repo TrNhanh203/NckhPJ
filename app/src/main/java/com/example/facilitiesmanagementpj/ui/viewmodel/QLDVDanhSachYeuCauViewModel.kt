@@ -14,9 +14,11 @@ import javax.inject.Inject
 class QLDVDanhSachYeuCauViewModel @Inject constructor(
     private val repository: YeuCauRepository
 ) : ViewModel() {
+
+
     fun deleteYeuCau(yeuCauId: Int) {
         viewModelScope.launch {
-            repository.deleteYeuCau(yeuCauId)
+            repository.deleteYeuCauWithDetails(yeuCauId)
         }
     }
 

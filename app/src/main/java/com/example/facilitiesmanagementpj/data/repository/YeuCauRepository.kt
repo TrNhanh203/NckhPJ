@@ -5,9 +5,11 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
+import com.example.facilitiesmanagementpj.data.utils.deleteFileFromFirebaseStorage
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,12 +21,30 @@ class YeuCauRepository @Inject constructor(
     private val chiTietYeuCauDao: ChiTietYeuCauDao,
     private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao
 ) {
-    suspend fun getImageUrlsByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<String> {
-        return anhMinhChungBaoCaoDao.getImagesByChiTietBaoCaoId(chiTietBaoCaoId).map { it.urlAnh }
+
+
+    suspend fun deleteYeuCauWithDetails(yeuCauId: Int) {
+        val chiTietYeuCauList = chiTietYeuCauDao.getChiTietYeuCauByYeuCau(yeuCauId).firstOrNull()
+        chiTietYeuCauList?.forEach { chiTietYeuCau ->
+            val images = anhMinhChungBaoCaoDao.getImagesByChiTietBaoCaoId(chiTietYeuCau.id)
+            val videos = anhMinhChungBaoCaoDao.getVideosByChiTietBaoCaoId(chiTietYeuCau.id)
+
+            // Delete images from Firebase
+            images.forEach { deleteFileFromFirebaseStorage(it.urlAnh) }
+            // Delete videos from Firebase
+            videos.forEach { deleteFileFromFirebaseStorage(it.urlAnh) }
+
+            // Delete AnhMinhChungBaoCao from database
+            anhMinhChungBaoCaoDao.deleteByChiTietBaoCaoId(chiTietYeuCau.id)
+        }
+        // Delete ChiTietYeuCau from database
+        chiTietYeuCauDao.deleteByYeuCauId(yeuCauId)
+        // Delete YeuCau from database
+        yeuCauDao.deleteYeuCau(yeuCauId)
     }
 
-    suspend fun getVideoUrlsByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<String> {
-        return anhMinhChungBaoCaoDao.getVideosByChiTietBaoCaoId(chiTietBaoCaoId).map { it.urlAnh }
+    suspend fun deleteAnhMinhChungByPath(path: String) {
+        anhMinhChungBaoCaoDao.deleteByPath(path)
     }
 
     @OptIn(UnstableApi::class)
@@ -87,9 +107,14 @@ class YeuCauRepository @Inject constructor(
         return chiTietYeuCauDao.getChiTietYeuCauByYeuCau(yeuCauId)
     }
 
-    suspend fun addThietBiToYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String) {
+//    suspend fun addThietBiToYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String) {
+//        val chiTiet = ChiTietYeuCau(yeuCauId = yeuCauId, thietBiId = thietBiId, loaiYeuCau = loaiYeuCau, moTa = moTa)
+//        chiTietYeuCauDao.insertChiTietYeuCau(chiTiet)
+//    }
+
+    suspend fun addThietBiToYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String): Int {
         val chiTiet = ChiTietYeuCau(yeuCauId = yeuCauId, thietBiId = thietBiId, loaiYeuCau = loaiYeuCau, moTa = moTa)
-        chiTietYeuCauDao.insertChiTietYeuCau(chiTiet)
+        return chiTietYeuCauDao.insertChiTietYeuCau(chiTiet).toInt()
     }
 
     fun getAllYeuCau(): Flow<List<YeuCau>> = yeuCauDao.getAll()

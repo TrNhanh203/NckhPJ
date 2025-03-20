@@ -5,6 +5,12 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 16. AnhMinhChungDao
 @Dao
 interface AnhMinhChungBaoCaoDao {
+    @Query("DELETE FROM anh_minh_chung_bao_cao WHERE chiTietBaoCaoId = :chiTietBaoCaoId")
+    suspend fun deleteByChiTietBaoCaoId(chiTietBaoCaoId: Int)
+
+    @Query("DELETE FROM anh_minh_chung_bao_cao WHERE urlAnh = :path")
+    suspend fun deleteByPath(path: String)
+
     @Query("SELECT * FROM anh_minh_chung_bao_cao")
     fun getAll(): Flow<List<AnhMinhChungBaoCao>>
 
