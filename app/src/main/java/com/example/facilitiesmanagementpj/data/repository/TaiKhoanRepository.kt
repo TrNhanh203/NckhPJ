@@ -13,6 +13,9 @@ import javax.inject.Singleton
 @Singleton
 class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDao) {
 
+
+
+
     fun getTaiKhoanById(id: Int): Flow<TaiKhoan?> = taiKhoanDao.getById(id)
 
     suspend fun getTaiKhoanChiTiet(userId: Int): TaiKhoanChiTiet? {
@@ -25,8 +28,8 @@ class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDa
 
     fun getAllDonVi(): Flow<List<DonVi>> = taiKhoanDao.getAllDonVi()
 
-    suspend fun registerTaiKhoan(taiKhoan: TaiKhoan) {
-        taiKhoanDao.insertTaiKhoan(taiKhoan)
+    suspend fun registerTaiKhoan(taiKhoan: TaiKhoan): Int {
+        return taiKhoanDao.insertTaiKhoan(taiKhoan).toInt()
     }
 
     fun getAllTaiKhoanVoiVaiTro(): Flow<List<TaiKhoanWithRole>> = taiKhoanDao.getAllWithRole()

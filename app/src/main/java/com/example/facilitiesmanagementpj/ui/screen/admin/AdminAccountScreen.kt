@@ -30,22 +30,7 @@ fun AdminAccountScreen(navController: NavController, viewModel: AdminAccountView
         Column(modifier = Modifier.fillMaxSize().then(modifier).padding(16.dp)) {
             Text("Quản lý tài khoản", style = MaterialTheme.typography.headlineMedium)
 
-            // Bộ lọc
-//            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-//                DropdownMenuFilter(
-//                    label = "Vai trò",
-//                    items = vaiTroList.map { it.tenVaiTro },
-//                    selected = viewModel.selectedVaiTro.collectAsState().value,
-//                    onSelectedChange = { viewModel.setVaiTroFilter(it) }
-//                )
-//
-//                DropdownMenuFilter(
-//                    label = "Trạng thái",
-//                    items = trangThaiList,
-//                    selected = viewModel.selectedTrangThai.collectAsState().value,
-//                    onSelectedChange = { viewModel.setTrangThaiFilter(it) }
-//                )
-//            }
+
 
             Column(modifier = Modifier.fillMaxWidth()) {
                 DropdownMenuFilter(

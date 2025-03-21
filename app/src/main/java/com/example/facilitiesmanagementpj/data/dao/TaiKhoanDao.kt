@@ -55,7 +55,7 @@ interface TaiKhoanDao {
     fun getAllDonVi(): Flow<List<DonVi>> // ✅ Lấy danh sách đơn vị
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertTaiKhoan(taiKhoan: TaiKhoan)
+    suspend fun insertTaiKhoan(taiKhoan: TaiKhoan): Long
 
     @Transaction
     @Query("""

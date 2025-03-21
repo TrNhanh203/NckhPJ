@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class KyThuatVien(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val taiKhoanId: Int,
-    val kinhNghiem: Int?, // Số năm kinh nghiệm
+    val kinhNghiem: Int?, // Số ngày kinh nghiệm làm việc ở nơi này (k phải số năm trong nghề)
     val ngayBatDauLam: Long?,
     val trangThaiHienTai: String = "Đang làm", // Trạng thái hiện tại
     val ghiChu: String? // Ghi chú thêm

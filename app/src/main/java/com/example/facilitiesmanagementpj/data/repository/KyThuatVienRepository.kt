@@ -11,6 +11,12 @@ import javax.inject.Singleton
 // 10. KyThuatVienRepository
 @Singleton
 class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyThuatVienDao) {
+
+    suspend fun updateNgayBatDauLam(taiKhoanId: Int, ngay: Long) {
+        kyThuatVienDao.updateNgayBatDauLamByTaiKhoanId(taiKhoanId, ngay)
+    }
+
+
     fun getKyThuatVienByTaiKhoanId(taiKhoanId: Int): Flow<KyThuatVien?> {
         return flow {
             emit(kyThuatVienDao.getKyThuatVienByTaiKhoanId(taiKhoanId))

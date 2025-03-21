@@ -6,6 +6,7 @@ import com.example.facilitiesmanagementpj.data.dao.TaiKhoanChiTiet
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVien
 import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
 import com.example.facilitiesmanagementpj.data.repository.TaiKhoanRepository
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,6 +58,14 @@ class AdminViewDetailProfileViewModel @Inject constructor(
         viewModelScope.launch {
             taiKhoanRepository.updateTrangThai(taiKhoanId, trangThaiMoi)
             _taiKhoanChiTiet.value = _taiKhoanChiTiet.value?.copy(trangThai = trangThaiMoi)
+
+            // Nếu là kỹ thuật viên & admin xác thực tài khoản → cập nhật ngày bắt đầu làm
+            if (trangThaiMoi == TrangThaiTaiKhoan.NGOAI_TUYEN &&
+                _taiKhoanChiTiet.value?.tenVaiTro == "Kỹ Thuật Viên"
+            ) {
+                kyThuatVienRepository.updateNgayBatDauLam(taiKhoanId, System.currentTimeMillis())
+            }
         }
     }
+
 }

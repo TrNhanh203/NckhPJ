@@ -46,10 +46,10 @@ fun AdminViewDetailProfileScreen(navController: NavController, taiKhoanId: Int, 
                 }
 
 
-                kyThuatVienChiTiet?.let { ktv ->
-                    Text("Số năm kinh nghiệm: ${ktv.kinhNghiem}")
-                    Text("Ngày vào làm: ${ktv.ngayBatDauLam ?: "Chưa cập nhật"}")
-                }
+//                kyThuatVienChiTiet?.let { ktv ->
+//                    Text("Số năm kinh nghiệm: ${ktv.kinhNghiem}")
+//                    Text("Ngày vào làm: ${ktv.ngayBatDauLam ?: "Chưa cập nhật"}")
+//                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

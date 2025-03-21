@@ -33,6 +33,17 @@ fun DebugLoginScreen(navController: NavController, viewModel: AuthViewModel = hi
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Chọn tài khoản để đăng nhập", style = MaterialTheme.typography.headlineMedium)
+        Button(
+            onClick = {
+                selectedTaiKhoan?.let {
+                    viewModel.login(it.tenTaiKhoan, it.matKhau) // ✅ Gọi login như đăng nhập thật
+                }
+            },
+            enabled = selectedTaiKhoan != null
+        ) {
+            Text("Đăng nhập")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
             items(taiKhoanList) { taiKhoan ->
@@ -50,18 +61,8 @@ fun DebugLoginScreen(navController: NavController, viewModel: AuthViewModel = hi
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                selectedTaiKhoan?.let {
-                    viewModel.login(it.tenTaiKhoan, it.matKhau) // ✅ Gọi login như đăng nhập thật
-                }
-            },
-            enabled = selectedTaiKhoan != null
-        ) {
-            Text("Đăng nhập")
-        }
+
 
         if (loginResult.success) {
             LaunchedEffect(Unit) {
