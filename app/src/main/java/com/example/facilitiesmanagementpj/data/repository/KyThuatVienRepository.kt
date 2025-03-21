@@ -12,6 +12,16 @@ import javax.inject.Singleton
 @Singleton
 class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyThuatVienDao) {
 
+    suspend fun getKyThuatVienFiltered(trangThai: String?, chuyenMonIds: List<Int>): List<KyThuatVienWithTaiKhoan> {
+        return if (chuyenMonIds.isEmpty()) {
+            kyThuatVienDao.getAllWithTaiKhoanByTrangThai(trangThai)
+                .map { KyThuatVienWithTaiKhoan(it.kyThuatVien, it.taiKhoan) }
+        } else {
+            kyThuatVienDao.getWithFilter(trangThai, chuyenMonIds, chuyenMonIds.size)
+                .map { KyThuatVienWithTaiKhoan(it.kyThuatVien, it.taiKhoan) }
+        }
+    }
+
     suspend fun updateNgayBatDauLam(taiKhoanId: Int, ngay: Long) {
         kyThuatVienDao.updateNgayBatDauLamByTaiKhoanId(taiKhoanId, ngay)
     }

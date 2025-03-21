@@ -23,6 +23,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
@@ -140,6 +141,9 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             ChuyenMonKyThuatVienScreen(taiKhoanId = taiKhoanId, navController) {
                 navController.popBackStack()
             }
+        }
+        composable(Screen.DanhSachKyThuatVien.route) {
+            DanhSachKyThuatVienScreen(navController)
         }
 
 

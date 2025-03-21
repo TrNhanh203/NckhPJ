@@ -57,6 +57,7 @@ sealed class Screen(val route: String) {
     object ChuyenMonKyThuatVien : Screen("chuyen_mon_ky_thuat_vien/{taiKhoanId}") {
         fun createRoute(taiKhoanId: Int) = "chuyen_mon_ky_thuat_vien/$taiKhoanId"
     }
+    object DanhSachKyThuatVien : Screen("danh_sach_ky_thuat_vien")
 
 
     // User Screens (Sinh viên, Giảng viên)

@@ -54,6 +54,13 @@ fun AdminDashboardScreen(navController: NavController) {
             )
 
             DashboardOption(
+                title = "Danh sách kỹ thuật viên",
+                icon = Icons.Default.AccountBox,
+                color = Color.Blue,
+                onClick = { navController.navigate(Screen.DanhSachKyThuatVien.route) }
+            )
+
+            DashboardOption(
                 title = "Quản lý phân công",
                 icon = Icons.Default.AccountBox,
                 color = Color.Blue,

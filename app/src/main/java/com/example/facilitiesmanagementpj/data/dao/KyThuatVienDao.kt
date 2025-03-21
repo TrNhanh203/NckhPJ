@@ -44,4 +44,69 @@ interface KyThuatVienDao {
 
     @Delete
     suspend fun delete(kyThuatVien: KyThuatVien)
+
+    @Query("""
+        SELECT 
+            ky_thuat_vien.id AS ktv_id,
+            ky_thuat_vien.taiKhoanId AS ktv_taiKhoanId,
+            ky_thuat_vien.kinhNghiem AS ktv_kinhNghiem,
+            ky_thuat_vien.ngayBatDauLam AS ktv_ngayBatDauLam,
+            ky_thuat_vien.trangThaiHienTai AS ktv_trangThaiHienTai,
+            ky_thuat_vien.ghiChu AS ktv_ghiChu,
+
+            tai_khoan.id AS tk_id,
+            tai_khoan.tenTaiKhoan AS tk_tenTaiKhoan,
+            tai_khoan.matKhau AS tk_matKhau,
+            tai_khoan.vaiTroId AS tk_vaiTroId,
+            tai_khoan.soDienThoai AS tk_soDienThoai,
+            tai_khoan.email AS tk_email,
+            tai_khoan.hoTen AS tk_hoTen,
+            tai_khoan.trangThai AS tk_trangThai,
+            tai_khoan.lastLogin AS tk_lastLogin,
+            tai_khoan.donViId AS tk_donViId
+        FROM ky_thuat_vien
+        INNER JOIN tai_khoan ON ky_thuat_vien.taiKhoanId = tai_khoan.id
+        WHERE (:trangThai IS NULL OR ky_thuat_vien.trangThaiHienTai = :trangThai)
+    """)
+    suspend fun getAllWithTaiKhoanByTrangThai(trangThai: String?): List<KyThuatVienWithTaiKhoanImpl>
+
+    @Query("""
+        SELECT 
+            ky_thuat_vien.id AS ktv_id,
+            ky_thuat_vien.taiKhoanId AS ktv_taiKhoanId,
+            ky_thuat_vien.kinhNghiem AS ktv_kinhNghiem,
+            ky_thuat_vien.ngayBatDauLam AS ktv_ngayBatDauLam,
+            ky_thuat_vien.trangThaiHienTai AS ktv_trangThaiHienTai,
+            ky_thuat_vien.ghiChu AS ktv_ghiChu,
+
+            tai_khoan.id AS tk_id,
+            tai_khoan.tenTaiKhoan AS tk_tenTaiKhoan,
+            tai_khoan.matKhau AS tk_matKhau,
+            tai_khoan.vaiTroId AS tk_vaiTroId,
+            tai_khoan.soDienThoai AS tk_soDienThoai,
+            tai_khoan.email AS tk_email,
+            tai_khoan.hoTen AS tk_hoTen,
+            tai_khoan.trangThai AS tk_trangThai,
+            tai_khoan.lastLogin AS tk_lastLogin,
+            tai_khoan.donViId AS tk_donViId
+        FROM ky_thuat_vien
+        INNER JOIN tai_khoan ON ky_thuat_vien.taiKhoanId = tai_khoan.id
+        WHERE (:trangThai IS NULL OR ky_thuat_vien.trangThaiHienTai = :trangThai)
+          AND ky_thuat_vien.id IN (
+              SELECT kyThuatVienId FROM chuyen_mon_ky_thuat_vien
+              WHERE chuyenMonId IN (:chuyenMonIds)
+              GROUP BY kyThuatVienId
+              HAVING COUNT(DISTINCT chuyenMonId) = :soLuongChuyenMon
+          )
+    """)
+    suspend fun getWithFilter(
+        trangThai: String?,
+        chuyenMonIds: List<Int>,
+        soLuongChuyenMon: Int
+    ): List<KyThuatVienWithTaiKhoanImpl>
+
+    data class KyThuatVienWithTaiKhoanImpl(
+        @Embedded(prefix = "ktv_") val kyThuatVien: KyThuatVien,
+        @Embedded(prefix = "tk_") val taiKhoan: TaiKhoan
+    )
 }
