@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
@@ -33,6 +35,7 @@ fun ThemYeuCauMoiScreen(
     val donViId = SessionManager.currentUser?.donViId ?: 0
     var moTa by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(yeuCauId == null) } // ✅ Nếu có `yeuCauId`, bỏ qua nhập mô tả
+    var trangThai by remember { mutableStateOf("") }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val returnedYeuCauIdState = savedStateHandle?.getLiveData<Int>("yeuCauId")?.observeAsState()
@@ -46,6 +49,7 @@ fun ThemYeuCauMoiScreen(
 
             viewModel.getYeuCauById(id) { yeuCau ->
                 moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+                trangThai = yeuCau.trangThai
                 showDialog = false
             }
         }
@@ -61,6 +65,7 @@ fun ThemYeuCauMoiScreen(
                 Button(onClick = {
                     viewModel.createYeuCau(taiKhoanId, donViId, moTa)
                     showDialog = false
+                    trangThai = TrangThaiYeuCau.NHAP
                 },
                     enabled = (moTa != "")
                 ) {
@@ -107,15 +112,40 @@ fun ThemYeuCauMoiScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            Button(onClick = {
-                viewModel.yeuCauId.value?.let {
-                    showDialog = false
-                    navController.navigate("chon_thiet_bi/$it")
+            if (trangThai == TrangThaiYeuCau.NHAP) {
+                Button(onClick = {
+                    viewModel.yeuCauId.value?.let {
+                        showDialog = false
+                        navController.navigate("chon_thiet_bi/$it")
+                    }
+                }) {
+                    Text("Thêm thiết bị")
                 }
-            }) {
-                Text("Thêm thiết bị")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.yeuCauId.value?.let {
+                            viewModel.updateYeuCauStatus(it, TrangThaiYeuCau.CHO_XAC_NHAN)
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = chiTietList.isNotEmpty()
+                ) {
+                    Text("Gửi yêu cầu")
+                }
+            } else {
+                Text(
+                    text = "Hiện không thể chỉnh sửa",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
 
             LazyColumn {
                 items(chiTietList) { chiTiet ->
@@ -124,21 +154,31 @@ fun ThemYeuCauMoiScreen(
                             Text("Thiết bị: ${chiTiet.thietBiId}")
                             Text("Loại yêu cầu: ${chiTiet.loaiYeuCau}")
                             Text("Mô tả: ${chiTiet.moTa}")
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
+                            if (trangThai == "nhap") {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    IconButton(onClick = {
+                                        chiTiet.thietBiId?.let { thietBiId ->
+                                            navController.navigate(Screen.ThietBiDetail.createRoute(thietBiId, isEditMode = true, yeuCauId = yeuCauId))
+                                        }
+                                    }) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                                    }
+                                    IconButton(onClick = {
+                                        viewModel.removeChiTietYeuCau(chiTiet.id)
+                                    }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                    }
+                                }
+                            } else {
                                 IconButton(onClick = {
                                     chiTiet.thietBiId?.let { thietBiId ->
                                         navController.navigate(Screen.ThietBiDetail.createRoute(thietBiId, isEditMode = true, yeuCauId = yeuCauId))
                                     }
                                 }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-                                }
-                                IconButton(onClick = {
-                                    viewModel.removeChiTietYeuCau(chiTiet.id)
-                                }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                    Icon(Icons.Default.Search, contentDescription = "Review")
                                 }
                             }
                         }

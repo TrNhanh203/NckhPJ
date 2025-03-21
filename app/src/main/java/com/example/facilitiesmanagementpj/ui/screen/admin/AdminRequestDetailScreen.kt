@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel
 
 @Composable
@@ -52,10 +54,26 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Approval Button
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Duyệt yêu cầu")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
             // Request Details List
             LazyColumn {
                 items(chiTietList) { chiTiet ->
-                    Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                    Card(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable {
+                            navController.navigate(Screen.AdminDeviceDetail.createRoute(chiTiet.thietBiId!!, chiTiet.yeuCauId))
+                        }) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("ID: ${chiTiet.id}")
                             Text("Yêu cầu ID: ${chiTiet.yeuCauId}")
@@ -70,15 +88,7 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Approval Button
-            Button(
-                onClick = { },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Duyệt yêu cầu")
-            }
         }
     }
 }

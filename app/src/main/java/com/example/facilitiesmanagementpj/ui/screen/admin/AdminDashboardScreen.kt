@@ -50,7 +50,7 @@ fun AdminDashboardScreen(navController: NavController) {
                 title = "Quản lý thiết bị",
                 icon = Icons.Default.Settings,
                 color = Color.Blue,
-                onClick = {  }
+                onClick = { navController.navigate(Screen.AdminDeviceList.route) }
             )
 
             DashboardOption(

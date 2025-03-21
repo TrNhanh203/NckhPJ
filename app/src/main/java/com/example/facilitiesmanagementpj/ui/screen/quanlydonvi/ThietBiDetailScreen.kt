@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.Log
@@ -18,6 +19,7 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.ThietBiDetailViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.component.picker.ImagePickerSection
 import com.example.facilitiesmanagementpj.ui.component.picker.VideoPickerSection
+import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
 
 
 // In ThietBiDetailScreen.kt
@@ -29,7 +31,8 @@ fun ThietBiDetailScreen(
     thietBiId: Int,
     isEditMode: Boolean = false,
     yeuCauId: Int? = null,
-    viewModel: ThietBiDetailViewModel = hiltViewModel()
+    viewModel: ThietBiDetailViewModel = hiltViewModel(),
+    viewModelYC: QLDVCreateYeuCauViewModel = hiltViewModel()
 ) {
     val thietBi by viewModel.thietBi.collectAsState()
     val imageUris by viewModel.imageUris.collectAsState()
@@ -40,17 +43,25 @@ fun ThietBiDetailScreen(
     var isExistingDetail by remember { mutableStateOf(false) }
     var selectedImages by remember { mutableStateOf<List<Uri>>(imageUris) }
     var selectedVideo by remember { mutableStateOf<Uri?>(videoUri) }
+    var trangThai by remember { mutableStateOf("") }
 
 
 
     LaunchedEffect(Unit) {
         viewModel.loadThietBi(thietBiId)
         if (yeuCauId != null) {
+
+            viewModelYC.getYeuCauById(yeuCauId) { yeuCau ->
+                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+                trangThai = yeuCau.trangThai
+            }
+
             viewModel.loadChiTietYeuCau(yeuCauId, thietBiId) { chiTietYeuCau ->
                 moTa = chiTietYeuCau.moTa
                 selectedLoaiYeuCau = chiTietYeuCau.loaiYeuCau
                 isExistingDetail = true
                 viewModel.loadMedia(chiTietYeuCau.id)
+
             }
         }
     }
@@ -106,21 +117,30 @@ fun ThietBiDetailScreen(
                         label = { Text("Mô tả chi tiết") }
                     )
 
-                    Button(
-                        onClick = {
-                            if (yeuCauId != null && selectedLoaiYeuCau != null) {
-                                if (isExistingDetail) {
-                                    viewModel.updateChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa, selectedImages, selectedVideo)
-                                } else {
-                                    viewModel.addChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa, selectedImages, selectedVideo)
+                    if (trangThai == TrangThaiYeuCau.NHAP) {
+                        Button(
+                            onClick = {
+                                if (yeuCauId != null && selectedLoaiYeuCau != null) {
+                                    if (isExistingDetail) {
+                                        viewModel.updateChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa, selectedImages, selectedVideo)
+                                    } else {
+                                        viewModel.addChiTietYeuCau(yeuCauId, thietBiId, selectedLoaiYeuCau!!, moTa, selectedImages, selectedVideo)
+                                    }
+                                    navController.popBackStack()
                                 }
-                                navController.popBackStack()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = selectedLoaiYeuCau != null && moTa.isNotBlank()
-                    ) {
-                        Text(if (isExistingDetail) "Cập nhật yêu cầu" else "Thêm vào yêu cầu")
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = selectedLoaiYeuCau != null && moTa.isNotBlank()
+                        ) {
+                            Text(if (isExistingDetail) "Cập nhật yêu cầu" else "Thêm vào yêu cầu")
+                        }
+                    } else {
+                        Text(
+                            text = "Không thể chỉnh sửa yêu cầu này",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
                     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {

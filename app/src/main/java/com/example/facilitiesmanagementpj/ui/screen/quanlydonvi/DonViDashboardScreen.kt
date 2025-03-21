@@ -40,14 +40,14 @@ fun DonViDashboardScreen(navController: NavController) {
             DashboardOption(
                 title = "Danh sách phòng",
                 icon = Icons.Default.AccountCircle,
-                color = Color.Blue,
+                color = Color.DarkGray,
                 onClick = { navController.navigate(Screen.QLDVPhong.route) }
             )
 
             DashboardOption(
                 title = "Danh sách báo cáo",
                 icon = Icons.Default.Settings,
-                color = Color.Green,
+                color = Color.DarkGray,
                 onClick = { navController.navigate(Screen.QLDVDanhSachYeuCau.route) }
             )
 
@@ -61,7 +61,7 @@ fun DonViDashboardScreen(navController: NavController) {
             DashboardOption(
                 title = "Ds thiết bị của dvi",
                 icon = Icons.Default.Settings,
-                color = Color.Magenta,
+                color = Color.DarkGray,
                 onClick = { navController.navigate(Screen.QLDVThietBiTheoDV.route) }
             )
 

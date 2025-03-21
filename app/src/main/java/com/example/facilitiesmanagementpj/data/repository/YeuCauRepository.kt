@@ -21,7 +21,9 @@ class YeuCauRepository @Inject constructor(
     private val chiTietYeuCauDao: ChiTietYeuCauDao,
     private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao
 ) {
-
+    suspend fun updateYeuCauStatus(yeuCauId: Int, status: String) {
+        yeuCauDao.updateYeuCauStatus(yeuCauId, status)
+    }
 
     fun getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId: Int): Flow<List<ChiTietYeuCauWithThietBiAndLoaiThietBi>> {
         return chiTietYeuCauDao.getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId)
@@ -121,6 +123,8 @@ class YeuCauRepository @Inject constructor(
         val chiTiet = ChiTietYeuCau(yeuCauId = yeuCauId, thietBiId = thietBiId, loaiYeuCau = loaiYeuCau, moTa = moTa)
         return chiTietYeuCauDao.insertChiTietYeuCau(chiTiet).toInt()
     }
+
+    fun getAllYeuCauTruNhap(): Flow<List<YeuCau>> = yeuCauDao.getAllYeuCauTruNhap()
 
     fun getAllYeuCau(): Flow<List<YeuCau>> = yeuCauDao.getAll()
     suspend fun insert(yeuCau: YeuCau) = yeuCauDao.insert(yeuCau)

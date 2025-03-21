@@ -39,7 +39,7 @@ class AdminRequestListViewModel @Inject constructor(
 
     fun loadYeuCauList() {
         viewModelScope.launch {
-            repository.getAllYeuCau().collect {
+            repository.getAllYeuCauTruNhap().collect {
                 _yeuCauList.value = it
             }
         }

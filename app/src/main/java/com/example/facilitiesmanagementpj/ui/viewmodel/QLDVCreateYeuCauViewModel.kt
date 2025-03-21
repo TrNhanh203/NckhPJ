@@ -24,6 +24,11 @@ class QLDVCreateYeuCauViewModel @Inject constructor(
         }
     }
 
+    fun updateYeuCauStatus(yeuCauId: Int, status: String) {
+        viewModelScope.launch {
+            repository.updateYeuCauStatus(yeuCauId, status)
+        }
+    }
 
     private val _yeuCauId = MutableStateFlow<Int?>(null)
     val yeuCauId: StateFlow<Int?> = _yeuCauId

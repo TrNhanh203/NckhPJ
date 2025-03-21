@@ -14,7 +14,7 @@ object SessionManager {
 
     fun logout(onStatusUpdate: (Int, String) -> Unit) {
         currentUser?.let { user ->
-            onStatusUpdate(user.id, TrangThaiTaiKhoan.NGOAI_TUYEN) // ✅ Cập nhật trạng thái ngoại tuyến
+            onStatusUpdate(user.id, TrangThaiTaiKhoan.NGOAI_TUYEN,) // ✅ Cập nhật trạng thái ngoại tuyến
         }
 
         currentUser = null

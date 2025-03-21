@@ -11,6 +11,8 @@ import androidx.navigation.navArgument
 import com.example.facilitiesmanagementpj.ui.screen.DebugLoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminAccountScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceDetailScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
@@ -64,6 +66,22 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         ) { backStackEntry ->
             val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
             AdminRequestDetailScreen(navController, yeuCauId)
+        }
+        composable(
+            route = Screen.AdminDeviceDetail.route,
+            arguments = listOf(
+                navArgument("thietBiId") { type = NavType.IntType },
+                navArgument("yeuCauId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val thietBiId = backStackEntry.arguments?.getInt("thietBiId") ?: 0
+            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+            AdminDeviceDetailScreen(navController, thietBiId, yeuCauId)
+        }
+        composable(
+            route = Screen.AdminDeviceList.route
+        ) {
+            AdminDeviceListScreen(navController)
         }
 
 

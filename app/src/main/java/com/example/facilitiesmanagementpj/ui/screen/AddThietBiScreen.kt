@@ -24,29 +24,22 @@ fun AddThietBiScreen(
     phongViewModel: PhongViewModel = hiltViewModel(),
     loaiThietBiViewModel: LoaiThietBiViewModel = hiltViewModel()
 ) {
-    // Trạng thái chọn lựa
     var tenThietBi by remember { mutableStateOf("") }
     var moTa by remember { mutableStateOf("") }
-    var expandedDay by remember { mutableStateOf(false) }
-    var expandedTang by remember { mutableStateOf(false) }
-    var expandedPhong by remember { mutableStateOf(false) }
-
     var selectedDayId by remember { mutableStateOf<Int?>(null) }
     var selectedTangId by remember { mutableStateOf<Int?>(null) }
     var selectedPhongId by remember { mutableStateOf<Int?>(null) }
-    var selectiedLoaiThietBiId by remember { mutableStateOf<Int?>(null) }
+    var selectedLoaiThietBiId by remember { mutableStateOf<Int?>(null) }
 
     val danhSachDay by dayViewModel.allDay.collectAsState(initial = emptyList())
     val danhSachTang by tangViewModel.getTangByDayId(selectedDayId).collectAsState(initial = emptyList())
     val danhSachPhong by phongViewModel.getPhongByTangId(selectedTangId).collectAsState(initial = emptyList())
     val danhSachLoaiThietBi by loaiThietBiViewModel.allLoaiThietBi.collectAsState(initial = emptyList())
-
     val danhSachThietBi by thietBiViewModel.allThietBi.collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Thêm Thiết Bị Mới", style = MaterialTheme.typography.headlineMedium)
 
-        // Ô nhập tên thiết bị
         OutlinedTextField(
             value = tenThietBi,
             onValueChange = { tenThietBi = it },
@@ -54,31 +47,31 @@ fun AddThietBiScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Chọn Loại Thiết Bị
         DropdownMenuField(
             label = "Chọn Loại Thiết Bị",
             options = danhSachLoaiThietBi.map { it.id to it.tenLoai },
-            selectedOption = selectiedLoaiThietBiId,
-            onOptionSelected = { selectiedLoaiThietBiId = it;}
+            selectedOption = selectedLoaiThietBiId,
+            onOptionSelected = { selectedLoaiThietBiId = it }
         )
 
-        // Chọn Dãy
         DropdownMenuField(
             label = "Chọn Dãy",
             options = danhSachDay.map { it.id to it.tenDay },
             selectedOption = selectedDayId,
-            onOptionSelected = { selectedDayId = it; selectedTangId = null; selectedPhongId = null }
+            onOptionSelected = {
+                selectedDayId = it
+                selectedTangId = null
+                selectedPhongId = null
+            }
         )
 
-        // Chọn Tầng (lọc theo Dãy)
         DropdownMenuField(
             label = "Chọn Tầng",
             options = danhSachTang.map { it.id to it.tenTang },
             selectedOption = selectedTangId,
-            onOptionSelected = { selectedTangId = it; selectedPhongId = null }
+            onOptionSelected = { selectedTangId = it }
         )
 
-        // Chọn Phòng (có thể để trống nếu thiết bị đặt ngoài hành lang)
         DropdownMenuField(
             label = "Chọn Phòng (Tùy chọn)",
             options = danhSachPhong.map { it.id to it.tenPhong },
@@ -86,7 +79,6 @@ fun AddThietBiScreen(
             onOptionSelected = { selectedPhongId = it }
         )
 
-        // Ô nhập mô tả có giới hạn chiều cao
         OutlinedTextField(
             value = moTa,
             onValueChange = { moTa = it },
@@ -94,15 +86,14 @@ fun AddThietBiScreen(
             modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp, max = 120.dp)
         )
 
-        // Nút thêm thiết bị
         Button(
             onClick = {
                 if (tenThietBi.isNotBlank() && selectedTangId != null) {
                     val ngayCaiDat = System.currentTimeMillis()
                     val newThietBi = ThietBi(
                         tenThietBi = tenThietBi,
-                        loaiThietBiId = selectiedLoaiThietBiId ?: 1, // Mặc định là điều hòa
-                        phongId = selectedPhongId, // Nếu null, thiết bị sẽ được gắn ở tầng (hành lang)
+                        loaiThietBiId = selectedLoaiThietBiId ?: 1,
+                        phongId = selectedPhongId,
                         tangId = selectedTangId,
                         trangThai = "binh_thuong",
                         ngayDaCat = ngayCaiDat,
@@ -118,9 +109,6 @@ fun AddThietBiScreen(
                     thietBiViewModel.insert(newThietBi)
                     tenThietBi = ""
                     moTa = ""
-                    selectedDayId = null
-                    selectedTangId = null
-                    selectedPhongId = null
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -130,7 +118,6 @@ fun AddThietBiScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Hiển thị danh sách thiết bị
         Text("Danh sách thiết bị:", style = MaterialTheme.typography.titleLarge)
         LazyColumn {
             items(danhSachThietBi) { thietBi ->
@@ -140,7 +127,6 @@ fun AddThietBiScreen(
     }
 }
 
-// Component Dropdown chọn Dãy, Tầng, Phòng
 @Composable
 fun DropdownMenuField(
     label: String,
