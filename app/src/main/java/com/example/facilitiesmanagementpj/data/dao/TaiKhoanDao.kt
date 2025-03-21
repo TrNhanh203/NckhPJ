@@ -34,6 +34,9 @@ data class TaiKhoanChiTiet(
 @Dao
 interface TaiKhoanDao {
 
+    @Query("SELECT * FROM tai_khoan WHERE id = :id")
+    fun getById(id: Int): Flow<TaiKhoan?>
+
     @Transaction
     @Query("""
     SELECT tai_khoan.*, vai_tro.tenVaiTro, don_vi.tenDonVi 

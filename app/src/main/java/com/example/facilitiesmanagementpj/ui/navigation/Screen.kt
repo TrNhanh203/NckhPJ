@@ -54,6 +54,10 @@ sealed class Screen(val route: String) {
 
     // Kỹ thuật viên Screens
     object KtvDashboard : Screen("ktv_dashboard")
+    object ChuyenMonKyThuatVien : Screen("chuyen_mon_ky_thuat_vien/{taiKhoanId}") {
+        fun createRoute(taiKhoanId: Int) = "chuyen_mon_ky_thuat_vien/$taiKhoanId"
+    }
+
 
     // User Screens (Sinh viên, Giảng viên)
     object Profile : Screen("profile")

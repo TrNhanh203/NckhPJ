@@ -21,4 +21,11 @@ interface ChuyenMonKtvDao {
 
     @Delete
     suspend fun delete(chuyenMonKTV: ChuyenMonKtv)
+
+    @Query("SELECT chuyenMonId FROM chuyen_mon_ky_thuat_vien WHERE kyThuatVienId = :ktvId")
+    suspend fun getChuyenMonIdsByKtvId(ktvId: Int): List<Int>
+
+
+    @Query("DELETE FROM chuyen_mon_ky_thuat_vien WHERE kyThuatVienId = :ktvId")
+    suspend fun deleteAllByKtvId(ktvId: Int)
 }

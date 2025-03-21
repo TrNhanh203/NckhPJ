@@ -17,6 +17,11 @@ class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyTh
         }.flowOn(Dispatchers.IO)
     }
 
+    fun getByTaiKhoanId(taiKhoanId: Int): Flow<KyThuatVien?> {
+        return kyThuatVienDao.getByTaiKhoanId(taiKhoanId)
+    }
+
+
 
     fun getChuyenMonCuaKTV(kyThuatVienId: Int): Flow<List<String>> {
         return kyThuatVienDao.getChuyenMonCuaKTV(kyThuatVienId)

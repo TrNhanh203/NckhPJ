@@ -1,7 +1,14 @@
 package com.example.facilitiesmanagementpj.ui.navigation
 
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,6 +28,7 @@ import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.RegisterScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
+import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.ChuyenMonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DanhSachYeuCauScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
@@ -124,6 +132,19 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
 
         // Màn hình Kỹ thuật viên
         composable(Screen.KtvDashboard.route) { KtvDashboardScreen(navController) }
+        composable(
+            route = Screen.ChuyenMonKyThuatVien.route,
+            arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+            ChuyenMonKyThuatVienScreen(taiKhoanId = taiKhoanId, navController) {
+                navController.popBackStack()
+            }
+        }
+
+
+
+
 
 
         // Màn hình Người dùng (Sinh viên, Giảng viên)

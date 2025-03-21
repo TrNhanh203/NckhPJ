@@ -7,6 +7,11 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 10. KyThuatVienDao
 @Dao
 interface KyThuatVienDao {
+
+    @Query("SELECT * FROM ky_thuat_vien WHERE taiKhoanId = :taiKhoanId LIMIT 1")
+    fun getByTaiKhoanId(taiKhoanId: Int): Flow<KyThuatVien?>
+
+
     @Query("""
     SELECT * FROM ky_thuat_vien 
     WHERE taiKhoanId = :taiKhoanId
