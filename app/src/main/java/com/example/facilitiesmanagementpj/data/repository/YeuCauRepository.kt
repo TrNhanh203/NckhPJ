@@ -25,6 +25,10 @@ class YeuCauRepository @Inject constructor(
         yeuCauDao.updateYeuCauStatus(yeuCauId, status)
     }
 
+    suspend fun updateYeuCauKhiTuChoi(yeuCauId: Int, status: String, lyDoTuChoi: String) {
+        yeuCauDao.updateYeuCauKhiTuChoi(yeuCauId, status, lyDoTuChoi)
+    }
+
     fun getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId: Int): Flow<List<ChiTietYeuCauWithThietBiAndLoaiThietBi>> {
         return chiTietYeuCauDao.getChiTietYeuCauWithThietBiAndLoaiThietBi(yeuCauId)
     }

@@ -24,6 +24,8 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
     val yeuCau by viewModel.yeuCau.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    var showRejectDialog by remember { mutableStateOf(false) }
+    var rejectReason by remember { mutableStateOf("") }
 
     LaunchedEffect(yeuCauId) {
         android.util.Log.d("AdminRequestScreen", "Gọi loadChiTietYeuCau với ID: $yeuCauId")
@@ -70,13 +72,20 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Approval Button (chỉ hiển thị khi trạng thái là "Chờ xác nhận")
             if (yeuCau?.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
-                Button(
-                    onClick = { viewModel.duyetYeuCau() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Duyệt yêu cầu")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { viewModel.duyetYeuCau() },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Duyệt yêu cầu")
+                    }
+                    OutlinedButton(
+                        onClick = { showRejectDialog = true },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Từ chối")
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -105,8 +114,40 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
             }
         }
     }
-}
 
+    if (showRejectDialog) {
+        AlertDialog(
+            onDismissRequest = { showRejectDialog = false },
+            title = { Text("Lý do từ chối") },
+            text = {
+                OutlinedTextField(
+                    value = rejectReason,
+                    onValueChange = { rejectReason = it },
+                    label = { Text("Nhập lý do từ chối") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (rejectReason.isNotBlank()) {
+                            viewModel.tuChoiYeuCau(rejectReason)
+                            showRejectDialog = false
+                            rejectReason = ""
+                        }
+                    }
+                ) {
+                    Text("Xác nhận")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRejectDialog = false }) {
+                    Text("Hủy")
+                }
+            }
+        )
+    }
+}
 
 
 
@@ -122,6 +163,7 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 //import androidx.compose.ui.unit.dp
 //import androidx.hilt.navigation.compose.hiltViewModel
 //import androidx.navigation.NavController
+//import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 //import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 //import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 //import com.example.facilitiesmanagementpj.ui.navigation.Screen
@@ -132,12 +174,22 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 //    val viewModel: AdminRequestDetailViewModel = hiltViewModel()
 //    val chiTietList by viewModel.filteredChiTietYeuCauList.collectAsState()
 //    val deviceTypes by viewModel.deviceTypes.collectAsState()
+//    val yeuCau by viewModel.yeuCau.collectAsState()
+//    val snackbarHostState = remember { SnackbarHostState() }
+//    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
 //
 //    LaunchedEffect(yeuCauId) {
+//        android.util.Log.d("AdminRequestScreen", "Gọi loadChiTietYeuCau với ID: $yeuCauId")
 //        viewModel.loadChiTietYeuCau(yeuCauId)
 //        viewModel.loadDeviceTypes()
 //    }
 //
+//    LaunchedEffect(snackbarMessage) {
+//        snackbarMessage?.let {
+//            snackbarHostState.showSnackbar(it)
+//            viewModel.clearSnackbar()
+//        }
+//    }
 //
 //    ScaffoldLayout(
 //        title = "Chi tiết yêu cầu",
@@ -145,10 +197,14 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 //        showTopBar = true,
 //        showBottomBar = false,
 //        showDrawer = false,
-//        isHomeScreen = false
+//        isHomeScreen = false,
+//        snackbarHost = { SnackbarHost(snackbarHostState) }
 //    ) { innerPadding ->
 //        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(innerPadding)) {
 //            Text("Chi tiết yêu cầu", style = MaterialTheme.typography.headlineSmall)
+//
+//            Text("Trạng thái: ${yeuCau?.trangThai ?: "Đang tải..."}", style = MaterialTheme.typography.bodyLarge)
+//            Spacer(modifier = Modifier.height(8.dp))
 //
 //            // Filters Section
 //            DropdownMenuFilter(
@@ -167,16 +223,16 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 //
 //            Spacer(modifier = Modifier.height(16.dp))
 //
-//            // Approval Button
-//            Button(
-//                onClick = { },
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Text("Duyệt yêu cầu")
+//            // Approval Button (chỉ hiển thị khi trạng thái là "Chờ xác nhận")
+//            if (yeuCau?.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
+//                Button(
+//                    onClick = { viewModel.duyetYeuCau() },
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text("Duyệt yêu cầu")
+//                }
+//                Spacer(modifier = Modifier.height(16.dp))
 //            }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
 //
 //            // Request Details List
 //            LazyColumn {
@@ -200,8 +256,8 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 //                    }
 //                }
 //            }
-//
-//
 //        }
 //    }
 //}
+//
+//

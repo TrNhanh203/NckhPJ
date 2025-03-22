@@ -71,6 +71,19 @@ class AdminRequestDetailViewModel @Inject constructor(
         }
     }
 
+    fun tuChoiYeuCau(reason: String) {
+        viewModelScope.launch {
+            yeuCau.value?.let {
+                if (it.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
+                    val updated = it.copy(trangThai = TrangThaiYeuCau.TU_CHOI, lyDoTuChoi = reason)
+                    repository.updateYeuCauKhiTuChoi(updated.id, updated.trangThai, updated.lyDoTuChoi ?: "Không có lý do")
+                    _yeuCau.value = updated
+                    _snackbarMessage.value = "Yêu cầu đã bị từ chối."
+                }
+            }
+        }
+    }
+
     fun loadDeviceTypes() {
         viewModelScope.launch {
             loaiThietBiRepository.getAllLoaiThietBi().collect {
