@@ -52,7 +52,7 @@ fun ThietBiDetailScreen(
         if (yeuCauId != null) {
 
             viewModelYC.getYeuCauById(yeuCauId) { yeuCau ->
-                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+                //moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
                 trangThai = yeuCau.trangThai
             }
 

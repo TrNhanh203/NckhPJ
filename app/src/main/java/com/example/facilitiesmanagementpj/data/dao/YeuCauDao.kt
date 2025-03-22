@@ -30,8 +30,9 @@ interface YeuCauDao {
     @Query("SELECT * FROM yeu_cau")
     fun getAll(): Flow<List<YeuCau>>
 
-    @Query("SELECT * FROM yeu_cau WHERE trangThai != 'nhap'")
-    fun getAllYeuCauTruNhap(): Flow<List<YeuCau>>
+    @Query("SELECT * FROM yeu_cau WHERE trangThai != :excludedStatus")
+    fun getAllYeuCauTruNhap(excludedStatus: String): Flow<List<YeuCau>>
+
 
     @Query("SELECT * FROM yeu_cau WHERE donViId = :donViId")
     fun getReportsByUnit(donViId: Int): Flow<List<YeuCau>>

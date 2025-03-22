@@ -7,10 +7,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -22,24 +25,31 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemYeuCauMoiScreen(
     navController: NavController,
-    yeuCauId: Int?, // ✅ Nhận tham số yêu cầu, nếu null thì tạo mới
+    yeuCauId: Int?,
     viewModel: QLDVCreateYeuCauViewModel = hiltViewModel()
 ) {
     BackHandler { navController.popBackStack() }
 
     val chiTietList by viewModel.chiTietYeuCauList.collectAsState()
+    val yeuCau by viewModel.yeuCau.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+
     val taiKhoanId = SessionManager.currentUser?.id ?: 0
     val donViId = SessionManager.currentUser?.donViId ?: 0
     var moTa by remember { mutableStateOf("") }
-    var showDialog by remember { mutableStateOf(yeuCauId == null) } // ✅ Nếu có `yeuCauId`, bỏ qua nhập mô tả
+    var showDialog by remember { mutableStateOf(yeuCauId == null) }
     var trangThai by remember { mutableStateOf("") }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val returnedYeuCauIdState = savedStateHandle?.getLiveData<Int>("yeuCauId")?.observeAsState()
     val returnedYeuCauId = returnedYeuCauIdState?.value
+
+    var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(yeuCauId, returnedYeuCauId) {
         val id = returnedYeuCauId ?: yeuCauId
@@ -47,18 +57,22 @@ fun ThemYeuCauMoiScreen(
             viewModel.setYeuCauId(id)
             viewModel.loadChiTietYeuCau(id)
 
-            viewModel.getYeuCauById(id) { yeuCau ->
-                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
-                trangThai = yeuCau.trangThai
+            viewModel.getYeuCauById(id) { yc ->
+                moTa = yc.moTa
+                trangThai = yc.trangThai
                 showDialog = false
             }
         }
     }
 
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearSnackbar()
+        }
+    }
 
-
-
-    if (showDialog) { // ✅ Hiển thị `AlertDialog` để nhập mô tả nếu chưa có yêu cầu
+    if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
@@ -66,9 +80,7 @@ fun ThemYeuCauMoiScreen(
                     viewModel.createYeuCau(taiKhoanId, donViId, moTa)
                     showDialog = false
                     trangThai = TrangThaiYeuCau.NHAP
-                },
-                    enabled = (moTa != "")
-                ) {
+                }, enabled = (moTa != "")) {
                     Text("Tạo yêu cầu")
                 }
             },
@@ -94,9 +106,10 @@ fun ThemYeuCauMoiScreen(
     }
 
     ScaffoldLayout(
-        title = moTa.ifBlank { "Chỉnh sửa yêu cầu" }, // ✅ Hiển thị mô tả trên thanh tiêu đề
+        title = moTa.ifBlank { "Chỉnh sửa yêu cầu" },
         navController = navController,
-        showBottomBar = false
+        showBottomBar = false,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { modifier ->
         Column(
             modifier = Modifier
@@ -107,10 +120,78 @@ fun ThemYeuCauMoiScreen(
             Text("Chi tiết yêu cầu", style = MaterialTheme.typography.headlineMedium)
 
             Text(
-                text = moTa.ifBlank { "Không có mô tả" }, // ✅ Hiển thị mô tả bên dưới tiêu đề
-                style = MaterialTheme.typography.titleLarge, // ✅ Tiêu đề lớn
+                text = moTa.ifBlank { "Không có mô tả" },
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+
+            if (yeuCau?.trangThai == TrangThaiYeuCau.TU_CHOI) {
+                var showReasonSheet by remember { mutableStateOf(false) }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "Yêu cầu này đã bị từ chối.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        IconButton(onClick = { showReasonSheet = true }) {
+                            Icon(Icons.Default.Info, contentDescription = "Lý do từ chối")
+                        }
+                    }
+
+                    Box {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Tuỳ chọn")
+                        }
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Hủy bỏ yêu cầu") },
+                                onClick = {
+                                    expanded = false
+                                    viewModel.capNhatTrangThaiYeuCau(TrangThaiYeuCau.DA_HUY)
+                                    yeuCauId?.let {
+                                        viewModel.getYeuCauById(it) { yc ->
+                                            moTa = yc.moTa
+                                            trangThai = yc.trangThai
+                                        }
+                                    }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Điều chỉnh lại") },
+                                onClick = {
+                                    expanded = false
+                                    viewModel.capNhatTrangThaiYeuCau(TrangThaiYeuCau.NHAP)
+                                    yeuCauId?.let {
+                                        viewModel.getYeuCauById(it) { yc ->
+                                            moTa = yc.moTa
+                                            trangThai = yc.trangThai
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                if (showReasonSheet) {
+                    ModalBottomSheet(onDismissRequest = { showReasonSheet = false }) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("Lý do từ chối", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Text(yeuCau?.lyDoTuChoi ?: "Không có lý do được cung cấp.")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             if (trangThai == TrangThaiYeuCau.NHAP) {
                 Button(onClick = {
@@ -146,7 +227,6 @@ fun ThemYeuCauMoiScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             LazyColumn {
                 items(chiTietList) { chiTiet ->
                     Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
@@ -154,7 +234,7 @@ fun ThemYeuCauMoiScreen(
                             Text("Thiết bị: ${chiTiet.thietBiId}")
                             Text("Loại yêu cầu: ${chiTiet.loaiYeuCau}")
                             Text("Mô tả: ${chiTiet.moTa}")
-                            if (trangThai == "nhap") {
+                            if (trangThai == TrangThaiYeuCau.NHAP) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.End
@@ -185,38 +265,73 @@ fun ThemYeuCauMoiScreen(
                     }
                 }
             }
-
-
-
-
-
         }
     }
 }
 
 
+
+//package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
+//
+//import androidx.activity.compose.BackHandler
+//import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.lazy.LazyColumn
+//import androidx.compose.foundation.lazy.items
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.Delete
+//import androidx.compose.material.icons.filled.Edit
+//import androidx.compose.material.icons.filled.MoreVert
+//import androidx.compose.material.icons.filled.Search
+//import androidx.compose.material3.*
+//import androidx.compose.runtime.*
+//import androidx.compose.runtime.livedata.observeAsState
+//import androidx.compose.ui.Alignment
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.unit.dp
+//import androidx.hilt.navigation.compose.hiltViewModel
+//import androidx.navigation.NavController
+//import com.example.facilitiesmanagementpj.data.session.SessionManager
+//import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
+//import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
+//import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+//import com.example.facilitiesmanagementpj.ui.navigation.Screen
+//
 //@Composable
 //fun ThemYeuCauMoiScreen(
 //    navController: NavController,
 //    yeuCauId: Int?, // ✅ Nhận tham số yêu cầu, nếu null thì tạo mới
 //    viewModel: QLDVCreateYeuCauViewModel = hiltViewModel()
 //) {
+//    BackHandler { navController.popBackStack() }
+//
 //    val chiTietList by viewModel.chiTietYeuCauList.collectAsState()
 //    val taiKhoanId = SessionManager.currentUser?.id ?: 0
 //    val donViId = SessionManager.currentUser?.donViId ?: 0
 //    var moTa by remember { mutableStateOf("") }
 //    var showDialog by remember { mutableStateOf(yeuCauId == null) } // ✅ Nếu có `yeuCauId`, bỏ qua nhập mô tả
+//    var trangThai by remember { mutableStateOf("") }
 //
-//    LaunchedEffect(yeuCauId) {
-//        if (yeuCauId != null) {
-//            viewModel.setYeuCauId(yeuCauId)
-//            viewModel.loadChiTietYeuCau(yeuCauId)
+//    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+//    val returnedYeuCauIdState = savedStateHandle?.getLiveData<Int>("yeuCauId")?.observeAsState()
+//    val returnedYeuCauId = returnedYeuCauIdState?.value
 //
-//            viewModel.getYeuCauById(yeuCauId) { yeuCau ->
+//    LaunchedEffect(yeuCauId, returnedYeuCauId) {
+//        val id = returnedYeuCauId ?: yeuCauId
+//        if (id != null) {
+//            viewModel.setYeuCauId(id)
+//            viewModel.loadChiTietYeuCau(id)
+//
+//            viewModel.getYeuCauById(id) { yeuCau ->
 //                moTa = yeuCau.moTa // ✅ Lấy mô tả từ yêu cầu nháp
+//                trangThai = yeuCau.trangThai
+//                showDialog = false
 //            }
 //        }
 //    }
+//
+//
+//
 //
 //    if (showDialog) { // ✅ Hiển thị `AlertDialog` để nhập mô tả nếu chưa có yêu cầu
 //        AlertDialog(
@@ -225,7 +340,10 @@ fun ThemYeuCauMoiScreen(
 //                Button(onClick = {
 //                    viewModel.createYeuCau(taiKhoanId, donViId, moTa)
 //                    showDialog = false
-//                }) {
+//                    trangThai = TrangThaiYeuCau.NHAP
+//                },
+//                    enabled = (moTa != "")
+//                ) {
 //                    Text("Tạo yêu cầu")
 //                }
 //            },
@@ -253,7 +371,7 @@ fun ThemYeuCauMoiScreen(
 //    ScaffoldLayout(
 //        title = moTa.ifBlank { "Chỉnh sửa yêu cầu" }, // ✅ Hiển thị mô tả trên thanh tiêu đề
 //        navController = navController,
-//        showBottomBar = true
+//        showBottomBar = false
 //    ) { modifier ->
 //        Column(
 //            modifier = Modifier
@@ -269,6 +387,44 @@ fun ThemYeuCauMoiScreen(
 //                modifier = Modifier.padding(vertical = 8.dp)
 //            )
 //
+//
+//
+//
+//            if (trangThai == TrangThaiYeuCau.NHAP) {
+//                Button(onClick = {
+//                    viewModel.yeuCauId.value?.let {
+//                        showDialog = false
+//                        navController.navigate("chon_thiet_bi/$it")
+//                    }
+//                }) {
+//                    Text("Thêm thiết bị")
+//                }
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Button(
+//                    onClick = {
+//                        viewModel.yeuCauId.value?.let {
+//                            viewModel.updateYeuCauStatus(it, TrangThaiYeuCau.CHO_XAC_NHAN)
+//                            navController.popBackStack()
+//                        }
+//                    },
+//                    modifier = Modifier.fillMaxWidth(),
+//                    enabled = chiTietList.isNotEmpty()
+//                ) {
+//                    Text("Gửi yêu cầu")
+//                }
+//            } else {
+//                Text(
+//                    text = "Hiện không thể chỉnh sửa",
+//                    color = Color.Red,
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    modifier = Modifier.padding(vertical = 8.dp)
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//
 //            LazyColumn {
 //                items(chiTietList) { chiTiet ->
 //                    Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
@@ -276,22 +432,45 @@ fun ThemYeuCauMoiScreen(
 //                            Text("Thiết bị: ${chiTiet.thietBiId}")
 //                            Text("Loại yêu cầu: ${chiTiet.loaiYeuCau}")
 //                            Text("Mô tả: ${chiTiet.moTa}")
+//                            if (trangThai == "nhap") {
+//                                Row(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    horizontalArrangement = Arrangement.End
+//                                ) {
+//                                    IconButton(onClick = {
+//                                        chiTiet.thietBiId?.let { thietBiId ->
+//                                            navController.navigate(Screen.ThietBiDetail.createRoute(thietBiId, isEditMode = true, yeuCauId = yeuCauId))
+//                                        }
+//                                    }) {
+//                                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+//                                    }
+//                                    IconButton(onClick = {
+//                                        viewModel.removeChiTietYeuCau(chiTiet.id)
+//                                    }) {
+//                                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+//                                    }
+//                                }
+//                            } else {
+//                                IconButton(onClick = {
+//                                    chiTiet.thietBiId?.let { thietBiId ->
+//                                        navController.navigate(Screen.ThietBiDetail.createRoute(thietBiId, isEditMode = true, yeuCauId = yeuCauId))
+//                                    }
+//                                }) {
+//                                    Icon(Icons.Default.Search, contentDescription = "Review")
+//                                }
+//                            }
 //                        }
 //                    }
 //                }
 //            }
 //
-//            Button(onClick = {
-//                viewModel.yeuCauId.value?.let {
-//                    navController.navigate("chon_thiet_bi/$it")
-//                }
-//            }) {
-//                Text("Thêm thiết bị")
-//            }
+//
+//
+//
 //
 //        }
 //    }
 //}
-
-
-
+//
+//
+//

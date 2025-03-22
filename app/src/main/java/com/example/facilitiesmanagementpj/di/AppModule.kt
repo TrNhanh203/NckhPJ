@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.facilitiesmanagementpj.data.database.AppDatabase
 import com.example.facilitiesmanagementpj.data.dao.*
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +35,7 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -61,6 +62,55 @@ object AppModule {
             database.execSQL("ALTER TABLE yeu_cau ADD COLUMN lyDoTuChoi TEXT")
         }
     }
+
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            val cursor = database.query("PRAGMA table_info(anh_minh_chung_lam_viec)")
+            var columnExists = false
+            while (cursor.moveToNext()) {
+                val columnName = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                if (columnName == "ghiChu") {
+                    columnExists = true
+                    break
+                }
+            }
+            cursor.close()
+
+            if (!columnExists) {
+                database.execSQL("ALTER TABLE anh_minh_chung_lam_viec ADD COLUMN ghiChu TEXT")
+            }
+
+            database.execSQL("ALTER TABLE phan_cong ADD COLUMN trangThai TEXT NOT NULL DEFAULT '${TrangThaiPhanCong.CHO_PHAN_HOI}'")
+            database.execSQL("ALTER TABLE phan_cong ADD COLUMN soLuongKTVThamGia INTEGER")
+            // Xóa bảng cũ
+            database.execSQL("DROP TABLE IF EXISTS phan_cong_ktv")
+
+            // Tạo lại bảng mới với đầy đủ trường mới
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS phan_cong_ktv (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                phanCongId INTEGER NOT NULL,
+                taiKhoanKTVId INTEGER NOT NULL,
+                trangThai TEXT NOT NULL,
+                thoiGianDuKien INTEGER NOT NULL,
+                thoiGianPhatSinh INTEGER NOT NULL DEFAULT 0,
+                thoiGianBatDau INTEGER,
+                thoiGianHoanThien INTEGER,
+                dangXinGiaHan INTEGER NOT NULL DEFAULT 0,
+                soThoiGianXinGiaHan INTEGER NOT NULL DEFAULT 0,
+                soLanGiaHan INTEGER NOT NULL DEFAULT 0,
+                tongThoiGianDaXinGiaHan INTEGER NOT NULL DEFAULT 0,
+                moTaCongViec TEXT,
+                daChapNhan INTEGER NOT NULL DEFAULT 0,
+                thoiGianTuChoi INTEGER,
+                lyDoTuChoi TEXT,
+                thoiGianLamViecThucTe INTEGER NOT NULL DEFAULT 0,
+                trangThaiCuoiCung TEXT
+            )
+        """.trimIndent())
+        }
+    }
+
 
 
 

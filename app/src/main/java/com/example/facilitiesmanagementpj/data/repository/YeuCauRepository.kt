@@ -5,6 +5,7 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.data.utils.deleteFileFromFirebaseStorage
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -128,7 +129,7 @@ class YeuCauRepository @Inject constructor(
         return chiTietYeuCauDao.insertChiTietYeuCau(chiTiet).toInt()
     }
 
-    fun getAllYeuCauTruNhap(): Flow<List<YeuCau>> = yeuCauDao.getAllYeuCauTruNhap()
+    fun getAllYeuCauTruNhap(): Flow<List<YeuCau>> = yeuCauDao.getAllYeuCauTruNhap(TrangThaiYeuCau.NHAP)
 
     fun getAllYeuCau(): Flow<List<YeuCau>> = yeuCauDao.getAll()
     suspend fun insert(yeuCau: YeuCau) = yeuCauDao.insert(yeuCau)

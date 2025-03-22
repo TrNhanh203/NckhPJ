@@ -8,8 +8,12 @@ import androidx.room.PrimaryKey
 data class AnhMinhChungLamViec(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val phanCongKTVId: Int,
-    val loaiAnh: String,
+    val loaiAnh: String, // Loại ảnh: check-in, check-out, tạm nghỉ, minh chứng
     val urlAnh: String,
-    val type: String,
-    val thoiGianTaiLen: Long = System.currentTimeMillis()
+    val type: String, // Kiểu MIME: jpg, mp4...
+    val thoiGianTaiLen: Long = System.currentTimeMillis(),
+
+
+     val ghiChu: String? = null // Ghi chú nội dung ảnh (nếu cần)
+
 )
