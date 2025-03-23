@@ -23,4 +23,9 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         return phanCongDao.getByChiTietYeuCauId(chiTietId)
     }
 
+    suspend fun getPhanCongById(id: Int): PhanCong? {
+        return phanCongDao.getById(id)
+    }
+
+
 }

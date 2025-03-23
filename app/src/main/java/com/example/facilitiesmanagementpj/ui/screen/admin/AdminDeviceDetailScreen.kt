@@ -36,6 +36,7 @@ import com.example.facilitiesmanagementpj.data.utils.LoaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceDetailViewModel
 
 
@@ -234,6 +235,7 @@ fun AdminDeviceDetailScreen(
                         if (phanCongDaTao != null) {
                             OutlinedButton(
                                 onClick = {
+                                    navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
                                     println("Đi đến phân công ID = ${phanCongDaTao!!.id}")
                                 },
                                 modifier = buttonModifier,

@@ -57,6 +57,10 @@ interface ChiTietYeuCauDao {
     @Query("SELECT * FROM chi_tiet_yeu_cau WHERE yeuCauId = :yeuCauId")
     fun getChiTietYeuCauByYeuCau(yeuCauId: Int): Flow<List<ChiTietYeuCau>>
 
+    @Query("SELECT * FROM chi_tiet_yeu_cau WHERE id = :chiTietId LIMIT 1")
+    suspend fun getChiTietYeuCauById(chiTietId: Int): ChiTietYeuCau?
+
+
     @Query("SELECT * FROM chi_tiet_yeu_cau")
     fun getAll(): Flow<List<ChiTietYeuCau>>
 

@@ -7,6 +7,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 11. PhanCongDao
 @Dao
 interface PhanCongDao {
+    @Query("SELECT * FROM phan_cong WHERE id = :phanCongId LIMIT 1")
+    suspend fun getById(phanCongId: Int): PhanCong?
+
+
     @Query("SELECT * FROM phan_cong")
     fun getAll(): Flow<List<PhanCong>>
 

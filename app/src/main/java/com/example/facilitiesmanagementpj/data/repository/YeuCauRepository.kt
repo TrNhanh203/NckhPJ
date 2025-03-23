@@ -122,6 +122,11 @@ class YeuCauRepository @Inject constructor(
         return chiTietYeuCauDao.getChiTietYeuCauByYeuCau(yeuCauId)
     }
 
+    suspend fun getChiTietYeuCauById(id: Int): ChiTietYeuCau? {
+        return chiTietYeuCauDao.getChiTietYeuCauById(id)
+    }
+
+
 //    suspend fun addThietBiToYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String) {
 //        val chiTiet = ChiTietYeuCau(yeuCauId = yeuCauId, thietBiId = thietBiId, loaiYeuCau = loaiYeuCau, moTa = moTa)
 //        chiTietYeuCauDao.insertChiTietYeuCau(chiTiet)
