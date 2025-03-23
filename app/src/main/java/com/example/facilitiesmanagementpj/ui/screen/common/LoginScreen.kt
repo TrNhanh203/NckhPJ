@@ -85,7 +85,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = hiltVie
         }
 
         Button(
-            onClick = { viewModel.login(username, password) },
+            onClick = { viewModel.login(username.trim(), password.trim()) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Đăng nhập")

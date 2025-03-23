@@ -70,7 +70,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = 
 
         Button(onClick = {
             viewModel.register(
-                tenTaiKhoan, matKhau, hoTen, email, soDienThoai,
+                tenTaiKhoan.trim(), matKhau.trim(), hoTen, email, soDienThoai,
                 if (vaiTro == "Kỹ thuật viên") 2 else 3,
                 donViList.find { it.tenDonVi == donVi }?.id
             )

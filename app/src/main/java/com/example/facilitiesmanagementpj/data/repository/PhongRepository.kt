@@ -14,6 +14,11 @@ class PhongRepository @Inject constructor(private val phongDao: PhongDao) {
         return phongDao.getPhongByDonVi(donViId)
     }
 
+    suspend fun getById(id: Int): Phong? {
+        return phongDao.getById(id)
+    }
+
+
 
     fun getAllPhong(): Flow<List<Phong>> = phongDao.getAll()
 

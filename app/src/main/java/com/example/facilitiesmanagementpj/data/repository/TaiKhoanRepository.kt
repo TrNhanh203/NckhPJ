@@ -1,6 +1,8 @@
 package com.example.facilitiesmanagementpj.data.repository
 
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +51,17 @@ class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDa
         return taiKhoanDao.getTaiKhoan(username, password)
     }
 
+    @OptIn(UnstableApi::class)
     suspend fun validateLogin(username: String, password: String): TaiKhoanWithRole? {
+
         return taiKhoanDao.getTaiKhoanWithRole(username, password)
+
+    }
+
+    @OptIn(UnstableApi::class)
+    suspend fun validateLogin2(username: String, password: String): TaiKhoan? {
+
+        return taiKhoanDao.getTaiKhoan(username, password)
+
     }
 }

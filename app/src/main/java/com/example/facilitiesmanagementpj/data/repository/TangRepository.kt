@@ -15,6 +15,11 @@ class TangRepository @Inject constructor(private val tangDao: TangDao) {
     suspend fun update(tang: Tang) = tangDao.update(tang)
     suspend fun delete(tang: Tang) = tangDao.delete(tang)
 
+    suspend fun getById(id: Int): Tang? {
+        return tangDao.getById(id)
+    }
+
+
     val getTangWithDay: Flow<List<TangWithDay>> = tangDao.getTangWithDay()
 
     fun getTangByDayId(dayId: Int): Flow<List<Tang>> = tangDao.getTangByDayId(dayId)

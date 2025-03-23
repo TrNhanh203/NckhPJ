@@ -1,9 +1,12 @@
 package com.example.facilitiesmanagementpj.ui.viewmodel
 
+import androidx.annotation.OptIn
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.repository.TaiKhoanRepository
 import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
@@ -19,11 +22,13 @@ class AuthViewModel @Inject constructor(private val repository: TaiKhoanReposito
     private val _loginResult = mutableStateOf(LoginResult(success = false, errorMessage = null, role = null))
     val loginResult: State<LoginResult> = _loginResult
 
+    @OptIn(UnstableApi::class)
     fun login(username: String, password: String) {
         viewModelScope.launch {
             _loginResult.value = LoginResult(false, errorMessage = null, role = null)
 
             val user = repository.validateLogin(username.trim(), password.trim())
+
 
             if (user != null) {
                 when (user.trangThai) {

@@ -15,6 +15,9 @@ interface YeuCauDao {
     @Query("UPDATE yeu_cau SET trangThai = :status WHERE id = :yeuCauId")
     suspend fun updateYeuCauStatus(yeuCauId: Int, status: String)
 
+    @Query("UPDATE yeu_cau SET ngayYeuCau = :ngayYeuCau WHERE id = :yeuCauId")
+    suspend fun updateYeuCauThoiGianGui(yeuCauId: Int, ngayYeuCau: Long)
+
     @Query("DELETE FROM yeu_cau WHERE id = :yeuCauId")
     suspend fun deleteYeuCau(yeuCauId: Int)
 

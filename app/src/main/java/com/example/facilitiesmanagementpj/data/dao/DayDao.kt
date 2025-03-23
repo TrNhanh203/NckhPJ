@@ -8,6 +8,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 3. DayDao
 @Dao
 interface DayDao {
+    @Query("SELECT * FROM day WHERE id = :id")
+    suspend fun getById(id: Int): Day?
+
+
     @Query("SELECT * FROM day")
     fun getAll(): Flow<List<Day>>
 

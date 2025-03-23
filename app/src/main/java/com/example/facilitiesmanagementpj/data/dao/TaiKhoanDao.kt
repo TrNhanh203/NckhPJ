@@ -84,6 +84,8 @@ interface TaiKhoanDao {
     """)
     suspend fun getTaiKhoanWithRole(username: String, password: String): TaiKhoanWithRole?
 
+
+
     @Query("SELECT * FROM tai_khoan")
     fun getAll(): Flow<List<TaiKhoan>>
 

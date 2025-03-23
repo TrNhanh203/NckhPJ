@@ -10,6 +10,10 @@ interface TangDao {
     @Query("SELECT * FROM tang")
     fun getAll(): Flow<List<Tang>>
 
+    @Query("SELECT * FROM tang WHERE id = :id")
+    suspend fun getById(id: Int): Tang?
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(tang: Tang)
 

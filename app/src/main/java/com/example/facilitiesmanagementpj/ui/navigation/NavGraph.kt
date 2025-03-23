@@ -23,6 +23,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
@@ -92,6 +93,24 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         ) {
             AdminDeviceListScreen(navController)
         }
+
+        composable(
+            route = Screen.ChonKyThuatVien.route,
+            arguments = listOf(
+                navArgument("thietBiId") { type = NavType.IntType },
+                navArgument("yeuCauId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val thietBiId = backStackEntry.arguments?.getInt("thietBiId") ?: 0
+            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+
+            ChonKyThuatVienScreen(
+                navController = navController,
+                thietBiId = thietBiId,
+                yeuCauId = yeuCauId
+            )
+        }
+
 
 
         // Màn hình Quản lý đơn vị

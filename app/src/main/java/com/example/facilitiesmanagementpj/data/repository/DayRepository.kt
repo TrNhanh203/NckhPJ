@@ -13,4 +13,9 @@ class DayRepository @Inject constructor(private val dayDao: DayDao) {
     suspend fun insert(day: Day) = dayDao.insert(day)
     suspend fun update(day: Day) = dayDao.update(day)
     suspend fun delete(day: Day) = dayDao.delete(day)
+
+    suspend fun getById(id: Int): Day? {
+        return dayDao.getById(id)
+    }
+
 }

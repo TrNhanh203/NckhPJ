@@ -24,6 +24,9 @@ class YeuCauRepository @Inject constructor(
 ) {
     suspend fun updateYeuCauStatus(yeuCauId: Int, status: String) {
         yeuCauDao.updateYeuCauStatus(yeuCauId, status)
+        if(status == TrangThaiYeuCau.CHO_XAC_NHAN){
+            yeuCauDao.updateYeuCauThoiGianGui(yeuCauId, System.currentTimeMillis())
+        }
     }
 
     suspend fun updateYeuCauKhiTuChoi(yeuCauId: Int, status: String, lyDoTuChoi: String) {

@@ -26,6 +26,9 @@ interface PhongDao {
     """)
     fun getPhongByDonVi(donViId: Int): Flow<List<PhongWithDetails>>
 
+    @Query("SELECT * FROM phong WHERE id = :id")
+    suspend fun getById(id: Int): Phong?
+
 
 
     @Query("SELECT * FROM phong")

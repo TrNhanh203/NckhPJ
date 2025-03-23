@@ -47,7 +47,7 @@ fun VideoPreviewAdmin(uri: Uri) {
         }
     }
 
-    Box(modifier = Modifier.size(200.dp).padding(4.dp)) {
+    Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
         AndroidView(factory = { PlayerView(it).apply { player = exoPlayer } })
     }
 }
