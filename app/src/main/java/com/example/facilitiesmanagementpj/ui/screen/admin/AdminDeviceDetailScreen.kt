@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.LoaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
@@ -62,6 +63,19 @@ fun AdminDeviceDetailScreen(
     var ghiChu by rememberSaveable { mutableStateOf("") }
     var mucDoUuTien by rememberSaveable { mutableStateOf(1f) }
 
+    val phanCongIdMoi by viewModel.phanCongIdMoi.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var daTaoPhanCong by rememberSaveable { mutableStateOf(false) }
+
+
+    LaunchedEffect(phanCongIdMoi) {
+        if (phanCongIdMoi != null) {
+            daTaoPhanCong = true // ✅ Ghi nhận rằng đã tạo thành công
+            snackbarHostState.showSnackbar("Đã tạo phân công thành công!")
+            viewModel.clearPhanCongIdMoi() // có thể giữ hoặc bỏ delay
+        }
+    }
+
 
 
     val isLoading = thietBi == null
@@ -74,7 +88,8 @@ fun AdminDeviceDetailScreen(
     ScaffoldLayout(
         title = if (isYeuCau) "Chi tiết yêu cầu" else "Chi tiết thiết bị",
         navController = navController,
-        showBottomBar = false
+        showBottomBar = false,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { modifier ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -154,17 +169,6 @@ fun AdminDeviceDetailScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Button(
-                            onClick = { /* TODO: lịch sử bảo trì */ },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                        ) {
-                            Text("Xem lịch sử bảo trì")
-                        }
-
-
 
                         Spacer(modifier = Modifier.height(16.dp)) // Khoảng trống nếu cần
 
@@ -182,8 +186,14 @@ fun AdminDeviceDetailScreen(
                                     onMucDoUuTienChange = { mucDoUuTien = it },
 
                                     onCreatePhanCong = { loai, note, mucDo ->
-                                        // TODO: Gọi ViewModel ở đây
-                                        println("Loại: $loai | Ghi chú: $note | Ưu tiên: $mucDo")
+                                        viewModel.taoPhanCong(
+                                            chiTietYeuCauId = chiTietYeuCau!!.id,
+                                            thietBiId = thietBi!!.id,
+                                            loaiPhanCong = loai,
+                                            ghiChu = note,
+                                            mucDoUuTien = mucDo,
+                                            nguoiTaoId = SessionManager.currentUser?.id ?: -1
+                                        )
                                     },
                                     onDismiss = { showBottomSheet = false }
                                 )
@@ -220,17 +230,28 @@ fun AdminDeviceDetailScreen(
                             Text("Xem lịch sử")
                         }
 
-                        if (isYeuCau) {
+                        if (daTaoPhanCong) {
+                            OutlinedButton(
+                                onClick = {
+                                    println("Đi đến phân công ID = $phanCongIdMoi")
+                                },
+                                modifier = buttonModifier,
+                                shape = RectangleShape
+                            ) {
+                                Text("Xem phân công")
+                            }
+                        } else if (isYeuCau) {
                             val trangThaiYeuCau = yeuCau?.trangThai ?: ""
                             OutlinedButton(
                                 onClick = { showBottomSheet = true },
-                                enabled = yeuCau?.trangThai == TrangThaiYeuCau.DA_XAC_NHAN,
+                                enabled = trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN,
                                 modifier = buttonModifier,
                                 shape = RectangleShape
                             ) {
                                 Text("Tạo phân công")
                             }
                         }
+
 
                     }
                 }

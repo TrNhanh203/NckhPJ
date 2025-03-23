@@ -13,6 +13,10 @@ interface PhanCongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(phanCong: PhanCong)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndGetId(phanCong: PhanCong): Long
+
+
     @Update
     suspend fun update(phanCong: PhanCong)
 

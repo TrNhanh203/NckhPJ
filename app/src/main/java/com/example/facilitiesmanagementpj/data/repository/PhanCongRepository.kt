@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.data.repository
 
+import androidx.room.Insert
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
 import kotlinx.coroutines.flow.Flow
@@ -13,4 +14,10 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
     suspend fun insert(phanCong: PhanCong) = phanCongDao.insert(phanCong)
     suspend fun update(phanCong: PhanCong) = phanCongDao.update(phanCong)
     suspend fun delete(phanCong: PhanCong) = phanCongDao.delete(phanCong)
+
+    suspend fun insertAndGetId(phanCong: PhanCong): Long {
+        return phanCongDao.insertAndGetId(phanCong)
+    }
+
+
 }
