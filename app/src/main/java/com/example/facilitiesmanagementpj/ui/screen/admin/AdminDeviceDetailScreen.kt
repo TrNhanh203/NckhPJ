@@ -63,18 +63,8 @@ fun AdminDeviceDetailScreen(
     var ghiChu by rememberSaveable { mutableStateOf("") }
     var mucDoUuTien by rememberSaveable { mutableStateOf(1f) }
 
-    val phanCongIdMoi by viewModel.phanCongIdMoi.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var daTaoPhanCong by rememberSaveable { mutableStateOf(false) }
 
-
-    LaunchedEffect(phanCongIdMoi) {
-        if (phanCongIdMoi != null) {
-            daTaoPhanCong = true // ✅ Ghi nhận rằng đã tạo thành công
-            snackbarHostState.showSnackbar("Đã tạo phân công thành công!")
-            viewModel.clearPhanCongIdMoi() // có thể giữ hoặc bỏ delay
-        }
-    }
 
 
 
@@ -84,6 +74,14 @@ fun AdminDeviceDetailScreen(
         viewModel.loadThietBi(thietBiId)
         if (isYeuCau) viewModel.loadChiTietYeuCau(yeuCauId, thietBiId)
     }
+
+    LaunchedEffect(chiTietYeuCau?.id) {
+        chiTietYeuCau?.let {
+            viewModel.checkPhanCongDaTao(it.id)
+
+        }
+    }
+
 
     ScaffoldLayout(
         title = if (isYeuCau) "Chi tiết yêu cầu" else "Chi tiết thiết bị",
@@ -194,6 +192,7 @@ fun AdminDeviceDetailScreen(
                                             mucDoUuTien = mucDo,
                                             nguoiTaoId = SessionManager.currentUser?.id ?: -1
                                         )
+
                                     },
                                     onDismiss = { showBottomSheet = false }
                                 )
@@ -230,10 +229,12 @@ fun AdminDeviceDetailScreen(
                             Text("Xem lịch sử")
                         }
 
-                        if (daTaoPhanCong) {
+                        val phanCongDaTao by viewModel.phanCongHienTai.collectAsState()
+
+                        if (phanCongDaTao != null) {
                             OutlinedButton(
                                 onClick = {
-                                    println("Đi đến phân công ID = $phanCongIdMoi")
+                                    println("Đi đến phân công ID = ${phanCongDaTao!!.id}")
                                 },
                                 modifier = buttonModifier,
                                 shape = RectangleShape

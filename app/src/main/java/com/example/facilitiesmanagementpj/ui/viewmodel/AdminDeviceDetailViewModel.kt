@@ -90,11 +90,20 @@ class AdminDeviceDetailViewModel @Inject constructor(
         }
     }
 
-    private val _phanCongIdMoi = MutableStateFlow<Int?>(null)
-    val phanCongIdMoi: StateFlow<Int?> = _phanCongIdMoi
+    private val _phanCongHienTai = MutableStateFlow<PhanCong?>(null)
+    val phanCongHienTai: StateFlow<PhanCong?> = _phanCongHienTai
 
-    fun clearPhanCongIdMoi() {
-        _phanCongIdMoi.value = null
+    fun checkPhanCongDaTao(chiTietId: Int) {
+        viewModelScope.launch {
+            _phanCongHienTai.value = phanCongRepository.getPhanCongByChiTietYeuCau(chiTietId)
+        }
+    }
+
+
+    fun reloadPhanCongSauKhiTao(chiTietYeuCauId: Int) {
+        viewModelScope.launch {
+            _phanCongHienTai.value = phanCongRepository.getPhanCongByChiTietYeuCau(chiTietYeuCauId)
+        }
     }
 
 
@@ -118,8 +127,9 @@ class AdminDeviceDetailViewModel @Inject constructor(
                 trangThai = TrangThaiChungCuaPhanCong.CHUA_BAT_DAU,
                 soLuongKTVThamGia = 0
             )
-            val id = phanCongRepository.insertAndGetId(phanCong) // bạn cần hàm này
-            _phanCongIdMoi.value = id.toInt()
+            phanCongRepository.insert(phanCong) // bạn cần hàm này
+            _phanCongHienTai.value = phanCongRepository.getPhanCongByChiTietYeuCau(chiTietYeuCauId)
+
 
         }
     }

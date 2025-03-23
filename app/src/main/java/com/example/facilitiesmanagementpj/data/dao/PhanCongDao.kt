@@ -16,6 +16,9 @@ interface PhanCongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAndGetId(phanCong: PhanCong): Long
 
+    @Query("SELECT * FROM phan_cong WHERE chiTietYeuCauId = :chiTietId LIMIT 1")
+    suspend fun getByChiTietYeuCauId(chiTietId: Int): PhanCong?
+
 
     @Update
     suspend fun update(phanCong: PhanCong)

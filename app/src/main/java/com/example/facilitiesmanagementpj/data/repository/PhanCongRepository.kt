@@ -19,5 +19,8 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         return phanCongDao.insertAndGetId(phanCong)
     }
 
+    suspend fun getPhanCongByChiTietYeuCau(chiTietId: Int): PhanCong? {
+        return phanCongDao.getByChiTietYeuCauId(chiTietId)
+    }
 
 }
