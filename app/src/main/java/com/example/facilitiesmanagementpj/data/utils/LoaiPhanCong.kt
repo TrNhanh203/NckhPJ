@@ -1,7 +1,6 @@
 package com.example.facilitiesmanagementpj.data.utils
 
-
-object LoaiYeuCau {
+object LoaiPhanCong {
     // ✅ Nhóm yêu cầu định kỳ
     const val BAO_DUONG = "Bảo Dưỡng"
     const val KIEM_TRA = "Kiểm Tra"
@@ -23,6 +22,6 @@ object LoaiYeuCau {
     // ✅ Danh sách tất cả loại yêu cầu (tiện lợi khi hiển thị Dropdown)
     val ALL = listOf(
         BAO_DUONG, KIEM_TRA, SUA_CHUA, THAY_THE
-        , THAO_DO, NANG_CAP, KHAC
+        , THAO_DO, NANG_CAP,KHAC
     )
 }
