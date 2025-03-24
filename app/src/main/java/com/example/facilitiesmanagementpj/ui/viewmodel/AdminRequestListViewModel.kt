@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.dao.DonViDao
 import com.example.facilitiesmanagementpj.data.entity.DonVi
 import com.example.facilitiesmanagementpj.data.entity.YeuCau
+import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.repository.YeuCauRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminRequestListViewModel @Inject constructor(
-    private val repository: YeuCauRepository,
+    private val yeuCauRepository: YeuCauRepository,
+    private val phanCongRepository: PhanCongRepository,
     private val donViDao: DonViDao
 ) : ViewModel() {
 
@@ -39,7 +41,7 @@ class AdminRequestListViewModel @Inject constructor(
 
     fun loadYeuCauList() {
         viewModelScope.launch {
-            repository.getAllYeuCauTruNhap().collect {
+            yeuCauRepository.getAllYeuCauTruNhap().collect {
                 _yeuCauList.value = it
             }
         }
@@ -65,22 +67,43 @@ class AdminRequestListViewModel @Inject constructor(
         _sortOrder.value = order
     }
 
-    val filteredYeuCauList: StateFlow<List<YeuCauWithDonVi>> = combine(
+    data class YeuCauWithDonViAndCount(
+        val yeuCau: YeuCau,
+        val tenDonVi: String,
+        val tongChiTiet: Int,
+        val daPhanCong: Int
+    )
+
+    val yeuCauWithCount: StateFlow<List<YeuCauWithDonViAndCount>> = combine(
         yeuCauList, selectedTrangThai, selectedDonVi, sortOrder, donViList
     ) { list, trangThai, donViId, sortOrder, donVis ->
+
         val donViMap = donVis.associateBy { it.id }
+
         list.filter { trangThai == null || it.trangThai == trangThai }
             .filter { donViId == null || it.donViId == donViId }
             .sortedBy { if (sortOrder == SortOrder.NEWEST) -it.ngayYeuCau else it.ngayYeuCau }
-            .map { YeuCauWithDonVi(it, donViMap[it.donViId]?.tenDonVi ?: "Unknown") }
+            .map { yeuCau ->
+                val tenDonVi = donViMap[yeuCau.donViId]?.tenDonVi ?: "Không rõ"
+                val chiTietList = yeuCauRepository.getChiTietYeuCauByYeuCauId(yeuCau.id)
+                val daPhanCong = chiTietList.count { phanCongRepository.hasPhanCongForChiTiet(it.id) }
+
+                YeuCauWithDonViAndCount(
+                    yeuCau = yeuCau,
+                    tenDonVi = tenDonVi,
+                    tongChiTiet = chiTietList.size,
+                    daPhanCong = daPhanCong
+                )
+            }
+
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     enum class SortOrder {
         NEWEST, OLDEST
     }
-
-    data class YeuCauWithDonVi(
-        val yeuCau: YeuCau,
-        val tenDonVi: String
-    )
 }
+
+
+
+
+

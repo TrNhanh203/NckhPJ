@@ -10,6 +10,12 @@ import javax.inject.Singleton
 // 11. PhanCongRepository
 @Singleton
 class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao) {
+
+    suspend fun hasPhanCongForChiTiet(chiTietId: Int): Boolean {
+        return phanCongDao.hasPhanCongForChiTiet(chiTietId)
+    }
+
+
     fun getAllPhanCong(): Flow<List<PhanCong>> = phanCongDao.getAll()
     suspend fun insert(phanCong: PhanCong) = phanCongDao.insert(phanCong)
     suspend fun update(phanCong: PhanCong) = phanCongDao.update(phanCong)

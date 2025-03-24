@@ -7,6 +7,11 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 11. PhanCongDao
 @Dao
 interface PhanCongDao {
+
+    @Query("SELECT EXISTS (SELECT 1 FROM phan_cong WHERE chiTietYeuCauId = :chiTietId)")
+    suspend fun hasPhanCongForChiTiet(chiTietId: Int): Boolean
+
+
     @Query("SELECT * FROM phan_cong WHERE id = :phanCongId LIMIT 1")
     suspend fun getById(phanCongId: Int): PhanCong?
 

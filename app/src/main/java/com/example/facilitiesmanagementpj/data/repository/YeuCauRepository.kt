@@ -22,6 +22,12 @@ class YeuCauRepository @Inject constructor(
     private val chiTietYeuCauDao: ChiTietYeuCauDao,
     private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao
 ) {
+
+    suspend fun getChiTietYeuCauByYeuCauId(yeuCauId: Int): List<ChiTietYeuCau> {
+        return chiTietYeuCauDao.getByYeuCauId(yeuCauId)
+    }
+
+
     suspend fun updateYeuCauStatus(yeuCauId: Int, status: String) {
         yeuCauDao.updateYeuCauStatus(yeuCauId, status)
         if(status == TrangThaiYeuCau.CHO_XAC_NHAN){
