@@ -5,6 +5,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 16. AnhMinhChungDao
 @Dao
 interface AnhMinhChungBaoCaoDao {
+    @Query("SELECT * FROM anh_minh_chung_bao_cao WHERE chiTietBaoCaoId = :chiTietId")
+    suspend fun getByChiTietId(chiTietId: Int): List<AnhMinhChungBaoCao>
+
+
     @Query("DELETE FROM anh_minh_chung_bao_cao WHERE chiTietBaoCaoId = :chiTietBaoCaoId")
     suspend fun deleteByChiTietBaoCaoId(chiTietBaoCaoId: Int)
 
