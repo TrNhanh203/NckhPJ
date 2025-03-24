@@ -99,18 +99,20 @@ class AdminRequestDetailViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+
     fun duyetYeuCau() {
         viewModelScope.launch {
             yeuCau.value?.let {
                 if (it.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
                     val updated = it.copy(trangThai = TrangThaiYeuCau.DA_XAC_NHAN)
                     repository.updateYeuCauStatus(updated.id, updated.trangThai)
-                    _yeuCau.value = updated
+                    _yeuCau.value = updated // Cập nhật trạng thái ngay lập tức
                     _snackbarMessage.value = "Yêu cầu đã được duyệt thành công."
                 }
             }
         }
     }
+
 
     fun tuChoiYeuCau(reason: String) {
         viewModelScope.launch {

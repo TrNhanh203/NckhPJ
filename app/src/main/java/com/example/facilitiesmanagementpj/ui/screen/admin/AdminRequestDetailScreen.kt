@@ -19,13 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,10 +43,23 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
     val deviceTypes by viewModel.deviceTypes.collectAsState()
     var filterSheetVisible by remember { mutableStateOf(false) }
     var filterType by remember { mutableStateOf("") }
+    val yeuCau = viewModel.yeuCau.collectAsState().value
+    var showRejectDialog by remember { mutableStateOf(false) }
+    var rejectReason by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+
 
     LaunchedEffect(Unit) {
         viewModel.loadChiTietYeuCau(yeuCauId)
         viewModel.loadDeviceTypes()
+    }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearSnackbar()
+        }
     }
 
     ScaffoldLayout(
@@ -53,11 +69,23 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
         showBottomBar = false,
         showDrawer = false,
         isHomeScreen = false,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().then(innerPadding)) {
-            TabRow(selectedTabIndex = tabIndex.intValue) {
-                Tab(selected = tabIndex.intValue == 0, onClick = { tabIndex.intValue = 0 }, text = { Text("Đã phân công") })
-                Tab(selected = tabIndex.intValue == 1, onClick = { tabIndex.intValue = 1 }, text = { Text("Chưa phân công") })
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .then(innerPadding)) {
+            if (yeuCau?.trangThai != TrangThaiYeuCau.CHO_XAC_NHAN) {
+                TabRow(selectedTabIndex = tabIndex.intValue) {
+                    Tab(
+                        selected = tabIndex.intValue == 0,
+                        onClick = { tabIndex.intValue = 0 },
+                        text = { Text("Chưa phân công") })
+                    Tab(
+                        selected = tabIndex.intValue == 1,
+                        onClick = { tabIndex.intValue = 1 },
+                        text = { Text("Đã phân công") })
+
+                }
             }
 
             // Filter chips below tab
@@ -95,9 +123,9 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                 )
             }
 
-            val currentList = if (tabIndex.intValue == 0) daPhanCong else chuaPhanCong
+            val currentList = if (tabIndex.intValue == 0) chuaPhanCong else daPhanCong
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(currentList) { item ->
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 8.dp),
@@ -141,17 +169,38 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(4.dp)
-                                    .background(Color.Black.copy(alpha = 0.6f), shape = MaterialTheme.shapes.small)
+                                    .background(
+                                        Color.Black.copy(alpha = 0.6f),
+                                        shape = MaterialTheme.shapes.small
+                                    )
                                     .padding(horizontal = 6.dp, vertical = 2.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Star, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
-                                    Text(text = "${item.soAnh}", color = Color.White, style = MaterialTheme.typography.labelSmall)
+                                    Icon(
+                                        Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Text(
+                                        text = "${item.soAnh}",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.AddCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
-                                    Text(text = "${item.soVideo}", color = Color.White, style = MaterialTheme.typography.labelSmall)
+                                    Icon(
+                                        Icons.Default.AddCircle,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Text(
+                                        text = "${item.soVideo}",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
                                 }
                             }
                         }
@@ -159,10 +208,52 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Thiết bị: ${item.chiTiet.tenThietBi}", fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "Thiết bị: ${item.chiTiet.tenThietBi}",
+                                fontWeight = FontWeight.SemiBold
+                            )
                             Text("Loại thiết bị: ${item.chiTiet.tenLoaiThietBi}")
                             Text("Loại yêu cầu: ${item.chiTiet.loaiYeuCau}")
                         }
+                    }
+                }
+            }
+
+            if (yeuCau?.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
+                BottomAppBar(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .height(54.dp),
+                    tonalElevation = 8.dp,
+                    containerColor = MaterialTheme.colorScheme.surface
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val buttonModifier = Modifier
+                            .weight(1f)
+                            .height(40.dp)
+
+                        OutlinedButton(
+                            onClick = { viewModel.duyetYeuCau() },
+                            modifier = buttonModifier,
+                            shape = RectangleShape
+                        ) {
+                            Text("Xác Nhận")
+                        }
+
+                        OutlinedButton(
+                            onClick = { showRejectDialog = true },
+                            modifier = buttonModifier,
+                            shape = RectangleShape
+                        ) {
+                            Text("Từ Chối")
+                        }
+
+
                     }
                 }
             }
@@ -173,9 +264,13 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Chọn ${if (filterType == "device") "loại thiết bị" else "loại yêu cầu"}", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Chọn ${if (filterType == "device") "loại thiết bị" else "loại yêu cầu"}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        val items = if (filterType == "device") deviceTypes.map { it.tenLoai } else viewModel.requestTypes
+                        val items =
+                            if (filterType == "device") deviceTypes.map { it.tenLoai } else viewModel.requestTypes
 
                         items.forEach { label ->
                             Text(
@@ -183,7 +278,9 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        if (filterType == "device") viewModel.setDeviceTypeFilter(label)
+                                        if (filterType == "device") viewModel.setDeviceTypeFilter(
+                                            label
+                                        )
                                         else viewModel.setRequestTypeFilter(label)
                                         filterSheetVisible = false
                                     }
@@ -201,10 +298,42 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                     }
                 }
             }
+
+            if (showRejectDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRejectDialog = false },
+                    title = { Text("Lý do từ chối") },
+                    text = {
+                        OutlinedTextField(
+                            value = rejectReason,
+                            onValueChange = { rejectReason = it },
+                            label = { Text("Nhập lý do từ chối") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                if (rejectReason.isNotBlank()) {
+                                    viewModel.tuChoiYeuCau(rejectReason)
+                                    showRejectDialog = false
+                                    rejectReason = ""
+                                }
+                            }
+                        ) {
+                            Text("Xác nhận")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showRejectDialog = false }) {
+                            Text("Hủy")
+                        }
+                    }
+                )
+            }
         }
     }
 }
-
 
 
 //package com.example.facilitiesmanagementpj.ui.screen.admin
