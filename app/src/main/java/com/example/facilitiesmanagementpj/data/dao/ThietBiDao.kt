@@ -24,6 +24,11 @@ data class ThietBiWithDetails(
 @Dao
 interface ThietBiDao {
 
+    // Phương thức để cập nhật trạng thái của thiết bị
+    @Update
+    suspend fun updateThietBiStatus(thietBi: ThietBi)
+
+
     @Query("""
     SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai,
            phong.tenPhong, day.tenDay, tang.tenTang
@@ -38,7 +43,8 @@ interface ThietBiDao {
     @Query("SELECT * FROM thiet_bi WHERE id = :id")
     suspend fun getThietBiById(id: Int): ThietBi?
 
-
+    @Query("UPDATE thiet_bi SET trangThai = :status WHERE id = :yeuCauId")
+    suspend fun updateYeuCauStatus(yeuCauId: Int, status: String)
 
     @Query("""
     SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai,

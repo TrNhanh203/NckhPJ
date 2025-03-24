@@ -9,6 +9,16 @@ import javax.inject.Singleton
 // 8. ThietBiRepository
 @Singleton
 class ThietBiRepository @Inject constructor(private val thietBiDao: ThietBiDao) {
+
+    suspend fun updateThietBiStatus(thietBiId: Int, trangThai: String) {
+        val thietBi = thietBiDao.getThietBiById(thietBiId)
+        thietBi?.let {
+            // Cập nhật trạng thái thiết bị
+            val updatedThietBi = it.copy(trangThai = trangThai)
+            thietBiDao.updateThietBiStatus(updatedThietBi)
+        }
+    }
+
     suspend fun getThietBiById(id: Int): ThietBi? = thietBiDao.getThietBiById(id)
 
     fun getThietBiByDonVi(donViId: Int): Flow<List<ThietBiWithDetails>> {

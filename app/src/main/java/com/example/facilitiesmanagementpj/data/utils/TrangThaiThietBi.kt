@@ -2,33 +2,34 @@ package com.example.facilitiesmanagementpj.data.utils
 
 object TrangThaiThietBi {
     // Nhóm trạng thái hoạt động bình thường
-    const val MOI_TIEP_NHAN = "moi_tiep_nhan"
-    const val SAN_SANG_SU_DUNG = "san_sang_su_dung"
-    const val DANG_SU_DUNG = "dang_su_dung"
+    const val MOI_TIEP_NHAN = "Mới Tiếp Nhận"
+    const val SAN_SANG_SU_DUNG = "Sẵn Sàng Sử Dụng"
+    const val DANG_SU_DUNG = "Đang Sử Dụng"
 
     // Nhóm trạng thái bảo trì & sửa chữa
-    const val DANG_BAO_TRI = "dang_bao_tri"
-    const val CHO_BAO_TRI = "cho_bao_tri"
-    const val DANG_BAO_DUONG = "dang_bao_duong"
-    const val CHO_BAO_DUONG = "cho_bao_duong"
-    const val CHO_SUA_CHUA = "cho_sua_chua"
-    const val DANG_SUA_CHUA = "dang_sua_chua"
+    const val DANG_BAO_TRI = "Đang Bảo Trì"
+    const val CHO_BAO_TRI = "Chờ Bảo Trì"
+    const val DANG_BAO_DUONG = "Đang Bảo Dưỡng"
+    const val CHO_BAO_DUONG = "Chờ Bảo Dưỡng"
+    const val CHO_SUA_CHUA = "Chờ Sửa Chữa"
+    const val DANG_SUA_CHUA = "Đang Sửa Chữa"
 
     // Nhóm trạng thái hỏng & ngừng sử dụng
-    const val HONG = "hong"
-    const val KHONG_KHA_DUNG = "khong_kha_dung"
-    const val DA_NGUNG_SU_DUNG = "da_ngung_su_dung"
-    const val THANH_LY = "thanh_ly"
+    const val HONG = "Hỏng"
+    const val KHONG_KHA_DUNG = "Không Khả Dụng"
+    const val DA_NGUNG_SU_DUNG = "Đã Ngừng Sử Dụng"
+    const val THANH_LY = "Thanh Lý"
 
     // Nhóm trạng thái đặc biệt
-    const val CHO_KIEM_DINH = "cho_kiem_dinh"
-    const val DANG_KIEM_DINH = "dang_kiem_dinh"
-    const val DANG_THU_NGHIEM = "dang_thu_nghiem"
-    const val CHO_DUYET = "cho_duyet"
+    const val CHO_KIEM_DINH = "Chờ Kiểm Định"
+    const val DANG_KIEM_DINH = "Đang Kiểm Định"
+    const val DANG_THU_NGHIEM = "Đang Thử Nghiệm"
+    const val CHO_DUYET = "Chờ Duyệt"
 
     // Nhóm trạng thái thất lạc & mất
-    const val THAT_LAC = "that_lac"
-    const val DANG_TIM_KIEM = "dang_tim_kiem"
+    const val THAT_LAC = "Thất Lạc"
+    const val DANG_TIM_KIEM = "Đang Tìm Kiếm"
+
 
     // Danh sách tất cả các trạng thái
     val ALL = listOf(

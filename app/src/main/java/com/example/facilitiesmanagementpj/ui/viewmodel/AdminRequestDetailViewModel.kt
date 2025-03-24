@@ -9,8 +9,10 @@ import com.example.facilitiesmanagementpj.data.entity.YeuCau
 import com.example.facilitiesmanagementpj.data.repository.AnhMinhChungBaoCaoRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.repository.LoaiThietBiRepository
+import com.example.facilitiesmanagementpj.data.repository.ThietBiRepository
 import com.example.facilitiesmanagementpj.data.repository.YeuCauRepository
 import com.example.facilitiesmanagementpj.data.utils.LoaiYeuCau
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,7 +24,8 @@ class AdminRequestDetailViewModel @Inject constructor(
     private val repository: YeuCauRepository,
     private val loaiThietBiRepository: LoaiThietBiRepository,
     private val anhRepository: AnhMinhChungBaoCaoRepository,
-    private val phanCongRepository: PhanCongRepository
+    private val phanCongRepository: PhanCongRepository,
+    private val thietBiRepository: ThietBiRepository
 ) : ViewModel() {
 
     private val _yeuCau = MutableStateFlow<YeuCau?>(null)
@@ -100,18 +103,46 @@ class AdminRequestDetailViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
 
-    fun duyetYeuCau() {
-        viewModelScope.launch {
-            yeuCau.value?.let {
-                if (it.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
-                    val updated = it.copy(trangThai = TrangThaiYeuCau.DA_XAC_NHAN)
-                    repository.updateYeuCauStatus(updated.id, updated.trangThai)
-                    _yeuCau.value = updated // Cập nhật trạng thái ngay lập tức
-                    _snackbarMessage.value = "Yêu cầu đã được duyệt thành công."
+//    fun duyetYeuCau() {
+//        viewModelScope.launch {
+//            yeuCau.value?.let {
+//                if (it.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
+//                    val updated = it.copy(trangThai = TrangThaiYeuCau.DA_XAC_NHAN)
+//                    repository.updateYeuCauStatus(updated.id, updated.trangThai)
+//                    _yeuCau.value = updated // Cập nhật trạng thái ngay lập tức
+//                    _snackbarMessage.value = "Yêu cầu đã được duyệt thành công."
+//                }
+//            }
+//        }
+//    }
+fun duyetYeuCau() {
+    viewModelScope.launch {
+        yeuCau.value?.let {
+            if (it.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
+                // Cập nhật trạng thái yêu cầu
+                val updatedYeuCau = it.copy(trangThai = TrangThaiYeuCau.DA_XAC_NHAN)
+                repository.updateYeuCauStatus(updatedYeuCau.id, updatedYeuCau.trangThai)
+                _yeuCau.value = updatedYeuCau // Cập nhật trạng thái ngay lập tức
+                _snackbarMessage.value = "Yêu cầu đã được duyệt thành công."
+
+                // Lấy danh sách thiết bị trong yêu cầu
+                val chiTietYeuCauList = repository.getChiTietYeuCauByYeuCauId(it.id)
+
+                // Cập nhật trạng thái của tất cả các thiết bị trong yêu cầu sang "Chờ bảo trì"
+                chiTietYeuCauList.forEach { chiTietYeuCau ->
+                    chiTietYeuCau.thietBiId?.let { thietBiId ->
+                        val thietBi = thietBiRepository.getThietBiById(thietBiId)
+                        thietBi?.let {
+                            val updatedThietBi = it.copy(trangThai = TrangThaiThietBi.CHO_BAO_TRI)
+                            thietBiRepository.updateThietBiStatus(updatedThietBi.id, updatedThietBi.trangThai)
+                        }
+                    }
                 }
             }
         }
     }
+}
+
 
 
     fun tuChoiYeuCau(reason: String) {
