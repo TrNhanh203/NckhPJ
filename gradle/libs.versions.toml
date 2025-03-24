@@ -1,5 +1,6 @@
 [versions]
 accompanistFlowlayout = "0.24.13-rc"
+accompanistIconsVersion = "0.24.0-alpha"
 accompanistPermissions = "0.31.1-alpha"
 activityComposeVersion = "1.8.2"
 agp = "8.8.2"
@@ -65,6 +66,7 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+google-accompanist-icons = { module = "com.google.accompanist:accompanist-icons", version.ref = "accompanistIconsVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroidGradlePlugin" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }

@@ -43,7 +43,8 @@ android {
 }
 
 dependencies {
-
+    //icon library
+    implementation (libs.google.accompanist.icons)
 
     implementation (libs.androidx.compose.material3.material3)
 

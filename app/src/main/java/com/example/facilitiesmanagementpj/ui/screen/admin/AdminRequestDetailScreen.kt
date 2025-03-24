@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import androidx.compose.animation.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +31,13 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -238,20 +246,22 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                             .height(40.dp)
 
                         OutlinedButton(
-                            onClick = { viewModel.duyetYeuCau() },
-                            modifier = buttonModifier,
-                            shape = RectangleShape
-                        ) {
-                            Text("Xác Nhận")
-                        }
-
-                        OutlinedButton(
                             onClick = { showRejectDialog = true },
                             modifier = buttonModifier,
                             shape = RectangleShape
                         ) {
                             Text("Từ Chối")
+                            Icon(Icons.Default.Delete, contentDescription = "Action Icon")
                         }
+
+                        AnimatedOutlinedButton(viewModel, buttonModifier)
+//                        OutlinedButton(
+//                            onClick = { viewModel.duyetYeuCau() },
+//                            modifier = buttonModifier,
+//                            shape = RectangleShape
+//                        ) {
+//                            Text("Xác Nhận")
+//                        }
 
 
                     }
@@ -335,157 +345,48 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
     }
 }
 
+@Composable
+fun AnimatedOutlinedButton(viewModel: AdminRequestDetailViewModel, modifier: Modifier = Modifier) {
+    // Animatable color state
+    val colorAnim = remember { Animatable(Green) }
+    var isIconVisible by remember { mutableStateOf(false) }
 
-//package com.example.facilitiesmanagementpj.ui.screen.admin
-//
-//import androidx.compose.foundation.clickable
-//import androidx.compose.foundation.layout.*
-//import androidx.compose.foundation.lazy.LazyColumn
-//import androidx.compose.foundation.lazy.items
-//import androidx.compose.material3.*
-//import androidx.compose.runtime.*
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.unit.dp
-//import androidx.hilt.navigation.compose.hiltViewModel
-//import androidx.navigation.NavController
-//import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
-//import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
-//import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
-//import com.example.facilitiesmanagementpj.ui.navigation.Screen
-//import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel
-//
-//@Composable
-//fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
-//    val viewModel: AdminRequestDetailViewModel = hiltViewModel()
-//    val chiTietList by viewModel.filteredChiTietYeuCauList.collectAsState()
-//    val deviceTypes by viewModel.deviceTypes.collectAsState()
-//    val yeuCau by viewModel.yeuCau.collectAsState()
-//    val snackbarHostState = remember { SnackbarHostState() }
-//    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
-//    var showRejectDialog by remember { mutableStateOf(false) }
-//    var rejectReason by remember { mutableStateOf("") }
-//
-//    LaunchedEffect(yeuCauId) {
-//        android.util.Log.d("AdminRequestScreen", "Gọi loadChiTietYeuCau với ID: $yeuCauId")
-//        viewModel.loadChiTietYeuCau(yeuCauId)
-//        viewModel.loadDeviceTypes()
-//    }
-//
-//    LaunchedEffect(snackbarMessage) {
-//        snackbarMessage?.let {
-//            snackbarHostState.showSnackbar(it)
-//            viewModel.clearSnackbar()
-//        }
-//    }
-//
-//    ScaffoldLayout(
-//        title = "Chi tiết yêu cầu",
-//        navController = navController,
-//        showTopBar = true,
-//        showBottomBar = false,
-//        showDrawer = false,
-//        isHomeScreen = false,
-//        snackbarHost = { SnackbarHost(snackbarHostState) }
-//    ) { innerPadding ->
-//        Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(innerPadding)) {
-//            Text("Chi tiết yêu cầu", style = MaterialTheme.typography.headlineSmall)
-//
-//            Text("Trạng thái: ${yeuCau?.trangThai ?: "Đang tải..."}", style = MaterialTheme.typography.bodyLarge)
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            // Filters Section
-//            DropdownMenuFilter(
-//                label = "Loại thiết bị",
-//                items = deviceTypes.map { it.tenLoai },
-//                selected = viewModel.selectedDeviceType.collectAsState().value,
-//                onSelectedChange = { viewModel.setDeviceTypeFilter(it) }
-//            )
-//
-//            DropdownMenuFilter(
-//                label = "Loại yêu cầu",
-//                items = viewModel.requestTypes,
-//                selected = viewModel.selectedRequestType.collectAsState().value,
-//                onSelectedChange = { viewModel.setRequestTypeFilter(it) }
-//            )
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            if (yeuCau?.trangThai == TrangThaiYeuCau.CHO_XAC_NHAN) {
-//                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-//                    Button(
-//                        onClick = { viewModel.duyetYeuCau() },
-//                        modifier = Modifier.weight(1f)
-//                    ) {
-//                        Text("Duyệt yêu cầu")
-//                    }
-//                    OutlinedButton(
-//                        onClick = { showRejectDialog = true },
-//                        modifier = Modifier.weight(1f)
-//                    ) {
-//                        Text("Từ chối")
-//                    }
-//                }
-//                Spacer(modifier = Modifier.height(16.dp))
-//            }
-//
-//            // Request Details List
-//            LazyColumn {
-//                items(chiTietList) { chiTiet ->
-//                    Card(modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp)
-//                        .clickable {
-//                            navController.navigate(Screen.AdminDeviceDetail.createRoute(chiTiet.thietBiId!!, chiTiet.yeuCauId))
-//                        }) {
-//                        Column(modifier = Modifier.padding(16.dp)) {
-//                            Text("ID: ${chiTiet.id}")
-//                            Text("Yêu cầu ID: ${chiTiet.yeuCauId}")
-//                            Text("Thiết bị ID: ${chiTiet.thietBiId}")
-//                            Text("Loại yêu cầu: ${chiTiet.loaiYeuCau}")
-//                            Text("Mô tả: ${chiTiet.moTa}")
-//                            Text("Loại thiết bị ID: ${chiTiet.loaiThietBiId}")
-//                            Text("Tên loại thiết bị: ${chiTiet.tenLoaiThietBi}")
-//                            Text("Tên thiết bị: ${chiTiet.tenThietBi}")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    if (showRejectDialog) {
-//        AlertDialog(
-//            onDismissRequest = { showRejectDialog = false },
-//            title = { Text("Lý do từ chối") },
-//            text = {
-//                OutlinedTextField(
-//                    value = rejectReason,
-//                    onValueChange = { rejectReason = it },
-//                    label = { Text("Nhập lý do từ chối") },
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//            },
-//            confirmButton = {
-//                TextButton(
-//                    onClick = {
-//                        if (rejectReason.isNotBlank()) {
-//                            viewModel.tuChoiYeuCau(rejectReason)
-//                            showRejectDialog = false
-//                            rejectReason = ""
-//                        }
-//                    }
-//                ) {
-//                    Text("Xác nhận")
-//                }
-//            },
-//            dismissButton = {
-//                TextButton(onClick = { showRejectDialog = false }) {
-//                    Text("Hủy")
-//                }
-//            }
-//        )
-//    }
-//}
-//
-//
-//
+
+
+    // The animation that changes color every 3 seconds
+    LaunchedEffect(true) {
+        while (true) {
+            colorAnim.animateTo(
+                targetValue = if (colorAnim.value == Color(0xFF03d500)) Color(0xFF08b405) else Color(0xFF028900),
+                animationSpec = repeatable(
+                    iterations = Int.MAX_VALUE,
+                    animation = tween(1500)
+                )
+            )
+            delay(3000) // Every 3 seconds, switch colors
+        }
+    }
+
+    // Show the icon every 3 seconds
+    LaunchedEffect(true) {
+        while (true) {
+            delay(3000) // Wait for 3 seconds
+            // Switch to show/hide the icon
+            isIconVisible = !isIconVisible
+        }
+    }
+
+    OutlinedButton(
+        onClick = { viewModel.duyetYeuCau() },
+        modifier = modifier,
+        shape = RectangleShape,
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = colorAnim.value)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Xác Nhận", modifier = Modifier.weight(1f))
+
+            Icon(Icons.Default.CheckCircle, contentDescription = "Action Icon")
+
+        }
+    }
+}
