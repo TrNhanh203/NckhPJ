@@ -79,19 +79,35 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
         isHomeScreen = false,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .then(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(innerPadding)
+        ) {
             if (yeuCau?.trangThai != TrangThaiYeuCau.CHO_XAC_NHAN) {
                 TabRow(selectedTabIndex = tabIndex.intValue) {
                     Tab(
                         selected = tabIndex.intValue == 0,
                         onClick = { tabIndex.intValue = 0 },
-                        text = { Text("Chưa phân công") })
+                        text = {
+                            Row{Text("Chưa phân công")
+                                Badge(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    content = { Text(chuaPhanCong.size.toString()) }
+                                )}
+
+                        })
                     Tab(
                         selected = tabIndex.intValue == 1,
                         onClick = { tabIndex.intValue = 1 },
-                        text = { Text("Đã phân công") })
+                        text = {
+                            Row { Text("Đã phân công")
+                                Badge(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    content = { Text(daPhanCong.size.toString()) }
+                                ) }
+
+                        })
 
                 }
             }
@@ -145,7 +161,14 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .clickable { navController.navigate(Screen.AdminDeviceDetail.createRoute(item.chiTiet.thietBiId!!, item.chiTiet.yeuCauId)) },
+                            .clickable {
+                                navController.navigate(
+                                    Screen.AdminDeviceDetail.createRoute(
+                                        item.chiTiet.thietBiId!!,
+                                        item.chiTiet.yeuCauId
+                                    )
+                                )
+                            },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         val shape = MaterialTheme.shapes.medium
@@ -224,7 +247,7 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                             Text("Loại thiết bị: ${item.chiTiet.tenLoaiThietBi}")
                             Text("Loại yêu cầu: ${item.chiTiet.loaiYeuCau}")
 
-                            if (tabIndex.intValue == 1){
+                            if (tabIndex.intValue == 1) {
                                 // Hiển thị số lượng kỹ thuật viên đã chấp nhận và chờ phản hồi
                                 Text("${item.totalDoingTechnicians}/${item.totalResponsibleTechnicians} KTV đang thực hiện")
                             }
@@ -359,12 +382,13 @@ fun AnimatedOutlinedButton(viewModel: AdminRequestDetailViewModel, modifier: Mod
     var isIconVisible by remember { mutableStateOf(false) }
 
 
-
     // The animation that changes color every 3 seconds
     LaunchedEffect(true) {
         while (true) {
             colorAnim.animateTo(
-                targetValue = if (colorAnim.value == Color(0xFF03d500)) Color(0xFF08b405) else Color(0xFF028900),
+                targetValue = if (colorAnim.value == Color(0xFF03d500)) Color(0xFF08b405) else Color(
+                    0xFF028900
+                ),
                 animationSpec = repeatable(
                     iterations = Int.MAX_VALUE,
                     animation = tween(1500)

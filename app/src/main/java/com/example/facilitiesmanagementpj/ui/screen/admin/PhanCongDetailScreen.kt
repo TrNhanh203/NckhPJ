@@ -20,7 +20,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhanCongDetailViewModel
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 
 import androidx.compose.foundation.lazy.items
