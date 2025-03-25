@@ -144,7 +144,8 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(8.dp)
+                            .clickable { navController.navigate(Screen.AdminDeviceDetail.createRoute(item.chiTiet.thietBiId!!, item.chiTiet.yeuCauId)) },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         val shape = MaterialTheme.shapes.medium
@@ -222,6 +223,12 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                             )
                             Text("Loại thiết bị: ${item.chiTiet.tenLoaiThietBi}")
                             Text("Loại yêu cầu: ${item.chiTiet.loaiYeuCau}")
+
+                            if (tabIndex.intValue == 1){
+                                // Hiển thị số lượng kỹ thuật viên đã chấp nhận và chờ phản hồi
+                                Text("${item.totalDoingTechnicians}/${item.totalResponsibleTechnicians} KTV đang thực hiện")
+                            }
+
                         }
                     }
                 }

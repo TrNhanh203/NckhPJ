@@ -8,6 +8,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface PhanCongDao {
 
+    // Truy vấn để lấy PhanCongId từ ChiTietYeuCauId
+    @Query("SELECT id FROM phan_cong WHERE chiTietYeuCauId = :chiTietYeuCauId LIMIT 1")
+    suspend fun getPhanCongIdByChiTietYeuCauId(chiTietYeuCauId: Int): Int?
+
     @Query("SELECT EXISTS (SELECT 1 FROM phan_cong WHERE chiTietYeuCauId = :chiTietId)")
     suspend fun hasPhanCongForChiTiet(chiTietId: Int): Boolean
 

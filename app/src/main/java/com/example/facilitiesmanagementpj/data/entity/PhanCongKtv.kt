@@ -6,23 +6,6 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 
 
-// 14. Bảng PhanCongKyThuatVien
-//@Entity(tableName = "phan_cong_ktv")
-//data class PhanCongKtv(
-//    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-//    val phanCongId: Int,
-//    val taiKhoanKTVId: Int,
-//    val thoiGianDuKien: Int, // Phút, do admin quyết định khi phân công
-//    val thoiGianBatDau: Long = System.currentTimeMillis(), // Thời gian thực tế bắt đầu, được tính khi KTV bắt đầu làm việc này, sửa lại cho phép null vì đợi tới khi ktv check in mới có tgian
-//    val thoiGianHoanThien: Long? = null,   // Thời gian thực tế hoàn thành, được tính khi KTV hoàn thành công việc này
-//    val soLanGiaHan: Int = 0,
-//    val thoiGianGiaHan: Long? = null,
-//    val lyDoGiaHan: String? = null,
-//    val trangThai: String = TrangThaiPhanCong.CHO_PHAN_HOI, // cập nhật dựa trên các tương tác của ktv
-//    val trangThaiCuoiCung: String? = null, // Trạng thái kết thúc để thống kê (nếu cần)
-//
-//
-//)
 
 @Entity(tableName = "phan_cong_ktv")
 data class PhanCongKtv(

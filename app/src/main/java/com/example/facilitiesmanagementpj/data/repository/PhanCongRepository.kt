@@ -15,6 +15,10 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         return phanCongDao.hasPhanCongForChiTiet(chiTietId)
     }
 
+    // Lấy PhanCongId từ ChiTietYeuCauId
+    suspend fun getPhanCongIdByChiTietYeuCauId(chiTietYeuCauId: Int): Int? {
+        return phanCongDao.getPhanCongIdByChiTietYeuCauId(chiTietYeuCauId)
+    }
 
     fun getAllPhanCong(): Flow<List<PhanCong>> = phanCongDao.getAll()
     suspend fun insert(phanCong: PhanCong) = phanCongDao.insert(phanCong)
