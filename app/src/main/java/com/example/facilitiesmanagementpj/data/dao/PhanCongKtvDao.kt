@@ -5,6 +5,11 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 13. PhanCongKTVDao
 @Dao
 interface PhanCongKtvDao {
+
+    @Transaction
+    @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")
+    suspend fun getByPhanCongIdWithTaiKhoan(phanCongId: Int): List<PhanCongKtvWithTaiKhoan>
+
     // Truy vấn số lượng kỹ thuật viên theo trạng thái
     @Query("SELECT COUNT(*) FROM phan_cong_ktv WHERE phanCongId = :phanCongId AND trangThai = :trangThai")
     suspend fun getTechnicianCountByStatus(phanCongId: Int, trangThai: String): Int

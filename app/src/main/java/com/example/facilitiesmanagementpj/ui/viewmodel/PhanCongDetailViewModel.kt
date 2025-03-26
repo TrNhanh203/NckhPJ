@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.net.toUri
+import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 
 @HiltViewModel
 class PhanCongDetailViewModel @Inject constructor(
@@ -27,7 +29,8 @@ class PhanCongDetailViewModel @Inject constructor(
     private val phongRepository: PhongRepository,
     private val tangRepository: TangRepository,
     private val dayRepository: DayRepository,
-    private val donViRepository: DonViRepository
+    private val donViRepository: DonViRepository,
+    private val phanCongKtvRepository: PhanCongKtvRepository
 ) : ViewModel() {
 
     private val _phanCong = MutableStateFlow<PhanCong?>(null)
@@ -54,6 +57,16 @@ class PhanCongDetailViewModel @Inject constructor(
     private val _videoUri = MutableStateFlow<Uri?>(null)
     val videoUri: StateFlow<Uri?> = _videoUri
 
+    private val _dsKtv = MutableStateFlow<List<PhanCongKtvWithTaiKhoan>>(emptyList())
+    val dsKtv: StateFlow<List<PhanCongKtvWithTaiKhoan>> = _dsKtv
+
+    fun loadDsKtv(phanCongId: Int) {
+        viewModelScope.launch {
+            _dsKtv.value = phanCongRepository.getDsKtvByPhanCongId(phanCongId)
+        }
+    }
+
+
     fun loadPhanCongChiTiet(phanCongId: Int) {
         viewModelScope.launch {
             val pc = phanCongRepository.getPhanCongById(phanCongId)
@@ -75,17 +88,18 @@ class PhanCongDetailViewModel @Inject constructor(
                 val phong = phongRepository.getById(tb?.phongId ?: return@launch)
                 val tang = tangRepository.getById(phong?.tangId ?: return@launch)
                 val day = dayRepository.getById(tang?.dayId ?: return@launch)
-                _viTri.value = listOfNotNull(day?.tenDay, tang?.tenTang, phong?.tenPhong).joinToString(" > ")
+                _viTri.value = listOfNotNull(day?.tenDay, tang.tenTang, phong.tenPhong).joinToString(" > ")
             }
 
             ct?.id?.let { loadMedia(it) }
         }
     }
 
+
     private suspend fun loadMedia(chiTietId: Int) {
         val images = anhMinhChungBaoCaoRepository.getImagesByChiTietBaoCaoId(chiTietId)
         val videos = anhMinhChungBaoCaoRepository.getVideosByChiTietBaoCaoId(chiTietId)
-        _imageUris.value = images.map { Uri.parse(it.urlAnh) }
-        _videoUri.value = videos.firstOrNull()?.let { Uri.parse(it.urlAnh) }
+        _imageUris.value = images.map { it.urlAnh.toUri() }
+        _videoUri.value = videos.firstOrNull()?.urlAnh?.toUri()
     }
 }

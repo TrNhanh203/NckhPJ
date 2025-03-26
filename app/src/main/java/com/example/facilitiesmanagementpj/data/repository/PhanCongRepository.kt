@@ -9,7 +9,11 @@ import javax.inject.Singleton
 
 // 11. PhanCongRepository
 @Singleton
-class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao) {
+class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao, private val phanCongKtvDao: PhanCongKtvDao) {
+
+    suspend fun getDsKtvByPhanCongId(phanCongId: Int): List<PhanCongKtvWithTaiKhoan> {
+        return phanCongKtvDao.getByPhanCongIdWithTaiKhoan(phanCongId)
+    }
 
     suspend fun hasPhanCongForChiTiet(chiTietId: Int): Boolean {
         return phanCongDao.hasPhanCongForChiTiet(chiTietId)

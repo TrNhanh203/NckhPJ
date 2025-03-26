@@ -9,6 +9,9 @@ import javax.inject.Singleton
 // 12. PhanCongKtvRepository
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
+
+
+
     // Lấy số lượng kỹ thuật viên theo trạng thái
     suspend fun getTechnicianCountByStatus(phanCongId: Int, trangThai: String): Int {
         return phanCongKtvDao.getTechnicianCountByStatus(phanCongId, trangThai)

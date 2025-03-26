@@ -21,14 +21,23 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.PhanCongDetailViewModel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
 
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
+import com.example.facilitiesmanagementpj.data.entity.PhanCongKtv
+import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
+import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 
 
@@ -39,10 +48,11 @@ fun PhanCongDetailScreen(
 ) {
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val tabTitles = listOf("Kỹ thuật viên", "Thông tin","Thiết bị", "Ảnh & video")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         viewModel.loadPhanCongChiTiet(phanCongId)
+        viewModel.loadDsKtv(phanCongId)
     }
 
     com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout(
@@ -72,7 +82,7 @@ fun PhanCongDetailScreen(
             }
 
             when (selectedTabIndex) {
-                0 -> TabKTV(viewModel)
+                0 -> TabKTV(viewModel, navController)
                 1 -> TabThongTin(viewModel)
                 2 -> TabThietBi(viewModel)
                 3 -> TabMinhChung(viewModel)
@@ -82,9 +92,191 @@ fun PhanCongDetailScreen(
 }
 
 @Composable
-fun TabKTV(viewModel: PhanCongDetailViewModel) {
-    // TODO: Hiển thị danh sách kỹ thuật viên phân công
-    Text("Danh sách KTV")
+fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController) {
+    val trangThaiOrder = mapOf(
+        TrangThaiPhanCong.DA_TU_CHOI to 0,
+        TrangThaiPhanCong.CHO_PHAN_HOI to 1,
+        TrangThaiPhanCong.DA_CHAP_NHAN to 2,
+        TrangThaiPhanCong.DANG_THUC_HIEN to 3,
+        TrangThaiPhanCong.TAM_NGHI to 4,
+        TrangThaiPhanCong.HOAN_THANH to 5,
+        TrangThaiPhanCong.THAY_NGUOI to 6,
+        TrangThaiPhanCong.BI_HUY to 7
+    )
+    // Fake dữ liệu để hiển thị thử
+    val fakelist = remember {
+        listOf(
+            PhanCongKtvWithTaiKhoan(
+                phanCongKtv = PhanCongKtv(
+                    id = 1,
+                    phanCongId = 1,
+                    taiKhoanKTVId = 101,
+                    trangThai = "Tạm Nghỉ",
+                    thoiGianDuKien = 60,
+                    thoiGianPhatSinh = 10,
+                    thoiGianBatDau = null,
+                    thoiGianHoanThien = null,
+                    dangXinGiaHan = false,
+                    soThoiGianXinGiaHan = 0,
+                    soLanGiaHan = 0,
+                    tongThoiGianDaXinGiaHan = 0,
+                    moTaCongViec = "Sửa ổ cắm điện",
+                    daChapNhan = true,
+                    thoiGianTuChoi = null,
+                    lyDoTuChoi = null,
+                    thoiGianLamViecThucTe = 50,
+                    trangThaiCuoiCung = null
+                ),
+                taiKhoan = TaiKhoan(
+                    id = 101,
+                    tenTaiKhoan = "ktvA",
+                    matKhau = "123",
+                    vaiTroId = 3,
+                    soDienThoai = "0123456789",
+                    email = "ktvA@email.com",
+                    hoTen = "Nguyễn Văn A",
+                    trangThai = "online",
+                    lastLogin = null,
+                    donViId = null
+                )
+            ),
+            PhanCongKtvWithTaiKhoan(
+                phanCongKtv = PhanCongKtv(
+                    id = 2,
+                    phanCongId = 1,
+                    taiKhoanKTVId = 102,
+                    trangThai = "Đã Từ Chối",
+                    thoiGianDuKien = 45,
+                    thoiGianPhatSinh = 0,
+                    thoiGianBatDau = null,
+                    thoiGianHoanThien = null,
+                    dangXinGiaHan = false,
+                    soThoiGianXinGiaHan = 0,
+                    soLanGiaHan = 0,
+                    tongThoiGianDaXinGiaHan = 0,
+                    moTaCongViec = "Thay bóng đèn",
+                    daChapNhan = false,
+                    thoiGianTuChoi = null,
+                    lyDoTuChoi = null,
+                    thoiGianLamViecThucTe = 0,
+                    trangThaiCuoiCung = null
+                ),
+                taiKhoan = TaiKhoan(
+                    id = 102,
+                    tenTaiKhoan = "ktvB",
+                    matKhau = "123",
+                    vaiTroId = 3,
+                    soDienThoai = "0987654321",
+                    email = "ktvB@email.com",
+                    hoTen = "Trần Thị B",
+                    trangThai = "offline",
+                    lastLogin = null,
+                    donViId = null
+                )
+            )
+        )
+    }
+    val list by viewModel.dsKtv.collectAsState()
+    val sortedList = list.sortedBy { trangThaiOrder[it.phanCongKtv.trangThai] ?: Int.MAX_VALUE }
+
+
+    Box(Modifier.fillMaxSize()) {
+        if (sortedList.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PersonAdd,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = Color.LightGray
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Chưa có kỹ thuật viên tham gia", color = Color.Gray)
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                items(sortedList) { item ->
+                    KtvCard(item)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+        }
+
+        LargeFloatingActionButton(
+            onClick = { /* TODO: Mở màn thêm kỹ thuật viên */ },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Thêm KTV", tint = Color.White, modifier = Modifier.size(24.dp))
+        }
+    }
+}
+
+@Composable
+fun KtvCard(item: PhanCongKtvWithTaiKhoan) {
+    val borderColor = when (item.phanCongKtv.trangThai) {
+        TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
+        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
+        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
+        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
+        TrangThaiPhanCong.BI_HUY, TrangThaiPhanCong.THAY_NGUOI -> Color(0xFF9E9E9E)
+        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
+        else -> Color.LightGray
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .background(borderColor)
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = item.taiKhoan.hoTen?.first().toString(),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        text = item.taiKhoan.hoTen.toString(),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = item.phanCongKtv.trangThai,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = borderColor
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
