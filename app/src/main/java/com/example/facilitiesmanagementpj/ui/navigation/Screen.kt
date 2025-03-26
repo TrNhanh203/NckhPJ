@@ -26,8 +26,9 @@ sealed class Screen(val route: String) {
         fun createRoute(thietBiId: Int, yeuCauId: Int) = "admin_device_detail/$thietBiId/$yeuCauId"
     }
     object AdminDeviceList : Screen("admin_device_list")
-    object ChonKyThuatVien : Screen("chon_ky_thuat_vien/{thietBiId}/{yeuCauId}") {
-        fun createRoute(thietBiId: Int, yeuCauId: Int) = "chon_ky_thuat_vien/$thietBiId/$yeuCauId"
+
+    object ChonKyThuatVien : Screen("chon_ky_thuat_vien/{phanCongId}") {
+        fun createRoute(phanCongId: Int) = "chon_ky_thuat_vien/$phanCongId"
     }
 
     object PhanCongDetail : Screen("phan_cong_detail/{phanCongId}") {

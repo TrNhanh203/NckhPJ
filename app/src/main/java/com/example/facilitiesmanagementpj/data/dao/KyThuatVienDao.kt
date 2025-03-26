@@ -45,6 +45,25 @@ interface KyThuatVienDao {
     @Delete
     suspend fun delete(kyThuatVien: KyThuatVien)
 
+    @Query(
+        """
+        SELECT ktv.*, tk.* FROM ky_thuat_vien ktv
+        INNER JOIN tai_khoan tk ON ktv.taiKhoanId = tk.id
+        WHERE (:trangThai IS NULL OR tk.trangThai = :trangThai)
+        AND (
+            :chuyenMonIdsSize == 0 OR EXISTS (
+                SELECT 1 FROM chuyen_mon_ky_thuat_vien cmktv
+                WHERE cmktv.kyThuatVienId = ktv.id AND cmktv.chuyenMonId IN (:chuyenMonIds)
+            )
+        )
+    """
+    )
+    suspend fun getFilteredWithTaiKhoan(
+        trangThai: String?,
+        chuyenMonIds: List<Int>,
+        chuyenMonIdsSize: Int = chuyenMonIds.size
+    ): List<KyThuatVienWithTaiKhoanImpl>
+
     @Query("""
         SELECT 
             ky_thuat_vien.id AS ktv_id,

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.DanhSachKyThuatVienViewModel
@@ -26,11 +27,13 @@ fun DanhSachKyThuatVienScreen(
     val ktvList = viewModel.danhSachKTV
     val chuyenMonList = viewModel.allChuyenMon
     var showSheet by remember { mutableStateOf(false) }
+    val trangThaiOptions = listOf("Tất cả") + TrangThaiTaiKhoan.ALL
+
 
     ScaffoldLayout(title = "Danh sách KTV", navController = navController, showDrawer = false) { modifier ->
         Column(modifier = modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                listOf("Tất cả", "Đang làm", "Đang nghỉ").forEach { tt ->
+                trangThaiOptions.forEach { tt ->
                     FilterChip(
                         selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
                         onClick = {

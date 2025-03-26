@@ -1,10 +1,10 @@
 package com.example.facilitiesmanagementpj.data.utils
 
 object TrangThaiTaiKhoan {
-    const val NGOAI_TUYEN = "ngoai_tuyen"
-    const val TRUC_TUYEN = "truc_tuyen"
-    const val BI_KHOA = "bi_khoa"
-    const val CHO_XAC_THUC = "cho_xac_thuc"
+    const val NGOAI_TUYEN = "Ngoại Tuyến"
+    const val TRUC_TUYEN = "Trực Tuyến"
+    const val BI_KHOA = "Bị Khóa"
+    const val CHO_XAC_THUC = "Chờ Xác Thực"
 
     //tu choi xac thuc thi phai co ly do chu
 

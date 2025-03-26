@@ -39,6 +39,7 @@ import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
 
 @Composable
@@ -82,7 +83,7 @@ fun PhanCongDetailScreen(
             }
 
             when (selectedTabIndex) {
-                0 -> TabKTV(viewModel, navController)
+                0 -> TabKTV(viewModel, navController, phanCongId)
                 1 -> TabThongTin(viewModel)
                 2 -> TabThietBi(viewModel)
                 3 -> TabMinhChung(viewModel)
@@ -92,7 +93,7 @@ fun PhanCongDetailScreen(
 }
 
 @Composable
-fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController) {
+fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, phanCongId: Int) {
     val trangThaiOrder = mapOf(
         TrangThaiPhanCong.DA_TU_CHOI to 0,
         TrangThaiPhanCong.CHO_PHAN_HOI to 1,
@@ -206,7 +207,7 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController) {
         }
 
         LargeFloatingActionButton(
-            onClick = { /* TODO: Mở màn thêm kỹ thuật viên */ },
+            onClick = { navController.navigate(Screen.ChonKyThuatVien.createRoute(phanCongId = phanCongId)) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),

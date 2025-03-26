@@ -10,6 +10,6 @@ data class KyThuatVien(
     val taiKhoanId: Int,
     val kinhNghiem: Int?, // Số ngày kinh nghiệm làm việc ở nơi này (k phải số năm trong nghề)
     val ngayBatDauLam: Long?,
-    val trangThaiHienTai: String = "Đang làm", // Trạng thái hiện tại
+    val trangThaiHienTai: String = "Đang Nghỉ", // Trạng thái hiện tại
     val ghiChu: String? // Ghi chú thêm
 )

@@ -6,6 +6,17 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface PhanCongKtvDao {
 
+    @Query("""
+        SELECT COUNT(*) FROM phan_cong_ktv
+        WHERE taiKhoanKTVId = :taiKhoanId
+        AND trangThai IN (
+            'Đã Chấp Nhận',
+            'Đang Thực Hiện',
+            'Tạm Nghỉ'
+        )
+    """)
+    suspend fun countSoTaskDangLam(taiKhoanId: Int): Int
+
     @Transaction
     @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")
     suspend fun getByPhanCongIdWithTaiKhoan(phanCongId: Int): List<PhanCongKtvWithTaiKhoan>

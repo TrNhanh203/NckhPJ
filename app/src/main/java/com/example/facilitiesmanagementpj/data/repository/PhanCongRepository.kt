@@ -11,6 +11,10 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao, private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun getSoTaskDangLam(taiKhoanId: Int): Int {
+        return phanCongKtvDao.countSoTaskDangLam(taiKhoanId)
+    }
+
     suspend fun getDsKtvByPhanCongId(phanCongId: Int): List<PhanCongKtvWithTaiKhoan> {
         return phanCongKtvDao.getByPhanCongIdWithTaiKhoan(phanCongId)
     }
