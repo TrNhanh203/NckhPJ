@@ -10,6 +10,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 18. ChuyenMonKTVDao
 @Dao
 interface ChuyenMonKtvDao {
+
+    @Query("SELECT chuyenMonId FROM chuyen_mon_ky_thuat_vien WHERE kyThuatVienId = :kyThuatVienId")
+    suspend fun getChuyenMonIdsByKyThuatVienId(kyThuatVienId: Int): List<Int>
+
     @Query("SELECT * FROM chuyen_mon_ky_thuat_vien")
     fun getAll(): Flow<List<ChuyenMonKtv>>
 

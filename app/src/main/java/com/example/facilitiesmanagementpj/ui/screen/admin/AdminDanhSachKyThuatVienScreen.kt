@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiKtv
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
@@ -27,7 +28,7 @@ fun DanhSachKyThuatVienScreen(
     val ktvList = viewModel.danhSachKTV
     val chuyenMonList = viewModel.allChuyenMon
     var showSheet by remember { mutableStateOf(false) }
-    val trangThaiOptions = listOf("Tất cả") + TrangThaiTaiKhoan.ALL
+    val trangThaiOptions = listOf("Tất cả") + TrangThaiKtv.ALL
 
 
     ScaffoldLayout(title = "Danh sách KTV", navController = navController, showDrawer = false) { modifier ->

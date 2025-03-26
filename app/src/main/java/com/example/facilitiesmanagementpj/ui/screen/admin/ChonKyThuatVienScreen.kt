@@ -2,22 +2,18 @@ package com.example.facilitiesmanagementpj.ui.screen.admin.phieuphancong
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.facilitiesmanagementpj.data.relation.KyThuatVienWithSoTask
-import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiKtv
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.viewmodel.ChonKyThuatVienViewModel
 
@@ -36,10 +31,11 @@ fun ChonKyThuatVienScreen(
     phanCongId: Int,
     navController: NavController
 ) {
-
-    val trangThaiOptions = listOf("Tất cả") + TrangThaiTaiKhoan.ALL
+    val trangThaiOptions = listOf("Tất cả") + TrangThaiKtv.ALL
     var showFilterSheet by remember { mutableStateOf(false) }
     val viewModel: ChonKyThuatVienViewModel = hiltViewModel()
+    val sheetState = rememberModalBottomSheetState()
+
     LaunchedEffect(Unit) {
         viewModel.loadDanhSachKTV()
     }
@@ -54,126 +50,143 @@ fun ChonKyThuatVienScreen(
         showDrawer = false,
         isHomeScreen = false
     ) { padding ->
-        if (list.isEmpty()) {
-            Box(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .then(padding)
+        ) {
+            // Bộ lọc trạng thái + mở bottom sheet
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    then(padding),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(8.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.PersonAdd,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color.LightGray
+                trangThaiOptions.forEach { tt ->
+                    FilterChip(
+                        selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
+                        onClick = {
+                            viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
+                        },
+                        label = { Text(tt) }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Chưa có kỹ thuật viên phù hợp", color = Color.Gray)
-                }
-            }
-        } else {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    trangThaiOptions.forEach { tt ->
-                        FilterChip(
-                            selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
-                            onClick = {
-                                viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
-                            },
-                            label = { Text(tt) }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                    }
-
-                    Spacer(Modifier.weight(1f))
-                    Button(onClick = { showFilterSheet = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
-                    }
+                    Spacer(Modifier.width(8.dp))
                 }
 
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = viewModel.searchText,
-                    onValueChange = {
-                        viewModel.searchText = it
-                        viewModel.applyFilters()
-                    },
-                    label = { Text("Tìm theo tên") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Spacer(Modifier.weight(1f))
+                Button(onClick = { showFilterSheet = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = null)
+                }
             }
+
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = viewModel.searchText,
+                onValueChange = {
+                    viewModel.searchText = it
+                    viewModel.applyFilters()
+                },
+                label = { Text("Tìm theo tên") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .then(padding)
-            ) {
-                items(list) { item ->
-                    val ktv = item.ktv
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                // TODO: Chọn kỹ thuật viên duy nhất, ví dụ: viewModel.chonKtvVaQuayLai(...)
-                            },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+            if (list.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.PersonAdd,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = Color.LightGray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Chưa có kỹ thuật viên phù hợp", color = Color.Gray)
+                    }
+                }
+            } else {
+                LazyColumn {
+                    items(list) { item ->
+                        val ktv = item.ktv
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    // TODO: Chọn kỹ thuật viên duy nhất, ví dụ: viewModel.chonKtvVaQuayLai(...)
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = ktv.taiKhoan.hoTen?.firstOrNull()?.toString() ?: "?",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                            }
-
-                            Spacer(Modifier.width(12.dp))
-
-                            Column(Modifier.weight(1f)) {
-                                Text(ktv.taiKhoan.hoTen.toString(), style = MaterialTheme.typography.titleMedium)
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(getColorForTrangThai(ktv.kyThuatVien.trangThaiHienTai))
-                                    )
-                                    Spacer(Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
-                                        text = ktv.kyThuatVien.trangThaiHienTai,
-                                        style = MaterialTheme.typography.bodySmall
+                                        text = ktv.taiKhoan.hoTen?.firstOrNull()?.toString() ?: "?",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                 }
-                                Text(
-                                    text = "${item.soTaskDangLam} công việc đang thực hiện",
-                                    style = MaterialTheme.typography.labelSmall
-                                )
+
+                                Spacer(Modifier.width(12.dp))
+
+                                Column(Modifier.weight(1f)) {
+                                    Text(ktv.taiKhoan.hoTen.toString(), style = MaterialTheme.typography.titleMedium)
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            Modifier
+                                                .size(8.dp)
+                                                .clip(CircleShape)
+                                                .background(getColorForTrangThai(ktv.kyThuatVien.trangThaiHienTai))
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            text = ktv.kyThuatVien.trangThaiHienTai,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Text(
+                                        text = "${item.soTaskDangLam} công việc đang thực hiện",
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
     }
+
     if (showFilterSheet) {
-        ModalBottomSheet(onDismissRequest = { showFilterSheet = false }) {
+        ModalBottomSheet(onDismissRequest = { showFilterSheet = false }, sheetState = sheetState) {
             Column(Modifier.padding(16.dp)) {
                 Text("Lọc theo chuyên môn", style = MaterialTheme.typography.titleMedium)
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    TextButton(onClick = {
+                        viewModel.resetFilters()
+                        showFilterSheet = false
+                    }) { Text("Xóa lọc") }
+                    Button(onClick = {
+                        viewModel.applyFilters()
+                        showFilterSheet = false
+                    }) { Text("Áp dụng") }
+                }
                 Spacer(Modifier.height(8.dp))
                 LazyColumn {
                     items(viewModel.allChuyenMon) { cm ->
@@ -187,20 +200,10 @@ fun ChonKyThuatVienScreen(
                     }
                 }
 
-                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    TextButton(onClick = {
-                        viewModel.resetFilters()
-                        showFilterSheet = false
-                    }) { Text("Xóa lọc") }
-                    Button(onClick = {
-                        viewModel.applyFilters()
-                        showFilterSheet = false
-                    }) { Text("Áp dụng") }
-                }
+
             }
         }
     }
-
 }
 
 @Composable

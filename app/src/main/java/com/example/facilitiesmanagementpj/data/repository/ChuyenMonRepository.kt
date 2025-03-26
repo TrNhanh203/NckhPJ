@@ -11,6 +11,11 @@ class ChuyenMonRepository @Inject constructor(
     private val chuyenMonDao: ChuyenMonDao,
     private val chuyenMonKtvDao: ChuyenMonKtvDao
 ) {
+    suspend fun getChuyenMonIdsCuaKTV(kyThuatVienId: Int): List<Int> {
+        return chuyenMonKtvDao.getChuyenMonIdsByKyThuatVienId(kyThuatVienId)
+    }
+
+
     suspend fun insert(chuyenMon: ChuyenMon) = chuyenMonDao.insert(chuyenMon)
     suspend fun update(chuyenMon: ChuyenMon) = chuyenMonDao.update(chuyenMon)
     suspend fun delete(chuyenMon: ChuyenMon) = chuyenMonDao.delete(chuyenMon)

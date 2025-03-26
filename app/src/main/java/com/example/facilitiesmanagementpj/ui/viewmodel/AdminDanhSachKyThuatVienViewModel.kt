@@ -13,8 +13,6 @@ import com.example.facilitiesmanagementpj.data.entity.KyThuatVienWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.repository.ChuyenMonRepository
 import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
 
-
-
 // ✅ ViewModel
 @HiltViewModel
 class DanhSachKyThuatVienViewModel @Inject constructor(
@@ -61,13 +59,18 @@ class DanhSachKyThuatVienViewModel @Inject constructor(
 
     fun applyFilters() {
         viewModelScope.launch {
-            val rawList = kyThuatVienRepo.getKyThuatVienFiltered(
-                selectedTrangThai, selectedChuyenMonIds.toList()
-            )
-            danhSachKTV = if (searchText.isBlank()) rawList
-            else rawList.filter {
-                it.taiKhoan.hoTen?.contains(searchText, ignoreCase = true) == true
+            val rawList = kyThuatVienRepo.getByTrangThaiWithTaiKhoan(selectedTrangThai)
+
+            val filteredList = rawList.filter { ktv ->
+                selectedChuyenMonIds.isEmpty() || kyThuatVienRepo.hasAnyChuyenMon(
+                    kyThuatVienId = ktv.kyThuatVien.id,
+                    chuyenMonIds = selectedChuyenMonIds
+                )
+            }.filter {
+                it.taiKhoan.hoTen?.contains(searchText, ignoreCase = true) == true || searchText.isBlank()
             }
+
+            danhSachKTV = filteredList
         }
     }
 }

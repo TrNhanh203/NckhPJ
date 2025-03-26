@@ -1,6 +1,8 @@
 package com.example.facilitiesmanagementpj.data.repository
-import com.example.facilitiesmanagementpj.data.dao.*
-import com.example.facilitiesmanagementpj.data.entity.*
+
+import com.example.facilitiesmanagementpj.data.dao.KyThuatVienDao
+import com.example.facilitiesmanagementpj.data.entity.KyThuatVien
+import com.example.facilitiesmanagementpj.data.entity.KyThuatVienWithTaiKhoan
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -8,24 +10,16 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// 10. KyThuatVienRepository
 @Singleton
-class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyThuatVienDao) {
+class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyThuatVienDao, private val chuyenMonRepo: ChuyenMonRepository) {
 
-    suspend fun getKyThuatVienFiltered(trangThai: String?, chuyenMonIds: List<Int>): List<KyThuatVienWithTaiKhoan> {
-        return if (chuyenMonIds.isEmpty()) {
-            kyThuatVienDao.getAllWithTaiKhoanByTrangThai(trangThai)
-                .map { KyThuatVienWithTaiKhoan(it.kyThuatVien, it.taiKhoan) }
-        } else {
-            kyThuatVienDao.getWithFilter(trangThai, chuyenMonIds, chuyenMonIds.size)
-                .map { KyThuatVienWithTaiKhoan(it.kyThuatVien, it.taiKhoan) }
-        }
+    suspend fun getByTrangThaiWithTaiKhoan(trangThai: String?): List<KyThuatVienWithTaiKhoan> {
+        return kyThuatVienDao.getByTrangThaiWithTaiKhoan(trangThai)
     }
 
     suspend fun updateNgayBatDauLam(taiKhoanId: Int, ngay: Long) {
         kyThuatVienDao.updateNgayBatDauLamByTaiKhoanId(taiKhoanId, ngay)
     }
-
 
     fun getKyThuatVienByTaiKhoanId(taiKhoanId: Int): Flow<KyThuatVien?> {
         return flow {
@@ -37,14 +31,19 @@ class KyThuatVienRepository @Inject constructor(private val kyThuatVienDao: KyTh
         return kyThuatVienDao.getByTaiKhoanId(taiKhoanId)
     }
 
-
-
     fun getChuyenMonCuaKTV(kyThuatVienId: Int): Flow<List<String>> {
         return kyThuatVienDao.getChuyenMonCuaKTV(kyThuatVienId)
     }
 
     fun getAllKyThuatVien(): Flow<List<KyThuatVien>> = kyThuatVienDao.getAll()
+
     suspend fun insert(kyThuatVien: KyThuatVien) = kyThuatVienDao.insert(kyThuatVien)
     suspend fun update(kyThuatVien: KyThuatVien) = kyThuatVienDao.update(kyThuatVien)
     suspend fun delete(kyThuatVien: KyThuatVien) = kyThuatVienDao.delete(kyThuatVien)
+
+    suspend fun hasAnyChuyenMon(kyThuatVienId: Int, chuyenMonIds: Set<Int>): Boolean {
+        val current = chuyenMonRepo.getChuyenMonIdsCuaKTV(kyThuatVienId)
+        return current.any { chuyenMonIds.contains(it) }
+    }
+
 }

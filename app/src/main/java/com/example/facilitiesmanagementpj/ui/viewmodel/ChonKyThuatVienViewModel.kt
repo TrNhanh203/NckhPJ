@@ -6,11 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.dao.KyThuatVienDao
-import com.example.facilitiesmanagementpj.data.dao.KyThuatVienDao.KyThuatVienWithTaiKhoanImpl
 import com.example.facilitiesmanagementpj.data.entity.ChuyenMon
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVienWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.relation.KyThuatVienWithSoTask
+import com.example.facilitiesmanagementpj.data.repository.ChuyenMonRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
+import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ChonKyThuatVienViewModel @Inject constructor(
     private val kyThuatVienDao: KyThuatVienDao,
-    private val phanCongRepo: PhanCongRepository
+    private val kyThuatVienRepo: KyThuatVienRepository,
+    private val phanCongRepo: PhanCongRepository,
+    private val chuyenMonRepo: ChuyenMonRepository
 ) : ViewModel() {
 
     var selectedTrangThai by mutableStateOf<String?>(null)
@@ -28,13 +31,19 @@ class ChonKyThuatVienViewModel @Inject constructor(
     var searchText by mutableStateOf("")
     var allChuyenMon by mutableStateOf<List<ChuyenMon>>(emptyList())
 
-
     private val _danhSachKTV = MutableStateFlow<List<KyThuatVienWithSoTask>>(emptyList())
     val danhSachKTV: StateFlow<List<KyThuatVienWithSoTask>> = _danhSachKTV
 
+    fun loadDanhSachKTV() {
+        loadChuyenMon()
+        applyFilters()
+    }
 
-    private val _selectedKtvIds = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedKtvIds: StateFlow<Set<Int>> = _selectedKtvIds
+    fun loadChuyenMon() {
+        viewModelScope.launch {
+            allChuyenMon = chuyenMonRepo.getAllChuyenMon()
+        }
+    }
 
 
     fun toggleChuyenMon(id: Int, checked: Boolean) {
@@ -55,17 +64,18 @@ class ChonKyThuatVienViewModel @Inject constructor(
 
     fun applyFilters() {
         viewModelScope.launch {
-            val rawList = kyThuatVienDao.getFilteredWithTaiKhoan(
-                selectedTrangThai, selectedChuyenMonIds.toList()
-            )
+            val rawList = kyThuatVienDao.getByTrangThaiWithTaiKhoan(selectedTrangThai)
 
-            val danhSach = rawList.map { impl ->
-                KyThuatVienWithTaiKhoan(impl.kyThuatVien, impl.taiKhoan)
+            val danhSach = rawList.filter { ktv ->
+                selectedChuyenMonIds.isEmpty() || kyThuatVienRepo.hasAnyChuyenMon(
+                    kyThuatVienId = ktv.kyThuatVien.id,
+                    chuyenMonIds = selectedChuyenMonIds
+                )
+            }.filter {
+                it.taiKhoan.hoTen?.contains(searchText, ignoreCase = true) == true || searchText.isBlank()
             }
 
-            val enrichedList = danhSach.filter {
-                it.taiKhoan.hoTen?.contains(searchText, ignoreCase = true) == true || searchText.isBlank()
-            }.map {
+            val enrichedList = danhSach.map {
                 val soTask = phanCongRepo.getSoTaskDangLam(it.taiKhoan.id)
                 KyThuatVienWithSoTask(it, soTask)
             }
@@ -73,48 +83,4 @@ class ChonKyThuatVienViewModel @Inject constructor(
             _danhSachKTV.value = enrichedList
         }
     }
-
-
-    fun loadDanhSachKTV(trangThai: String? = null) {
-        viewModelScope.launch {
-            val rawList = kyThuatVienDao.getAllWithTaiKhoanByTrangThai(trangThai)
-
-            val danhSach = rawList.map { impl ->
-                KyThuatVienWithTaiKhoan(
-                    kyThuatVien = impl.kyThuatVien,
-                    taiKhoan = impl.taiKhoan
-                )
-            }
-
-            val enrichedList = danhSach.map { ktv ->
-                val soTask = phanCongRepo.getSoTaskDangLam(ktv.taiKhoan.id)
-                KyThuatVienWithSoTask(ktv, soTask)
-            }
-
-            _danhSachKTV.value = enrichedList
-        }
-    }
-
-
-
-    fun toggleSelection(kyThuatVienId: Int) {
-        _selectedKtvIds.value = _selectedKtvIds.value.toMutableSet().apply {
-            if (contains(kyThuatVienId)) remove(kyThuatVienId)
-            else add(kyThuatVienId)
-        }
-    }
-
-    fun isSelected(kyThuatVienId: Int): Boolean = _selectedKtvIds.value.contains(kyThuatVienId)
-
-    fun clearSelection() {
-        _selectedKtvIds.value = emptySet()
-    }
-
-//    fun taoPhanCong(thietBiId: Int, yeuCauId: Int) {
-//        viewModelScope.launch {
-//            selectedKtvIds.value.forEach { ktvId ->
-//                phanCongRepo.insertPhanCong(thietBiId, yeuCauId, ktvId)
-//            }
-//        }
-//    }
 }
