@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiKtv
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ChonKyThuatVienViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +120,7 @@ fun ChonKyThuatVienScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    // TODO: Chọn kỹ thuật viên duy nhất, ví dụ: viewModel.chonKtvVaQuayLai(...)
+                                    navController.navigate(Screen.AdminViewDetailProfile.createRoute(item.ktv.taiKhoan.id))
                                 },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
