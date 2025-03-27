@@ -2,8 +2,8 @@ package com.example.facilitiesmanagementpj.data.utils
 
 object TrangThaiKtv {
 
-    const val DANG_NGHI = "Đang nghỉ"
-    const val DANG_LAM_VIEC = "Đang làm việc"
+    const val DANG_NGHI = "Đang Nghỉ"
+    const val DANG_LAM_VIEC = "Đang Làm Việc"
 
 
     val ALL = listOf(DANG_NGHI, DANG_LAM_VIEC)
