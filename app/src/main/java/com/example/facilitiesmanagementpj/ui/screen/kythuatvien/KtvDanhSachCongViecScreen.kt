@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvDanhSachCongViecViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,7 +114,7 @@ fun KtvDanhSachCongViecScreen(
                             Spacer(Modifier.height(8.dp))
                             Button(
                                 onClick = {
-                                    // TODO: Điều hướng tới màn hình chi tiết công việc
+                                    navController.navigate(Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id))
                                 },
                                 modifier = Modifier.align(Alignment.End)
                             ) {

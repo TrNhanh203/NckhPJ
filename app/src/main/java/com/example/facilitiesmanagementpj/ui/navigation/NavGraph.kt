@@ -35,6 +35,7 @@ import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.ChuyenMonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDanhSachCongViecScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
+import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvXemChiTietPhanCongScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DanhSachYeuCauScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVPhongScreen
@@ -189,7 +190,13 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             KtvDanhSachCongViecScreen(tkKtvId, navController)
         }
 
-
+        composable(
+            route = Screen.KtvXemChiTietPhanCong.route,
+            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+            KtvXemChiTietPhanCongScreen(navController, phanCongId)
+        }
 
 
         // Màn hình Người dùng (Sinh viên, Giảng viên)
