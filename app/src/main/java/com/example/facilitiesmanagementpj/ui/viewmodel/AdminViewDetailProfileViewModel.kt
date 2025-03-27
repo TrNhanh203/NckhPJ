@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.dao.TaiKhoanChiTiet
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVien
+import com.example.facilitiesmanagementpj.data.entity.PhanCongKtv
 import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
+import com.example.facilitiesmanagementpj.data.repository.PhanCongKtvRepository
 import com.example.facilitiesmanagementpj.data.repository.TaiKhoanRepository
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,7 +20,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AdminViewDetailProfileViewModel @Inject constructor(
     private val taiKhoanRepository: TaiKhoanRepository,
-    private val kyThuatVienRepository: KyThuatVienRepository
+    private val kyThuatVienRepository: KyThuatVienRepository,
+    private val phanCongKtvRepository: PhanCongKtvRepository
 ) : ViewModel() {
 
     private val _taiKhoanChiTiet = MutableStateFlow<TaiKhoanChiTiet?>(null)
@@ -28,6 +32,9 @@ class AdminViewDetailProfileViewModel @Inject constructor(
 
     private val _kyThuatVienChiTiet = MutableStateFlow<KyThuatVien?>(null)
     val kyThuatVienChiTiet: StateFlow<KyThuatVien?> = _kyThuatVienChiTiet
+
+    private val _xacNhanThanhCong = MutableStateFlow<Boolean>(false)
+    val xacNhanThanhCong: StateFlow<Boolean> = _xacNhanThanhCong
 
     fun loadTaiKhoanChiTiet(taiKhoanId: Int) {
         viewModelScope.launch {
@@ -65,6 +72,26 @@ class AdminViewDetailProfileViewModel @Inject constructor(
             ) {
                 kyThuatVienRepository.updateNgayBatDauLam(taiKhoanId, System.currentTimeMillis())
             }
+        }
+    }
+
+    fun xacNhanPhanCong(
+        phanCongId: Int,
+        taiKhoanId: Int,
+        thoiGianDuKien: Int,
+        moTa: String
+    ) {
+        viewModelScope.launch {
+            val newPhanCong = PhanCongKtv(
+                phanCongId = phanCongId,
+                taiKhoanKTVId = taiKhoanId,
+                thoiGianDuKien = thoiGianDuKien,
+                moTaCongViec = moTa,
+                trangThai = TrangThaiPhanCong.CHO_PHAN_HOI,
+                lyDoTuChoi = null
+            )
+            phanCongKtvRepository.insert(newPhanCong)
+            _xacNhanThanhCong.value = true
         }
     }
 

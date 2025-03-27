@@ -120,7 +120,7 @@ fun ChonKyThuatVienScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    navController.navigate(Screen.AdminViewDetailProfile.createRoute(item.ktv.taiKhoan.id))
+                                    navController.navigate(Screen.XacNhanDeCuKtv.createRoute(phanCongId, ktv.taiKhoan.id))
                                 },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
