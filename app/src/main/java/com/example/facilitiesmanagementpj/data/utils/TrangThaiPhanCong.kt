@@ -9,7 +9,7 @@ object TrangThaiPhanCong {
     const val HOAN_THANH = "Hoàn Thành"
     const val THAY_NGUOI = "Thay Người" // chỉ áp dụng cho người làm giữa chừng thì bị thay
     const val BI_HUY = "Bị Hủy"
-    const val KHONG_PHAN_HOI = "Không Phản Hồi"
+    //const val KHONG_PHAN_HOI = "Không Phản Hồi"
 
     val ALL = listOf(
         CHO_PHAN_HOI,
@@ -20,7 +20,7 @@ object TrangThaiPhanCong {
         HOAN_THANH,
         THAY_NGUOI,
         BI_HUY,
-        KHONG_PHAN_HOI
+        //KHONG_PHAN_HOI
     )
 
     fun isValid(trangThai: String): Boolean {

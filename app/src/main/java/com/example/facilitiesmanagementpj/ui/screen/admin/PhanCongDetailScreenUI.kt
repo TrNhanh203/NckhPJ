@@ -92,6 +92,9 @@ fun PhanCongDetailScreen(
     }
 }
 
+
+
+
 @Composable
 fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, phanCongId: Int) {
     val trangThaiOrder = mapOf(
@@ -104,82 +107,16 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
         TrangThaiPhanCong.THAY_NGUOI to 6,
         TrangThaiPhanCong.BI_HUY to 7
     )
-    // Fake dữ liệu để hiển thị thử
-    val fakelist = remember {
-        listOf(
-            PhanCongKtvWithTaiKhoan(
-                phanCongKtv = PhanCongKtv(
-                    id = 1,
-                    phanCongId = 1,
-                    taiKhoanKTVId = 101,
-                    trangThai = "Tạm Nghỉ",
-                    thoiGianDuKien = 60,
-                    thoiGianPhatSinh = 10,
-                    thoiGianBatDau = null,
-                    thoiGianHoanThien = null,
-                    dangXinGiaHan = false,
-                    soThoiGianXinGiaHan = 0,
-                    soLanGiaHan = 0,
-                    tongThoiGianDaXinGiaHan = 0,
-                    moTaCongViec = "Sửa ổ cắm điện",
-                    daChapNhan = true,
-                    thoiGianTuChoi = null,
-                    lyDoTuChoi = null,
-                    thoiGianLamViecThucTe = 50,
-                    trangThaiCuoiCung = null
-                ),
-                taiKhoan = TaiKhoan(
-                    id = 101,
-                    tenTaiKhoan = "ktvA",
-                    matKhau = "123",
-                    vaiTroId = 3,
-                    soDienThoai = "0123456789",
-                    email = "ktvA@email.com",
-                    hoTen = "Nguyễn Văn A",
-                    trangThai = "online",
-                    lastLogin = null,
-                    donViId = null
-                )
-            ),
-            PhanCongKtvWithTaiKhoan(
-                phanCongKtv = PhanCongKtv(
-                    id = 2,
-                    phanCongId = 1,
-                    taiKhoanKTVId = 102,
-                    trangThai = "Đã Từ Chối",
-                    thoiGianDuKien = 45,
-                    thoiGianPhatSinh = 0,
-                    thoiGianBatDau = null,
-                    thoiGianHoanThien = null,
-                    dangXinGiaHan = false,
-                    soThoiGianXinGiaHan = 0,
-                    soLanGiaHan = 0,
-                    tongThoiGianDaXinGiaHan = 0,
-                    moTaCongViec = "Thay bóng đèn",
-                    daChapNhan = false,
-                    thoiGianTuChoi = null,
-                    lyDoTuChoi = null,
-                    thoiGianLamViecThucTe = 0,
-                    trangThaiCuoiCung = null
-                ),
-                taiKhoan = TaiKhoan(
-                    id = 102,
-                    tenTaiKhoan = "ktvB",
-                    matKhau = "123",
-                    vaiTroId = 3,
-                    soDienThoai = "0987654321",
-                    email = "ktvB@email.com",
-                    hoTen = "Trần Thị B",
-                    trangThai = "offline",
-                    lastLogin = null,
-                    donViId = null
-                )
-            )
-        )
-    }
     val list by viewModel.dsKtv.collectAsState()
     val sortedList = list.sortedBy { trangThaiOrder[it.phanCongKtv.trangThai] ?: Int.MAX_VALUE }
 
+    var selectedKtv: PhanCongKtvWithTaiKhoan? by remember { mutableStateOf(null) }
+
+    selectedKtv?.let { ktv ->
+        KtvOptionsBottomSheet(item = ktv) {
+            selectedKtv = null
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         if (sortedList.isEmpty()) {
@@ -200,7 +137,9 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 items(sortedList) { item ->
-                    KtvCard(item)
+                    KtvCard(item) {
+                        selectedKtv = item
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -219,7 +158,7 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
 }
 
 @Composable
-fun KtvCard(item: PhanCongKtvWithTaiKhoan) {
+fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
     val borderColor = when (item.phanCongKtv.trangThai) {
         TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
@@ -231,7 +170,9 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan) {
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -244,8 +185,7 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan) {
             )
 
             Row(
-                modifier = Modifier
-                    .padding(16.dp),
+                modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -279,6 +219,36 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan) {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Tùy chọn cho trạng thái: ${item.phanCongKtv.trangThai}", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+
+            val options = when (item.phanCongKtv.trangThai) {
+                TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.THAY_NGUOI, TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                else -> emptyList()
+            }
+
+            options.forEach { option ->
+                ListItem(
+                    headlineContent = { Text(option) },
+                    modifier = Modifier.clickable { /* TODO */ }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun TabThongTin(viewModel: PhanCongDetailViewModel) {

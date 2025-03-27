@@ -38,6 +38,7 @@ fun ChonKyThuatVienScreen(
     var showFilterSheet by remember { mutableStateOf(false) }
     val viewModel: ChonKyThuatVienViewModel = hiltViewModel()
     val sheetState = rememberModalBottomSheetState()
+    var selectedKtvWithTrangThai by remember { mutableStateOf<KyThuatVienWithSoTaskWithTrangThaiPhanCong?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadDanhSachKTV(phanCongId)
@@ -121,7 +122,13 @@ fun ChonKyThuatVienScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { navController.navigate( Screen.XacNhanDeCuKtv.createRoute(phanCongId, item.ktv.taiKhoan.id))},
+                                .clickable {
+                                    if (item.trangThaiPhanCong != null) {
+                                        selectedKtvWithTrangThai = item
+                                    } else {
+                                        navController.navigate(Screen.XacNhanDeCuKtv.createRoute(phanCongId, item.ktv.taiKhoan.id))
+                                    }
+                                },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
@@ -177,6 +184,47 @@ fun ChonKyThuatVienScreen(
             }
         }
     }
+
+
+    selectedKtvWithTrangThai?.let { selected ->
+        ModalBottomSheet(
+            onDismissRequest = { selectedKtvWithTrangThai = null }
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    "Thao tác với KTV: ${selected.ktv.taiKhoan.hoTen}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(12.dp))
+
+                val options = when (selected.trangThaiPhanCong) {
+                    TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.THAY_NGUOI -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                    TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                    else -> emptyList()
+                }
+
+                options.forEach { option ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ListItem(
+                            headlineContent = { Text(option) },
+                            modifier = Modifier.clickable {
+                                // TODO: Xử lý tương ứng từng option ở đây
+                                selectedKtvWithTrangThai = null
+                            }
+                        )
+                    }
+
+                }
+            }
+        }
+    }
+
 
     if (showFilterSheet) {
         ModalBottomSheet(onDismissRequest = { showFilterSheet = false }, sheetState = sheetState) {
