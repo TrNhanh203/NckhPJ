@@ -36,7 +36,11 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.DashboardOption
 @Composable
 fun KtvDashboardScreen(navController: NavController) {
 
-    ScaffoldLayout(title = "Admin DashBoard", navController = navController, showBottomBar = true) { modifier ->
+    ScaffoldLayout(
+        title = "Admin DashBoard",
+        navController = navController,
+        showBottomBar = true
+    ) { modifier ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,7 +66,13 @@ fun KtvDashboardScreen(navController: NavController) {
                 title = "Danh Sách Công Việc",
                 icon = Icons.Default.AccountBox,
                 color = Color.Blue,
-                onClick = {  }
+                onClick = {
+                    SessionManager.currentUser?.let { user ->
+                        navController.navigate(
+                            Screen.KtvDanhSachCongViec.createRoute(user.id)
+                        )
+                    }
+                }
             )
 
             DashboardOption(
@@ -78,7 +88,12 @@ fun KtvDashboardScreen(navController: NavController) {
 }
 
 @Composable
-fun DashboardOption(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+fun DashboardOption(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,7 +103,9 @@ fun DashboardOption(title: String, icon: androidx.compose.ui.graphics.vector.Ima
         colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {

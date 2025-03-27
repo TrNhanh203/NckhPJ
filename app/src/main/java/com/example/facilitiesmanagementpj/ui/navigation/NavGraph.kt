@@ -33,6 +33,7 @@ import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.RegisterScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.SplashScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.ChuyenMonKyThuatVienScreen
+import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDanhSachCongViecScreen
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.KtvDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DanhSachYeuCauScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.DonViDashboardScreen
@@ -180,7 +181,13 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             DanhSachKyThuatVienScreen(navController)
         }
 
-
+        composable(
+            route = Screen.KtvDanhSachCongViec.route,
+            arguments = listOf(navArgument("tkKtvId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+            KtvDanhSachCongViecScreen(tkKtvId, navController)
+        }
 
 
 

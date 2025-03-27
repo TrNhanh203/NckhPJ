@@ -72,6 +72,9 @@ sealed class Screen(val route: String) {
     }
     object DanhSachKyThuatVien : Screen("danh_sach_ky_thuat_vien")
 
+    object KtvDanhSachCongViec : Screen("ktv_danh_sach_cong_viec/{tkKtvId}") {
+        fun createRoute(tkKtvId: Int) = "ktv_danh_sach_cong_viec/$tkKtvId"
+    }
 
     // User Screens (Sinh viên, Giảng viên)
     object Profile : Screen("profile")
