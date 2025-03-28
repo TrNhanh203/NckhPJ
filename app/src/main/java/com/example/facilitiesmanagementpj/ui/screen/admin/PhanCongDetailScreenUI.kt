@@ -37,6 +37,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtv
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
+import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
@@ -255,33 +256,100 @@ fun TabThongTin(viewModel: PhanCongDetailViewModel) {
     val phanCong = viewModel.phanCong.collectAsState().value
     val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
     val tenDonVi = viewModel.tenDonVi.collectAsState().value
+    val taiKhoanYeuCau = viewModel.taiKhoanYeuCau.collectAsState().value
+    val taiKhoanTaoPhanCong = viewModel.taiKhoanTaoPhanCong.collectAsState().value
+
+    val currentUserId = SessionManager.currentUser?.id
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Thông tin chi tiết yêu cầu", style = MaterialTheme.typography.titleMedium)
-
-        chiTiet?.let {
-            Text("Loại yêu cầu: ${it.loaiYeuCau}")
-            Text("Mô tả: ${it.moTa}")
+        // Thông tin người yêu cầu
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Người yêu cầu", style = MaterialTheme.typography.titleMedium)
+                Text("Loại yêu cầu: ${chiTiet?.loaiYeuCau}")
+                Text("Mô tả: ${chiTiet?.moTa}")
+                Text("Họ tên: ${taiKhoanYeuCau?.hoTen ?: "Không rõ"}")
+                Text("SĐT: ${taiKhoanYeuCau?.soDienThoai ?: "Không rõ"}")
+                Text("Đơn vị: $tenDonVi")
+            }
         }
 
-        Text("Đơn vị yêu cầu: $tenDonVi")
 
-        phanCong?.let {
-            Text("\nThông tin phân công:", style = MaterialTheme.typography.titleMedium)
-            Text("Loại phân công: ${it.loaiPhanCong}")
-            Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
-            Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
-            Text("Trạng thái: ${it.trangThai}")
-            Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
-            Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
+        // Thông tin phân công chung
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Thông tin phân công", style = MaterialTheme.typography.titleMedium)
+                phanCong?.let {
+                    Text("Loại phân công: ${it.loaiPhanCong}")
+                    Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
+                    Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
+                    Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
+                    Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
+                    Text("Người tạo: ${taiKhoanTaoPhanCong?.hoTen ?: "Không rõ"}")
+                    Text("SĐT: ${taiKhoanTaoPhanCong?.soDienThoai ?: "Không rõ"}")
+                }
+            }
         }
+
+        // Thông tin phân công riêng (chỉ hiển thị nếu đúng là KTV đó)
+        if (phanCong != null && currentUserId != null) {
+            val ktvPhanCong = viewModel.dsKtv.collectAsState().value.firstOrNull {
+                it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCong.id
+            }
+            ktvPhanCong?.let {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Phân công dành riêng cho bạn", style = MaterialTheme.typography.titleMedium)
+                        Text("Mô tả công việc: ${it.phanCongKtv.moTaCongViec ?: "Không có"}")
+                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien ?: "Không rõ"} phút")
+                    }
+                }
+            }
+        }
+
+
     }
 }
+
+
+//@Composable
+//fun TabThongTin(viewModel: PhanCongDetailViewModel) {
+//    val phanCong = viewModel.phanCong.collectAsState().value
+//    val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
+//    val tenDonVi = viewModel.tenDonVi.collectAsState().value
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        verticalArrangement = Arrangement.spacedBy(12.dp)
+//    ) {
+//        Text("Thông tin chi tiết yêu cầu", style = MaterialTheme.typography.titleMedium)
+//
+//        chiTiet?.let {
+//            Text("Loại yêu cầu: ${it.loaiYeuCau}")
+//            Text("Mô tả: ${it.moTa}")
+//        }
+//
+//        Text("Đơn vị yêu cầu: $tenDonVi")
+//
+//        phanCong?.let {
+//            Text("\nThông tin phân công:", style = MaterialTheme.typography.titleMedium)
+//            Text("Loại phân công: ${it.loaiPhanCong}")
+//            Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
+//            Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
+//            Text("Trạng thái: ${it.trangThai}")
+//            Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
+//            Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
+//        }
+//    }
+//}
 
 @Composable
 fun TabThietBi(viewModel: PhanCongDetailViewModel) {

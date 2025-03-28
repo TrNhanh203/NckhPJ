@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
+import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
+import kotlinx.coroutines.flow.first
 
 @HiltViewModel
 class PhanCongDetailViewModel @Inject constructor(
@@ -30,7 +32,8 @@ class PhanCongDetailViewModel @Inject constructor(
     private val tangRepository: TangRepository,
     private val dayRepository: DayRepository,
     private val donViRepository: DonViRepository,
-    private val phanCongKtvRepository: PhanCongKtvRepository
+    private val phanCongKtvRepository: PhanCongKtvRepository,
+    private val taiKhoanRepository: TaiKhoanRepository
 ) : ViewModel() {
 
     private val _phanCong = MutableStateFlow<PhanCong?>(null)
@@ -50,6 +53,12 @@ class PhanCongDetailViewModel @Inject constructor(
 
     private val _viTri = MutableStateFlow("")
     val viTri: StateFlow<String> = _viTri
+
+    private val _taiKhoanYeuCau = MutableStateFlow<TaiKhoan?>(null)
+    val taiKhoanYeuCau: StateFlow<TaiKhoan?> = _taiKhoanYeuCau
+
+    private val _taiKhoanTaoPhanCong = MutableStateFlow<TaiKhoan?>(null)
+    val taiKhoanTaoPhanCong: StateFlow<TaiKhoan?> = _taiKhoanTaoPhanCong
 
     private val _imageUris = MutableStateFlow<List<Uri>>(emptyList())
     val imageUris: StateFlow<List<Uri>> = _imageUris
@@ -80,6 +89,12 @@ class PhanCongDetailViewModel @Inject constructor(
 
             val donVi = yc?.donViId?.let { donViRepository.getById(it) }
             _tenDonVi.value = donVi?.tenDonVi ?: "Không xác định"
+
+            val taiKhoanYeuCau = yc?.taiKhoanId?.let { taiKhoanRepository.getTaiKhoanById(it).first() }
+            _taiKhoanYeuCau.value = taiKhoanYeuCau
+
+            val taiKhoanTaoPhanCong = pc.nguoiTaoPhanCong?.let { taiKhoanRepository.getTaiKhoanById(it).first() }
+            _taiKhoanTaoPhanCong.value = taiKhoanTaoPhanCong
 
             pc.thietBiId.let {
                 val tb = thietBiRepository.getThietBiById(it)
