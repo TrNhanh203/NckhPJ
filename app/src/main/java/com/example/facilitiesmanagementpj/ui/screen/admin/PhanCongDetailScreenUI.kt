@@ -224,6 +224,11 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) {
+    val viewModel: PhanCongDetailViewModel = hiltViewModel()
+
+    var showRejectReasonDialog by remember { mutableStateOf(false) }
+    var showConfirmCancelDialog by remember { mutableStateOf(false) }
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Tùy chọn cho trạng thái: ${item.phanCongKtv.trangThai}", style = MaterialTheme.typography.titleMedium)
@@ -243,11 +248,61 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) 
             options.forEach { option ->
                 ListItem(
                     headlineContent = { Text(option) },
-                    modifier = Modifier.clickable { /* TODO */ }
+                    modifier = Modifier.clickable {
+                        when (option) {
+                            "Xem lý do từ chối" -> showRejectReasonDialog = true
+                            "Hủy bỏ" -> showConfirmCancelDialog = true
+                            else -> {} // các option khác xử lý sau
+                        }
+                    }
+
+                )
+            }
+
+            if (showRejectReasonDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRejectReasonDialog = false },
+                    title = { Text("Lý do từ chối") },
+                    text = {
+                        Text(item.phanCongKtv.lyDoTuChoi ?: "Không có lý do được cung cấp.")
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showRejectReasonDialog = false }) {
+                            Text("Đóng")
+                        }
+                    }
+                )
+            }
+
+            if (showConfirmCancelDialog) {
+                AlertDialog(
+                    onDismissRequest = { showConfirmCancelDialog = false },
+                    title = { Text("Xác nhận huỷ bỏ") },
+                    text = {
+                        Text("Bạn có chắc chắn muốn huỷ phân công của kỹ thuật viên này không?")
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.huyPhanCongChoKtv(item.phanCongKtv.id)
+                            showConfirmCancelDialog = false
+                            onDismiss() // đóng bottom sheet
+                        }) {
+                            Text("Xác nhận")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showConfirmCancelDialog = false }) {
+                            Text("Huỷ")
+                        }
+                    }
                 )
             }
         }
     }
+
+
+
+
 }
 
 

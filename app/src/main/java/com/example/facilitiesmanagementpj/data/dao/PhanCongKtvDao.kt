@@ -8,6 +8,10 @@ import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
 @Dao
 interface PhanCongKtvDao {
 
+    @Query("UPDATE phan_cong_ktv SET trangThai = :trangThai, trangThaiCuoiCung = :trangThaiCuoiCung WHERE id = :id")
+    suspend fun updateTrangThaiVaTrangThaiCuoiCung(id: Int, trangThai: String, trangThaiCuoiCung: String)
+
+
     @Query("UPDATE phan_cong_ktv SET trangThai = :trangThai, daChapNhan = :daChapNhan WHERE id = :id")
     suspend fun updateTrangThaiVaChapNhan(id: Int, trangThai: String, daChapNhan: Boolean)
 

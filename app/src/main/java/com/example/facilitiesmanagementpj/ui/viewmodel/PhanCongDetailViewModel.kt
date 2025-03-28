@@ -142,4 +142,17 @@ class PhanCongDetailViewModel @Inject constructor(
         }
     }
 
+    fun huyPhanCongChoKtv(phanCongKtvId: Int) {
+        viewModelScope.launch {
+            phanCongKtvRepository.updateTrangThaiVaTrangThaiCuoiCung(
+                id = phanCongKtvId,
+                trangThai = TrangThaiPhanCong.BI_HUY,
+                trangThaiCuoiCung = TrangThaiPhanCong.BI_HUY
+            )
+            // Reload lại danh sách KTV sau khi huỷ
+            _phanCong.value?.id?.let { loadDsKtv(it) }
+        }
+    }
+
+
 }
