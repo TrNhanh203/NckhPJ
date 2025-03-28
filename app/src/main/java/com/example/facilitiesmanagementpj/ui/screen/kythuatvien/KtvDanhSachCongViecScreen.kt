@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -101,6 +103,7 @@ fun KtvDanhSachCongViecScreen(
 
             LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(tasks) { item ->
+                    var expanded by remember { mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -123,14 +126,49 @@ fun KtvDanhSachCongViecScreen(
                                     color = getTrangThaiColor(item.phanCongKtv.trangThai),
                                     style = MaterialTheme.typography.labelMedium
                                 )
-                                Button(
-                                    onClick = {
-                                        navController.navigate(
-                                            Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id)
-                                        )
+                                if (selectedTabIndex == 1) { // chỉ hiển thị popup ở tab "Đang làm"
+                                    Box {
+                                        IconButton(onClick = { expanded = true }) {
+                                            Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = "Tùy chọn"
+                                            )
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("Xem chi tiết") },
+                                                onClick = {
+                                                    navController.navigate(
+                                                        Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id)
+                                                    )
+                                                    expanded = false
+                                                }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("Vào phiên làm việc") },
+                                                onClick = {
+                                                    navController.navigate(
+                                                        Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
+                                                    )
+                                                    expanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                ) {
-                                    Text("Xem chi tiết")
+                                } else {
+                                    Button(
+                                        onClick = {
+                                            navController.navigate(
+                                                Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id)
+                                            )
+                                        }
+                                    ) {
+                                        Text("Xem chi tiết")
+                                    }
                                 }
                             }
                         }
