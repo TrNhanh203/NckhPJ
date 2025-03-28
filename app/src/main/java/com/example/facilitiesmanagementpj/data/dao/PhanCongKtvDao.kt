@@ -41,7 +41,8 @@ interface PhanCongKtvDao {
         AND trangThai IN (
             'Đã Chấp Nhận',
             'Đang Thực Hiện',
-            'Tạm Nghỉ'
+            'Tạm Nghỉ',
+            'Chờ Phản Hồi'
         )
     """)
     suspend fun countSoTaskDangLam(taiKhoanId: Int): Int

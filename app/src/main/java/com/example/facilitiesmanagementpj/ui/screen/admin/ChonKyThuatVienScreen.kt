@@ -169,7 +169,7 @@ fun ChonKyThuatVienScreen(
                                         )
                                     }
                                     Text(
-                                        text = "${item.soTaskDangLam} công việc đang thực hiện",
+                                        text = "Đang có ${item.soTaskDangLam} công việc",
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                     item.trangThaiPhanCong?.let {
