@@ -10,6 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun updateTrangThaiPhanCongKtv(id: Int, trangThai: String) {
+        phanCongKtvDao.updateTrangThaiPhanCongKtv(id, trangThai)
+    }
+
     suspend fun updateTrangThaiVaTrangThaiCuoiCung(id: Int, trangThai: String, trangThaiCuoiCung: String) {
         phanCongKtvDao.updateTrangThaiVaTrangThaiCuoiCung(id, trangThai, trangThaiCuoiCung)
     }

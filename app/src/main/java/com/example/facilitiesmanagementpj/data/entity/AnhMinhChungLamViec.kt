@@ -10,7 +10,7 @@ data class AnhMinhChungLamViec(
     val phanCongKTVId: Int,
     val loaiAnh: String, // Loại ảnh: check-in, check-out, tạm nghỉ, minh chứng
     val urlAnh: String,
-    val type: String, // Kiểu MIME: jpg, mp4...
+    val type: String, // Kiểu image, video
     val thoiGianTaiLen: Long = System.currentTimeMillis(),
 
 

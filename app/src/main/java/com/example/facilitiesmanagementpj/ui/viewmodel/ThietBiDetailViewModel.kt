@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 
 @HiltViewModel
@@ -71,17 +72,7 @@ class ThietBiDetailViewModel @Inject constructor(
         }
     }
 
-    //    @OptIn(UnstableApi::class)
-//    fun updateChiTietYeuCau(yeuCauId: Int, thietBiId: Int, loaiYeuCau: String, moTa: String, images: List<Uri>, video: Uri?) {
-//        viewModelScope.launch {
-//            Log.d("ThietBiDetailViewModel", "Updating ChiTietYeuCau with images: $images and video: $video")
-//            val chiTietYeuCau = yeuCauRepository.getChiTietYeuCauByYeuCauAndThietBi(yeuCauId, thietBiId)
-//            chiTietYeuCau?.let {
-//                yeuCauRepository.updateChiTietYeuCau(yeuCauId, thietBiId, loaiYeuCau, moTa)
-//                saveMedia(it.id, images, video)
-//            }
-//        }
-//    }
+
     @OptIn(UnstableApi::class)
     fun updateChiTietYeuCau(
         yeuCauId: Int,
@@ -116,8 +107,8 @@ class ThietBiDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val images = anhMinhCungBaoCaoRepository.getImagesByChiTietBaoCaoId(chiTietBaoCaoId)
             val videos = anhMinhCungBaoCaoRepository.getVideosByChiTietBaoCaoId(chiTietBaoCaoId)
-            _imageUris.value = images.map { Uri.parse(it.urlAnh) }
-            _videoUri.value = videos.firstOrNull()?.let { Uri.parse(it.urlAnh) }
+            _imageUris.value = images.map { it.urlAnh.toUri() }
+            _videoUri.value = videos.firstOrNull()?.urlAnh?.toUri()
             Log.d(
                 "ThietBiDetailViewModel",
                 "Loaded images: ${_imageUris.value}, video: ${_videoUri.value}"
