@@ -20,6 +20,7 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import kotlinx.coroutines.flow.first
 
 @HiltViewModel
@@ -117,4 +118,28 @@ class PhanCongDetailViewModel @Inject constructor(
         _imageUris.value = images.map { it.urlAnh.toUri() }
         _videoUri.value = videos.firstOrNull()?.urlAnh?.toUri()
     }
+
+    fun chapNhanPhanCongChoKtv(phanCongKtvId: Int) {
+        viewModelScope.launch {
+            phanCongKtvRepository.updateTrangThaiVaChapNhan(
+                id = phanCongKtvId,
+                trangThai = TrangThaiPhanCong.DA_CHAP_NHAN,
+                daChapNhan = true
+            )
+            loadDsKtv(_phanCong.value?.id ?: return@launch)
+        }
+    }
+
+    fun tuChoiPhanCongChoKtv(phanCongKtvId: Int, lyDo: String?) {
+        viewModelScope.launch {
+            phanCongKtvRepository.updateTuChoiPhanCong(
+                id = phanCongKtvId,
+                trangThai = TrangThaiPhanCong.DA_TU_CHOI,
+                thoiGianTuChoi = System.currentTimeMillis(),
+                lyDo = lyDo
+            )
+            loadDsKtv(_phanCong.value?.id ?: return@launch)
+        }
+    }
+
 }

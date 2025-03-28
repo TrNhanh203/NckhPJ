@@ -14,9 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.data.dao.PhanCongKtvDao
-import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
-import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 
 @HiltViewModel
 class KtvDanhSachCongViecViewModel @Inject constructor(

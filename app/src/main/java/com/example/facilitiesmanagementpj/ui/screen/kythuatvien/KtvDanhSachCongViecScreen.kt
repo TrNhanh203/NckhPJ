@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.component.getTrangThaiColor
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvDanhSachCongViecViewModel
 
@@ -112,15 +113,28 @@ fun KtvDanhSachCongViecScreen(
                             Text("Loại thiết bị: ${item.phanCong.thietBi.loaiThietBi?.tenLoai}")
                             Text("Ưu tiên: ${item.phanCong.phanCong.mucDoUuTien}")
                             Spacer(Modifier.height(8.dp))
-                            Button(
-                                onClick = {
-                                    navController.navigate(Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id))
-                                },
-                                modifier = Modifier.align(Alignment.End)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Xem chi tiết")
+                                Text(
+                                    text = item.phanCongKtv.trangThai,
+                                    color = getTrangThaiColor(item.phanCongKtv.trangThai),
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Button(
+                                    onClick = {
+                                        navController.navigate(
+                                            Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id)
+                                        )
+                                    }
+                                ) {
+                                    Text("Xem chi tiết")
+                                }
                             }
                         }
+
                     }
                 }
             }

@@ -307,7 +307,7 @@ fun TabThongTin(viewModel: PhanCongDetailViewModel) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Phân công dành riêng cho bạn", style = MaterialTheme.typography.titleMedium)
                         Text("Mô tả công việc: ${it.phanCongKtv.moTaCongViec ?: "Không có"}")
-                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien ?: "Không rõ"} phút")
+                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien} phút")
                     }
                 }
             }
@@ -318,38 +318,6 @@ fun TabThongTin(viewModel: PhanCongDetailViewModel) {
 }
 
 
-//@Composable
-//fun TabThongTin(viewModel: PhanCongDetailViewModel) {
-//    val phanCong = viewModel.phanCong.collectAsState().value
-//    val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
-//    val tenDonVi = viewModel.tenDonVi.collectAsState().value
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(12.dp)
-//    ) {
-//        Text("Thông tin chi tiết yêu cầu", style = MaterialTheme.typography.titleMedium)
-//
-//        chiTiet?.let {
-//            Text("Loại yêu cầu: ${it.loaiYeuCau}")
-//            Text("Mô tả: ${it.moTa}")
-//        }
-//
-//        Text("Đơn vị yêu cầu: $tenDonVi")
-//
-//        phanCong?.let {
-//            Text("\nThông tin phân công:", style = MaterialTheme.typography.titleMedium)
-//            Text("Loại phân công: ${it.loaiPhanCong}")
-//            Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
-//            Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
-//            Text("Trạng thái: ${it.trangThai}")
-//            Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
-//            Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
-//        }
-//    }
-//}
 
 @Composable
 fun TabThietBi(viewModel: PhanCongDetailViewModel) {

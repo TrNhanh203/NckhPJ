@@ -80,7 +80,7 @@ class AdminRequestDetailViewModel @Inject constructor(
                         val pendingCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.CHO_PHAN_HOI)
                         //val notRespondedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.KHONG_PHAN_HOI)
                         val completedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.HOAN_THANH)
-                        //val rejectedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.DA_TU_CHOI)
+                        val rejectedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.DA_TU_CHOI)
                         //val replacedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.THAY_NGUOI)
                         //val canceledCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.BI_HUY)
 
@@ -88,7 +88,7 @@ class AdminRequestDetailViewModel @Inject constructor(
                         totalDoingTechnicians = acceptedCount + doingCount + onBreakCount  + completedCount
 
                         // Tính tổng số kỹ thuật viên chịu trách nhiệm thực tế (tất cả trạng thái trừ THAY_NGUOI và BI_HUY...)
-                        totalResponsibleTechnicians = acceptedCount + doingCount + onBreakCount + pendingCount  + completedCount
+                        totalResponsibleTechnicians = acceptedCount + doingCount + onBreakCount + pendingCount  + completedCount + rejectedCount
                     }
 
 

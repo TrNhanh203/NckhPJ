@@ -43,6 +43,16 @@ fun KtvXemChiTietPhanCongScreen(
 ) {
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val tabTitles = listOf("Thông tin", "Thiết bị", "Minh chứng", "KTV tham gia")
+    var showRejectDialog by remember { mutableStateOf(false) }
+    var rejectReason by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val currentUserId = SessionManager.currentUser?.id
+    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value // so sánh id user hiện tại với idTK trong bảng PhanCOngKTv_TK
+        .firstOrNull { it.taiKhoan.id == currentUserId }
+    val isCurrentUserAllowed = currentPhanCongKtv != null && currentPhanCongKtv.phanCongKtv.phanCongId == phanCongId
+    val isChoPhanHoi = currentPhanCongKtv?.phanCongKtv?.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI
+
+
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -53,60 +63,118 @@ fun KtvXemChiTietPhanCongScreen(
 
     val bottomBarHeight = 72.dp
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ScaffoldLayout(
-            title = "Chi tiết công việc",
-            navController = navController,
-            showBottomBar = false,
-            showDrawer = false
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = bottomBarHeight)
-                    .then(padding)
-            ) {
-                ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = { Text(title) }
-                        )
+    if (isCurrentUserAllowed) {
+        // Toàn bộ nội dung chính
+        Box(modifier = Modifier.fillMaxSize()) {
+            ScaffoldLayout(
+                title = "Chi tiết công việc",
+                navController = navController,
+                showBottomBar = false,
+                showDrawer = false
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = bottomBarHeight)
+                        .then(padding)
+                ) {
+                    ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+                        tabTitles.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTabIndex == index,
+                                onClick = { selectedTabIndex = index },
+                                text = { Text(title) }
+                            )
+                        }
+                    }
+
+                    when (selectedTabIndex) {
+                        0 -> TabThongTin(viewModel)
+                        1 -> TabThietBi(viewModel)
+                        2 -> TabMinhChung(viewModel)
+                        3 -> TabKtvThamGia(viewModel, navController)
                     }
                 }
+            }
 
-                when (selectedTabIndex) {
-                    0 -> TabThongTin(viewModel)
-                    1 -> TabThietBi(viewModel)
-                    2 -> TabMinhChung(viewModel)
-                    3 -> TabKtvThamGia(viewModel, navController)
+            if (isChoPhanHoi) {
+                BottomAppBar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .height(bottomBarHeight),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp
+                ) {
+                    OutlinedButton(onClick = {
+                        showRejectDialog = true
+                    }) {
+                        Icon(Icons.Default.Close, contentDescription = null)
+                        Spacer(Modifier.width(4.dp))
+                        Text("Từ chối")
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Button(onClick = {
+                        currentPhanCongKtv.let {
+                            viewModel.chapNhanPhanCongChoKtv(it.phanCongKtv.id)
+                            Toast.makeText(context, "Đã chấp nhận", Toast.LENGTH_SHORT).show()
+                        }
+                    }) {
+                        Icon(Icons.Default.Check, contentDescription = null)
+                        Spacer(Modifier.width(4.dp))
+                        Text("Chấp nhận")
+                    }
                 }
             }
-        }
 
-        BottomAppBar(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .height(bottomBarHeight),
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 4.dp
-        ) {
-            OutlinedButton(onClick = { /* TODO: Từ chối */ }) {
-                Icon(Icons.Default.Close, contentDescription = null)
-                Spacer(Modifier.width(4.dp))
-                Text("Từ chối")
+
+            if (showRejectDialog && isChoPhanHoi) {
+                AlertDialog(
+                    onDismissRequest = { showRejectDialog = false },
+                    title = { Text("Xác nhận từ chối") },
+                    text = {
+                        Column {
+                            Text("Vui lòng nhập lý do từ chối:")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = rejectReason,
+                                onValueChange = { rejectReason = it },
+                                singleLine = false,
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text("Nhập lý do...") }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.tuChoiPhanCongChoKtv(
+                                phanCongKtvId = currentPhanCongKtv.phanCongKtv.id,
+                                lyDo = rejectReason.ifBlank { null }
+                            )
+                            showRejectDialog = false
+                            rejectReason = ""
+                            Toast.makeText(context, "Đã từ chối", Toast.LENGTH_SHORT).show()
+                        }) {
+                            Text("Xác nhận")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showRejectDialog = false }) {
+                            Text("Huỷ")
+                        }
+                    }
+                )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
 
-            Button(onClick = { /* TODO: Chấp nhận */ }) {
-                Icon(Icons.Default.Check, contentDescription = null)
-                Spacer(Modifier.width(4.dp))
-                Text("Chấp nhận")
-            }
         }
+
+    } else {
+        Text("Bạn không có quyền truy cập nội dung này")
     }
+
+
 }
 
 @Composable

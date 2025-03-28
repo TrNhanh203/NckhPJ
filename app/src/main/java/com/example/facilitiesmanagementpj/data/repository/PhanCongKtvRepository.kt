@@ -10,7 +10,13 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun updateTrangThaiVaChapNhan(id: Int, trangThai: String, daChapNhan: Boolean) {
+        phanCongKtvDao.updateTrangThaiVaChapNhan(id, trangThai, daChapNhan)
+    }
 
+    suspend fun updateTuChoiPhanCong(id: Int, trangThai: String, thoiGianTuChoi: Long, lyDo: String?) {
+        phanCongKtvDao.updateTuChoiPhanCong(id, trangThai, thoiGianTuChoi, lyDo)
+    }
 
     // Lấy số lượng kỹ thuật viên theo trạng thái
     suspend fun getTechnicianCountByStatus(phanCongId: Int, trangThai: String): Int {
