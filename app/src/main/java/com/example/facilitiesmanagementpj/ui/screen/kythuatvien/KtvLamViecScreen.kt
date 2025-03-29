@@ -42,7 +42,13 @@ import androidx.core.content.FileProvider
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import java.io.File
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
@@ -233,48 +239,82 @@ fun TabCongViec(
 
 
 
-
-
     Column(modifier = Modifier.fillMaxSize()) {
         if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
-            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text("Thời gian còn lại:", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(4.dp))
-                LinearProgressIndicator(
-                    progress = (
-                            (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(
-                                thoiGianDuKien!! * 60_000L))
-                                    / (thoiGianDuKien!! * 60_000f)
-                            ).coerceIn(0f, 1f),
-                    modifier = Modifier.fillMaxWidth().height(8.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = formatMillis(thoiGianConLai!!),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
-                )
+                Spacer(Modifier.height(16.dp))
 
-                Spacer(Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                // Vòng tròn thời gian còn lại
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(200.dp)
                 ) {
-                    Button(onClick = { /* TODO: Xử lý xin gia hạn */ }) {
-                        Text("➕ Gia hạn")
-                    }
-                    Button(onClick = { /* TODO: Xử lý tạm nghỉ */ }) {
-                        Text("⏸️ Tạm nghỉ")
-                    }
-                    Button(onClick = { /* TODO: Xử lý hoàn thành */ }) {
-                        Text("✅ Hoàn thành")
+                    // Vòng tròn nền với tiến độ
+                    CircularProgressIndicator(
+                        progress = (
+                                (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(thoiGianDuKien!! * 60_000L)) /
+                                        (thoiGianDuKien!! * 60_000f)
+                                ).coerceIn(0f, 1f),
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color(0xFFFFC107), // vàng chính
+                        trackColor = Color(0xFFFFF8E1), // vàng nhạt nền
+                        strokeWidth = 10.dp
+                    )
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = formatMillis(thoiGianConLai!!),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        IconButton(onClick = { /* TODO: Xử lý gia hạn */ }) {
+                            Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
+                        }
                     }
                 }
+
+                Spacer(Modifier.height(32.dp))
+
+                // Nút tạm nghỉ & hoàn thành
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    FilledTonalButton(
+                        onClick = { /* TODO: Tạm nghỉ */ },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Pause, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        //Text("Tạm nghỉ")
+                    }
+
+                    FilledTonalButton(
+                        onClick = { /* TODO: Hoàn thành */ },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        //Text("Hoàn thành")
+                    }
+                }
+
             }
         }
     }
+
 
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -604,7 +644,7 @@ private fun formatTime(millis: Long): String {
 fun formatMillis(millis: Long): String {
     val minutes = (millis / 1000 / 60) % 60
     val hours = (millis / 1000 / 60 / 60)
-    return "%02d:%02d còn lại".format(hours, minutes)
+    return "%02d:%02d".format(hours, minutes)
 }
 
 
