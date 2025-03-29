@@ -1,11 +1,13 @@
 package com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.entity.AnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.repository.AnhMinhChungLamViecRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongKtvRepository
+import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.uploadFileToFirebaseStorage
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class KtvLamViecViewModel @Inject constructor(
     private val anhRepo: AnhMinhChungLamViecRepository,
-    private val pcKtvRepo: PhanCongKtvRepository
+    private val pcKtvRepo: PhanCongKtvRepository,
+    private val phanCongRepo: PhanCongRepository,
 ) : ViewModel() {
 
     private val _imageUris = MutableStateFlow<List<Uri>>(emptyList())
@@ -27,6 +30,18 @@ class KtvLamViecViewModel @Inject constructor(
 
     private val _videoUri = MutableStateFlow<Uri?>(null)
     val videoUri = _videoUri.asStateFlow()
+
+    private val _imageNotes = mutableStateMapOf<Uri, String>()
+    val imageNotes: Map<Uri, String> get() = _imageNotes
+
+    fun getNoteForImage(uri: Uri): String? {
+        return _imageNotes[uri]
+    }
+
+    fun updateNoteForImage(uri: Uri, note: String) {
+        _imageNotes[uri] = note
+    }
+
 
     fun addImage(uri: Uri) {
         if (_imageUris.value.size < 5) {
@@ -57,10 +72,12 @@ class KtvLamViecViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val now = System.currentTimeMillis()
+            val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
 
             imageUris.value.forEach { uri ->
                 val fileName = "checkin_img_${now}.jpg"
-                val url = uploadFileToFirebaseStorage(uri, fileName)
+                val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
+                val note = _imageNotes[uri]
                 url?.let {
                     anhRepo.insert(
                         AnhMinhChungLamViec(
@@ -68,7 +85,8 @@ class KtvLamViecViewModel @Inject constructor(
                             loaiAnh = "check-in",
                             urlAnh = it,
                             type = "image",
-                            thoiGianTaiLen = now
+                            thoiGianTaiLen = now,
+                            ghiChu = note
                         )
                     )
                 }
@@ -91,6 +109,8 @@ class KtvLamViecViewModel @Inject constructor(
             }
 
             pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
+            // cập nhật luôn trạng thái của phân công chung
+            phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
             clearMedia()
         }
     }

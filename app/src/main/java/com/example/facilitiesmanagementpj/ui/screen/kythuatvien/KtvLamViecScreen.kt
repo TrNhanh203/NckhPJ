@@ -39,11 +39,16 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecVi
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
+import java.io.File
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -212,6 +217,17 @@ fun TabCongViec(
         uri?.let { viewModel.setVideo(it) }
     }
 
+    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && cameraImageUri != null) {
+            viewModel.addImage(cameraImageUri!!)
+        }
+    }
+
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -236,29 +252,69 @@ fun TabCongViec(
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false },
-            modifier = Modifier.fillMaxHeight()
+
+            modifier = Modifier.fillMaxWidth().heightIn(min = 600.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(16.dp),
+                    .padding(8.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Ảnh/Video đã chọn:", style = MaterialTheme.typography.titleMedium)
+                val scrollState = rememberScrollState()
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f) // 👈 giúp phần này co giãn
+                        .verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Ảnh: ${imageUris.size}/5",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        IconButton(
+                            onClick = {
+                                val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                                cameraImageUri = uri
+                                cameraLauncher.launch(uri)
+                            }
+                        ) {
+                            Icon(Icons.Default.CameraAlt, contentDescription = "Chụp ảnh")
+                        }
+                    }
+
 
                     imageUris.forEach { uri ->
-                        Box(contentAlignment = Alignment.TopEnd) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Image(
                                 painter = rememberAsyncImagePainter(uri),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
+                                    .size(80.dp)
                                     .clickable { selectedImage.value = uri }
                             )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedTextField(
+                                value = viewModel.getNoteForImage(uri) ?: "",
+                                onValueChange = { viewModel.updateNoteForImage(uri, it) },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("Nhập ghi chú...") },
+                                maxLines = 2,
+                                singleLine = false
+                            )
                             IconButton(onClick = { viewModel.removeImage(uri) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Xóa ảnh", tint = Color.Black)
+                                Icon(Icons.Default.Delete, contentDescription = "Xóa ảnh", tint = Color.White)
                             }
                         }
                     }
@@ -281,22 +337,26 @@ fun TabCongViec(
                             }
                         }
                     }
-                }
+                } // nút bấm trên cùng bottom sheet
 
                 Column {
                     Spacer(Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                        OutlinedButton(onClick = { pickImageLauncher.launch("image/*") }) {
-                            Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
-                            Spacer(Modifier.width(4.dp))
-                            Text("Chọn ảnh")
-                        }
-                        OutlinedButton(onClick = { pickVideoLauncher.launch("video/*") }) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = null)
-                            Spacer(Modifier.width(4.dp))
-                            Text("Chọn video")
-                        }
+                    Button(
+                        onClick = {
+                            val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                            cameraImageUri = uri
+                            cameraLauncher.launch(uri)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.CameraAlt, contentDescription = null)
+                        Spacer(Modifier.width(4.dp))
+                        Text("Chụp ảnh")
                     }
+
+                    val canCheckIn = imageUris.isNotEmpty()
+
                     Spacer(Modifier.height(16.dp))
                     Button(
                         onClick = {
@@ -305,14 +365,27 @@ fun TabCongViec(
                                 showBottomSheet.value = false
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = canCheckIn // 👈 chỉ bật khi có ít nhất 1 ảnh
                     ) {
-                        Text("Xác nhận CHECK-IN")
+                        if (!canCheckIn) {
+                            Text(
+                                text = "Bạn cần chụp ít nhất 1 ảnh để xác minh",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                        } else {
+                            Text("Xác nhận CHECK-IN")
+                        }
+
                     }
-                }
+
+                } // nút bấm
             }
         }
     }
+
 
     selectedImage.value?.let { uri ->
         Dialog(onDismissRequest = { selectedImage.value = null }) {

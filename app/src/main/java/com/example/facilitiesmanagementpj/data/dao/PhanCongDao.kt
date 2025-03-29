@@ -8,6 +8,13 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface PhanCongDao {
 
+    @Query("SELECT phanCongId FROM phan_cong_ktv WHERE id = :phanCongKtvId")
+    suspend fun getPhanCongIdByPhanCongKtvId(phanCongKtvId: Int): Int
+
+
+    @Query("UPDATE phan_cong SET trangThai = :trangThai WHERE id = :id")
+    suspend fun updateTrangThai(id: Int, trangThai: String)
+
     // Truy vấn để lấy PhanCongId từ ChiTietYeuCauId
     @Query("SELECT id FROM phan_cong WHERE chiTietYeuCauId = :chiTietYeuCauId LIMIT 1")
     suspend fun getPhanCongIdByChiTietYeuCauId(chiTietYeuCauId: Int): Int?

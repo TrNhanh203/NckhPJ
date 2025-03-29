@@ -10,22 +10,43 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withContext
 
-suspend fun uploadFileToFirebaseStorage(uri: Uri, fileName: String): String? {
+suspend fun uploadFileToFirebaseStorage(
+    uri: Uri,
+    fileName: String,
+    folderName: String = "bao_cao" // 👈 mặc định là "bao_cao"
+): String? {
     return try {
         withContext(NonCancellable) {
-            Log.d("UploadFileToFirebaseStorage", "Starting file upload: $fileName")
-            val storageReference: StorageReference = FirebaseStorage.getInstance().reference.child("uploads/$fileName")
+            val storageReference = FirebaseStorage.getInstance()
+                .reference.child("$folderName/$fileName")
+
             storageReference.putFile(uri).await()
-            Log.d("UploadFileToFirebaseStorage", "File upload completed: $fileName")
             val downloadUrl = storageReference.downloadUrl.await()
-            val filePath = downloadUrl.toString()
-            Log.d("UploadFileToFirebaseStorage", "File uploaded successfully: $filePath")
-            filePath
+            downloadUrl.toString()
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        Log.e("UploadFileToFirebaseStorage", "File upload failed", e)
         null
     }
 }
+
+
+//suspend fun uploadFileToFirebaseStorage(uri: Uri, fileName: String): String? {
+//    return try {
+//        withContext(NonCancellable) {
+//            Log.d("UploadFileToFirebaseStorage", "Starting file upload: $fileName")
+//            val storageReference: StorageReference = FirebaseStorage.getInstance().reference.child("uploads/$fileName")
+//            storageReference.putFile(uri).await()
+//            Log.d("UploadFileToFirebaseStorage", "File upload completed: $fileName")
+//            val downloadUrl = storageReference.downloadUrl.await()
+//            val filePath = downloadUrl.toString()
+//            Log.d("UploadFileToFirebaseStorage", "File uploaded successfully: $filePath")
+//            filePath
+//        }
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//        Log.e("UploadFileToFirebaseStorage", "File upload failed", e)
+//        null
+//    }
+//}
 

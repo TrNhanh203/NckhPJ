@@ -126,6 +126,9 @@ class PhanCongDetailViewModel @Inject constructor(
                 trangThai = TrangThaiPhanCong.DA_CHAP_NHAN,
                 daChapNhan = true
             )
+
+            val phanCongId = phanCongRepository.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+            phanCongRepository.capNhatTrangThaiPhanCong(phanCongId)
             loadDsKtv(_phanCong.value?.id ?: return@launch)
         }
     }
@@ -138,6 +141,9 @@ class PhanCongDetailViewModel @Inject constructor(
                 thoiGianTuChoi = System.currentTimeMillis(),
                 lyDo = lyDo
             )
+
+            val phanCongId = phanCongRepository.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+            phanCongRepository.capNhatTrangThaiPhanCong(phanCongId)
             loadDsKtv(_phanCong.value?.id ?: return@launch)
         }
     }

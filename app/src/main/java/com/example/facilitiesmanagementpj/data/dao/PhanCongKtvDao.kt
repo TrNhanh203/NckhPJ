@@ -54,6 +54,9 @@ interface PhanCongKtvDao {
     @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")
     suspend fun getByPhanCongIdWithTaiKhoan(phanCongId: Int): List<PhanCongKtvWithTaiKhoan>
 
+    @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")
+    suspend fun getAllByPhanCongId(phanCongId: Int): List<PhanCongKtv>
+
     // Truy vấn số lượng kỹ thuật viên theo trạng thái
     @Query("SELECT COUNT(*) FROM phan_cong_ktv WHERE phanCongId = :phanCongId AND trangThai = :trangThai")
     suspend fun getTechnicianCountByStatus(phanCongId: Int, trangThai: String): Int
