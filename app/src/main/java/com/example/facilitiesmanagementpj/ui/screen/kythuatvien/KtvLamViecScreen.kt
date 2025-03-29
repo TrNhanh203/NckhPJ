@@ -436,6 +436,7 @@ fun TabTienTrinhLamViec(
     val danhSachNhom by viewModel.danhSachNhom.collectAsState()
     val loaiLoc by viewModel.loaiLoc.collectAsState()
     val sapXepGiam by viewModel.sapXepGiam.collectAsState()
+    var nhomDuocChon by remember { mutableStateOf<TienTrinhLamViecViewModel.NhomAnhLamViec?>(null) }
 
     LaunchedEffect(phanCongKtvId) {
         viewModel.loadTienTrinh(phanCongKtvId)
@@ -483,7 +484,8 @@ fun TabTienTrinhLamViec(
             LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
                 items(danhSachNhom) { nhom ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        .clickable { nhomDuocChon = nhom },
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -519,7 +521,42 @@ fun TabTienTrinhLamViec(
             }
         }
     }
+    nhomDuocChon?.let { nhom ->
+        Dialog(onDismissRequest = { nhomDuocChon = null }) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                tonalElevation = 8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = loaiAnhToLabel(nhom.loaiAnh), style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    nhom.danhSachAnh.forEach { anh ->
+                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Image(
+                                painter = rememberAsyncImagePainter(anh.urlAnh),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            anh.ghiChu?.takeIf { it.isNotBlank() }?.let { chu ->
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = chu,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+
 
 private fun formatTime(millis: Long): String {
     val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
