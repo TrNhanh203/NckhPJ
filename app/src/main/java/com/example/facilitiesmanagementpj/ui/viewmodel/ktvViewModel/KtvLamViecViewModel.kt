@@ -82,7 +82,7 @@ class KtvLamViecViewModel @Inject constructor(
                     anhRepo.insert(
                         AnhMinhChungLamViec(
                             phanCongKTVId = phanCongKtvId,
-                            loaiAnh = "check-in",
+                            loaiAnh = LoaiAnhMinhChungLamViec.CHECK_IN,
                             urlAnh = it,
                             type = "image",
                             thoiGianTaiLen = now,
@@ -99,7 +99,7 @@ class KtvLamViecViewModel @Inject constructor(
                     anhRepo.insert(
                         AnhMinhChungLamViec(
                             phanCongKTVId = phanCongKtvId,
-                            loaiAnh = "check-in",
+                            loaiAnh = LoaiAnhMinhChungLamViec.CHECK_IN,
                             urlAnh = it,
                             type = "video",
                             thoiGianTaiLen = now

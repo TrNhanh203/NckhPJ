@@ -48,6 +48,14 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import java.io.File
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.ui.text.font.FontWeight
+import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
+import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLamViecViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 
@@ -114,7 +122,7 @@ fun KtvLamViecScreen(
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
                     1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id,currentPhanCongKtv.phanCongKtv.trangThai,ktvLamVieciewModel)
-                    2 -> TabTienTrinhLamViec(viewModel)
+                    2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
         }
@@ -421,6 +429,109 @@ fun TabCongViec(
 
 
 @Composable
-fun TabTienTrinhLamViec(viewModel: PhanCongDetailViewModel) {
-    Text("[Tiến trình] - Ảnh minh chứng theo thời gian")
+fun TabTienTrinhLamViec(
+    phanCongKtvId: Int,
+    viewModel: TienTrinhLamViecViewModel = hiltViewModel()
+) {
+    val danhSachNhom by viewModel.danhSachNhom.collectAsState()
+    val loaiLoc by viewModel.loaiLoc.collectAsState()
+    val sapXepGiam by viewModel.sapXepGiam.collectAsState()
+
+    LaunchedEffect(phanCongKtvId) {
+        viewModel.loadTienTrinh(phanCongKtvId)
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Dropdown bộ lọc loại ảnh
+            var expanded by remember { mutableStateOf(false) }
+            Box {
+                OutlinedButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.FilterList, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(loaiLoc ?: "Tất cả")
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    LoaiAnhMinhChungLamViec.ALL.forEach { loai ->
+                        DropdownMenuItem(
+                            text = { Text(loai) },
+                            onClick = {
+                                viewModel.setLoaiLoc(if (loai == "Tất cả") null else loai)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            OutlinedButton(onClick = { viewModel.toggleSapXep() }) {
+                Icon(Icons.Default.Schedule, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(if (sapXepGiam) "Mới nhất" else "Cũ nhất")
+            }
+        }
+
+        if (danhSachNhom.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Chưa có dữ liệu nào")
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                items(danhSachNhom) { nhom ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(56.dp)) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
+                                    contentDescription = null,
+                                    modifier = Modifier.matchParentSize()
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(2.dp)
+                                        .size(18.dp)
+                                        .background(Color.Black.copy(alpha = 0.7f), shape = MaterialTheme.shapes.small),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = nhom.danhSachAnh.size.toString(),
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(text = loaiAnhToLabel(nhom.loaiAnh), fontWeight = FontWeight.Bold)
+                                Text(text = formatTime(nhom.thoiGian), style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun formatTime(millis: Long): String {
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    return sdf.format(Date(millis))
+}
+
+private fun loaiAnhToLabel(loai: String): String {
+    return when (loai) {
+        LoaiAnhMinhChungLamViec.CHECK_IN -> "Bắt đầu làm việc"
+        LoaiAnhMinhChungLamViec.CHECK_OUT -> "Kết thúc làm việc"
+        LoaiAnhMinhChungLamViec.TAM_NGHI -> "Tạm nghỉ"
+        LoaiAnhMinhChungLamViec.XIN_GIA_HAN -> "Yêu cầu gia hạn"
+        else -> loai
+    }
 }
