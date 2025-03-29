@@ -3,6 +3,7 @@ package com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.entity.AnhMinhChungLamViec
@@ -38,6 +39,8 @@ class KtvLamViecViewModel @Inject constructor(
 
     private val _thoiGianConLai = MutableStateFlow<Long?>(null)
     val thoiGianConLai = _thoiGianConLai.asStateFlow()
+
+
 
     private var countdownJob: Job? = null
 
@@ -144,12 +147,17 @@ class KtvLamViecViewModel @Inject constructor(
     private val _thoiGianDuKien = MutableStateFlow<Int?>(null)
     val thoiGianDuKien = _thoiGianDuKien.asStateFlow()
 
+    private val _dangXinGiaHan = MutableStateFlow(false)
+    val dangXinGiaHan = _dangXinGiaHan.asStateFlow()
+
     fun loadThoiGianDuKien(phanCongKtvId: Int) {
         viewModelScope.launch {
-            val value = pcKtvRepo.getById(phanCongKtvId)?.thoiGianDuKien
-            _thoiGianDuKien.value = value // giữ nguyên null nếu không có
+            val pcKtv = pcKtvRepo.getById(phanCongKtvId)
+            _thoiGianDuKien.value = pcKtv?.thoiGianDuKien
+            _dangXinGiaHan.value = pcKtv?.dangXinGiaHan == true
         }
     }
+
 
 
 }

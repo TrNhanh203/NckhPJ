@@ -207,6 +207,8 @@ fun TabCongViec(
     val videoUri by viewModel.videoUri.collectAsState()
     val thoiGianConLai by viewModel.thoiGianConLai.collectAsState()
     val thoiGianDuKien by viewModel.thoiGianDuKien.collectAsState()
+    val dangXinGiaHan by viewModel.dangXinGiaHan.collectAsState()
+
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -216,6 +218,7 @@ fun TabCongViec(
     val showVideoDialog = remember { mutableStateOf(false) }
 
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -224,6 +227,29 @@ fun TabCongViec(
             viewModel.addImage(cameraImageUri!!)
         }
     }
+
+    LaunchedEffect(thoiGianConLai, thoiGianDuKien, trangThai) {
+        val thoiGian = thoiGianConLai
+        if (
+            trangThai == TrangThaiPhanCong.DANG_THUC_HIEN &&
+            thoiGian != null &&
+            thoiGian in 1..(10 * 60 * 1000) &&
+            !dangXinGiaHan
+        ) {
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = "Còn chưa tới 10 phút, bạn có muốn xin gia hạn?",
+                    actionLabel = "Đã rõ",
+                    duration = SnackbarDuration.Long
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    //TODO: xử lý nếu người dùng bấm "Đã rõ"
+                }
+            }
+        }
+    }
+
+
 
     LaunchedEffect(Unit) {
         viewModel.loadThoiGianDuKien(phanCongKtvId)
@@ -239,7 +265,7 @@ fun TabCongViec(
 
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
             Column(
                 modifier = Modifier
@@ -247,7 +273,11 @@ fun TabCongViec(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Thời gian còn lại:", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = if (thoiGianConLai!! <= 0) "Đã quá hạn:" else "Thời gian còn lại:",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
                 Spacer(Modifier.height(16.dp))
 
                 // Vòng tròn thời gian còn lại
@@ -266,11 +296,14 @@ fun TabCongViec(
                         color = Color(0xFFFFC107), // vàng chính
                         trackColor = Color(0xFFFFF8E1), // vàng nhạt nền
                         strokeWidth = 10.dp
+
                     )
+
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = formatMillis(thoiGianConLai!!),
+                            //text = formatMillis(thoiGianConLai!!),
+                            text = formatMillis(kotlin.math.abs(thoiGianConLai!!)),
                             style = MaterialTheme.typography.headlineMedium,
                             color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
                         )
@@ -278,8 +311,10 @@ fun TabCongViec(
                         IconButton(onClick = { /* TODO: Xử lý gia hạn */ }) {
                             Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
                         }
+
                     }
                 }
+
 
                 Spacer(Modifier.height(32.dp))
 
@@ -312,6 +347,13 @@ fun TabCongViec(
                 }
 
             }
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
+            )
         }
     }
 
@@ -500,6 +542,8 @@ fun TabCongViec(
             )
         }
     }
+
+
 }
 
 
