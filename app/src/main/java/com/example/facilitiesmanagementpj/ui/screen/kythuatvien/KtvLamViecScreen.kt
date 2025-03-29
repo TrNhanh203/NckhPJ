@@ -52,6 +52,8 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
+import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.section.TacVuBottomSheet
+import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLamViecViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -209,7 +211,6 @@ fun TabCongViec(
     val thoiGianDuKien by viewModel.thoiGianDuKien.collectAsState()
     val dangXinGiaHan by viewModel.dangXinGiaHan.collectAsState()
 
-
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -219,6 +220,10 @@ fun TabCongViec(
 
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val showTacVuSheet = remember { mutableStateOf(false) }
+    val tacVuDangChon = remember { mutableStateOf<LoaiTacVu?>(null) }
+
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -249,8 +254,6 @@ fun TabCongViec(
         }
     }
 
-
-
     LaunchedEffect(Unit) {
         viewModel.loadThoiGianDuKien(phanCongKtvId)
     }
@@ -262,7 +265,6 @@ fun TabCongViec(
             viewModel.stopCountdown()
         }
     }
-
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -308,9 +310,13 @@ fun TabCongViec(
                             color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
                         )
                         Spacer(Modifier.height(4.dp))
-                        IconButton(onClick = { /* TODO: Xử lý gia hạn */ }) {
+                        IconButton(onClick = {
+                            tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
+                            showTacVuSheet.value = true
+                        }) {
                             Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
                         }
+
 
                     }
                 }
@@ -326,7 +332,11 @@ fun TabCongViec(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     FilledTonalButton(
-                        onClick = { /* TODO: Tạm nghỉ */ },
+                        onClick = {
+                            tacVuDangChon.value = LoaiTacVu.TAM_NGHI
+                            showTacVuSheet.value = true
+                        }
+                        ,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -336,7 +346,11 @@ fun TabCongViec(
                     }
 
                     FilledTonalButton(
-                        onClick = { /* TODO: Hoàn thành */ },
+                        onClick = {
+                            tacVuDangChon.value = LoaiTacVu.CHECK_OUT
+                            showTacVuSheet.value = true
+                        }
+                        ,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -358,7 +372,6 @@ fun TabCongViec(
     }
 
 
-
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -369,7 +382,8 @@ fun TabCongViec(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { showBottomSheet.value = true },
+                    onClick = { tacVuDangChon.value = LoaiTacVu.CHECK_IN
+                        showTacVuSheet.value = true },
                     modifier = Modifier.size(96.dp),
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -543,6 +557,38 @@ fun TabCongViec(
         }
     }
 
+    tacVuDangChon.value?.let { tacVu ->
+        if (showTacVuSheet.value) {
+            TacVuBottomSheet(
+                tacVu = tacVu,
+                imageUris = imageUris,
+                videoUri = videoUri,
+                onDismiss = { showTacVuSheet.value = false },
+                onChupAnh = {
+                    val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                    cameraImageUri = uri
+                    cameraLauncher.launch(uri)
+                },
+                onXoaAnh = { viewModel.removeImage(it) },
+                onXoaVideo = { viewModel.clearVideo() },
+                getNoteForImage = viewModel::getNoteForImage,
+                updateNoteForImage = viewModel::updateNoteForImage,
+                onSubmit = { soPhut ->
+                    scope.launch {
+                        viewModel.guiMinhChungTacVu(
+                            phanCongKtvId = phanCongKtvId,
+                            tacVu = tacVu,
+                            soPhut = soPhut
+                        )
+                        showTacVuSheet.value = false
+                    }
+                }
+            )
+        }
+    }
+
+
 
 }
 
@@ -701,3 +747,4 @@ private fun loaiAnhToLabel(loai: String): String {
         else -> loai
     }
 }
+

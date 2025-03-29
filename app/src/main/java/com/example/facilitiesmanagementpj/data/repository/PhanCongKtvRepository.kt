@@ -10,6 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun xinGiaHan(phanCongKtvId: Int, thoiGian: Int) {
+        phanCongKtvDao.xinGiaHan(phanCongKtvId, thoiGian)
+    }
+
     suspend fun getById(id: Int): PhanCongKtv? {
         return phanCongKtvDao.getById(id)
     }
