@@ -8,6 +8,9 @@ import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
 @Dao
 interface PhanCongKtvDao {
 
+    @Query("SELECT * FROM phan_cong_ktv WHERE id = :id")
+    suspend fun getById(id: Int): PhanCongKtv?
+
     @Query("UPDATE phan_cong_ktv SET trangThai = :trangThai WHERE id = :id")
     suspend fun updateTrangThaiPhanCongKtv(id: Int, trangThai: String)
 

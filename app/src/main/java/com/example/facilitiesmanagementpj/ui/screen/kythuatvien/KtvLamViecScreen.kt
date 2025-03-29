@@ -1,17 +1,13 @@
 package com.example.facilitiesmanagementpj.ui.screen.kythuatvien
 
-import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
 import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
@@ -32,16 +28,13 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.PhanCongDetailViewModel
 import com.example.facilitiesmanagementpj.ui.screen.admin.TabThongTin
 import com.example.facilitiesmanagementpj.ui.screen.admin.TabThietBi
 import com.example.facilitiesmanagementpj.ui.screen.admin.TabMinhChung
-import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.TabKtvThamGia
 import com.example.facilitiesmanagementpj.data.session.SessionManager
-import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -206,24 +199,15 @@ fun TabCongViec(
 ) {
     val imageUris by viewModel.imageUris.collectAsState()
     val videoUri by viewModel.videoUri.collectAsState()
+    val thoiGianConLai by viewModel.thoiGianConLai.collectAsState()
+    val thoiGianDuKien by viewModel.thoiGianDuKien.collectAsState()
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectedImage = remember { mutableStateOf<Uri?>(null) }
     val showVideoDialog = remember { mutableStateOf(false) }
-
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.addImage(it) }
-    }
-
-    val pickVideoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.setVideo(it) }
-    }
 
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -232,6 +216,63 @@ fun TabCongViec(
     ) { success ->
         if (success && cameraImageUri != null) {
             viewModel.addImage(cameraImageUri!!)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadThoiGianDuKien(phanCongKtvId)
+    }
+
+    LaunchedEffect(trangThai, thoiGianDuKien) {
+        if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianDuKien != null) {
+            viewModel.startCountdown(phanCongKtvId, thoiGianDuKien!!)
+        } else {
+            viewModel.stopCountdown()
+        }
+    }
+
+
+
+
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Text("Thời gian còn lại:", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                LinearProgressIndicator(
+                    progress = (
+                            (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(
+                                thoiGianDuKien!! * 60_000L))
+                                    / (thoiGianDuKien!! * 60_000f)
+                            ).coerceIn(0f, 1f),
+                    modifier = Modifier.fillMaxWidth().height(8.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = formatMillis(thoiGianConLai!!),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = { /* TODO: Xử lý xin gia hạn */ }) {
+                        Text("➕ Gia hạn")
+                    }
+                    Button(onClick = { /* TODO: Xử lý tạm nghỉ */ }) {
+                        Text("⏸️ Tạm nghỉ")
+                    }
+                    Button(onClick = { /* TODO: Xử lý hoàn thành */ }) {
+                        Text("✅ Hoàn thành")
+                    }
+                }
+            }
         }
     }
 
@@ -260,7 +301,6 @@ fun TabCongViec(
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false },
-
             modifier = Modifier.fillMaxWidth().heightIn(min = 600.dp)
         ) {
             Column(
@@ -273,7 +313,7 @@ fun TabCongViec(
 
                 Column(
                     modifier = Modifier
-                        .weight(1f) // 👈 giúp phần này co giãn
+                        .weight(1f)
                         .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -298,7 +338,6 @@ fun TabCongViec(
                             Icon(Icons.Default.CameraAlt, contentDescription = "Chụp ảnh")
                         }
                     }
-
 
                     imageUris.forEach { uri ->
                         Row(
@@ -345,7 +384,7 @@ fun TabCongViec(
                             }
                         }
                     }
-                } // nút bấm trên cùng bottom sheet
+                }
 
                 Column {
                     Spacer(Modifier.height(12.dp))
@@ -374,7 +413,7 @@ fun TabCongViec(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = canCheckIn // 👈 chỉ bật khi có ít nhất 1 ảnh
+                        enabled = canCheckIn
                     ) {
                         if (!canCheckIn) {
                             Text(
@@ -386,14 +425,11 @@ fun TabCongViec(
                         } else {
                             Text("Xác nhận CHECK-IN")
                         }
-
                     }
-
-                } // nút bấm
+                }
             }
         }
     }
-
 
     selectedImage.value?.let { uri ->
         Dialog(onDismissRequest = { selectedImage.value = null }) {
@@ -423,8 +459,10 @@ fun TabCongViec(
                     .padding(16.dp)
             )
         }
-    } // điều chỉnh hiển thị lại
+    }
 }
+
+
 
 
 
@@ -562,6 +600,13 @@ private fun formatTime(millis: Long): String {
     val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     return sdf.format(Date(millis))
 }
+
+fun formatMillis(millis: Long): String {
+    val minutes = (millis / 1000 / 60) % 60
+    val hours = (millis / 1000 / 60 / 60)
+    return "%02d:%02d còn lại".format(hours, minutes)
+}
+
 
 private fun loaiAnhToLabel(loai: String): String {
     return when (loai) {
