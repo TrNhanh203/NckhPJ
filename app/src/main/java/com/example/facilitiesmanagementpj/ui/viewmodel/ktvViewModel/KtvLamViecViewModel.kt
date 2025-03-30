@@ -233,6 +233,7 @@ class KtvLamViecViewModel @Inject constructor(
             when (tacVu) {
                 LoaiTacVu.XIN_GIA_HAN -> {
                     if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
+                    _dangXinGiaHan.value = true
                 }
 
                 LoaiTacVu.CHECK_IN -> {

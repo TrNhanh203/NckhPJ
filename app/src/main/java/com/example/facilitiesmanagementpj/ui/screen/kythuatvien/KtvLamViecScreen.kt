@@ -73,11 +73,17 @@ fun KtvLamViecScreen(
 ) {
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val ktvLamVieciewModel: KtvLamViecViewModel = hiltViewModel()
-    val currentUserId = SessionManager.currentUser?.id
-    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-        .firstOrNull { it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCongId }
 
+    val rememberedUserId = remember { SessionManager.currentUser?.id }
+    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
+        .firstOrNull { it.taiKhoan.id == rememberedUserId && it.phanCongKtv.phanCongId == phanCongId }
     val isCurrentUserAllowed = currentPhanCongKtv != null
+
+//    val currentUserId = SessionManager.currentUser?.id
+//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
+//        .firstOrNull { it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCongId }
+//    val isCurrentUserAllowed = currentPhanCongKtv != null
+
     var selectedTab by remember { mutableIntStateOf(1) } // tab giữa mặc định là "Thực hiện"
 
     LaunchedEffect(Unit) {

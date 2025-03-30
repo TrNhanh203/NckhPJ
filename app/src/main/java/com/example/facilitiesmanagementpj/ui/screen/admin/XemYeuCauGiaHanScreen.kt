@@ -79,7 +79,9 @@ fun XemYeuCauGiaHanScreen(
                         onClick = {
                             scope.launch {
                                 viewModel.tuChoiYeuCau(phanCongKtvId)
-                                snackbarHostState.showSnackbar("Đã từ chối yêu cầu gia hạn")
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Đã từ chối yêu cầu gia hạn")
+                                }
                                 navController.popBackStack()
                             }
                         },
@@ -95,9 +97,12 @@ fun XemYeuCauGiaHanScreen(
                         onClick = {
                             scope.launch {
                                 viewModel.duyetYeuCau(phanCongKtvId)
-                                snackbarHostState.showSnackbar("Đã duyệt yêu cầu gia hạn")
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Đã duyệt yêu cầu gia hạn")
+                                }
                                 navController.popBackStack()
                             }
+
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)

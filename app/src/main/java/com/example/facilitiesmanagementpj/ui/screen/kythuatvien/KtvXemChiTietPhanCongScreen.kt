@@ -46,9 +46,15 @@ fun KtvXemChiTietPhanCongScreen(
     var showRejectDialog by remember { mutableStateOf(false) }
     var rejectReason by remember { mutableStateOf("") }
     val context = LocalContext.current
+
     val currentUserId = SessionManager.currentUser?.id
-    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value // so sánh id user hiện tại với idTK trong bảng PhanCOngKTv_TK
-        .firstOrNull { it.taiKhoan.id == currentUserId }
+//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value // so sánh id user hiện tại với idTK trong bảng PhanCOngKTv_TK
+//        .firstOrNull { it.taiKhoan.id == currentUserId }
+    val rememberedUserId = remember { SessionManager.currentUser?.id }
+    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
+        .firstOrNull { it.taiKhoan.id == rememberedUserId && it.phanCongKtv.phanCongId == phanCongId }
+
+
     val isCurrentUserAllowed = currentPhanCongKtv != null && currentPhanCongKtv.phanCongKtv.phanCongId == phanCongId
     val isChoPhanHoi = currentPhanCongKtv?.phanCongKtv?.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI
 
