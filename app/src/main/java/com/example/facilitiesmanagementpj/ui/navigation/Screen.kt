@@ -39,6 +39,10 @@ sealed class Screen(val route: String) {
         fun createRoute(phanCongId: Int, taiKhoanId: Int) = "xac_nhan_de_cu_ktv/$phanCongId/$taiKhoanId"
     }
 
+    object XemYeuCauGiaHan : Screen("xem_yeu_cau_gia_han/{phanCongKtvId}") {
+        fun createRoute(phanCongKtvId: Int) = "xem_yeu_cau_gia_han/$phanCongKtvId"
+    }
+
 
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")

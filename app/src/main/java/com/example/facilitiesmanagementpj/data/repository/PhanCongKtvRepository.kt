@@ -10,6 +10,35 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun duyetGiaHan(phanCongKtvId: Int) {
+        val pc = getById(phanCongKtvId) ?: return
+
+        val soPhutGiaHan = pc.soThoiGianXinGiaHan // lấy số phút gia hạn
+
+        // Cập nhật thời gian phân công khi duyệt yêu cầu gia hạn
+        updateGiaHanState(
+            phanCongKtvId = phanCongKtvId,
+            soPhutGiaHan = soPhutGiaHan
+        )
+    }
+
+
+    suspend fun tuChoiGiaHan(phanCongKtvId: Int) {
+        updateGiaHanState(
+            phanCongKtvId = phanCongKtvId,
+            soPhutGiaHan = 0
+        )
+    }
+
+    private suspend fun updateGiaHanState(
+        phanCongKtvId: Int,
+        soPhutGiaHan: Int
+    ) {
+        phanCongKtvDao.duyetGiaHanCongThoiGian(phanCongKtvId, soPhutGiaHan)
+    }
+
+
+
     suspend fun xinGiaHan(phanCongKtvId: Int, thoiGian: Int) {
         phanCongKtvDao.xinGiaHan(phanCongKtvId, thoiGian)
     }

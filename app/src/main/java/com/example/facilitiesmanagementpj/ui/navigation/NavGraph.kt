@@ -27,6 +27,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.PhanCongDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.XacNhanDeCuKtvScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.XemYeuCauGiaHanScreen
 import com.example.facilitiesmanagementpj.ui.screen.auth.LoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.HomeScreen
 import com.example.facilitiesmanagementpj.ui.screen.common.ProfileScreen
@@ -129,6 +130,14 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
             val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
             XacNhanDeCuKtvScreen(phanCongId, taiKhoanId, navController)
+        }
+
+        composable(
+            route = Screen.XemYeuCauGiaHan.route,
+            arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
+            XemYeuCauGiaHanScreen(phanCongKtvId, navController)
         }
 
         // Màn hình Quản lý đơn vị

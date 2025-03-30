@@ -8,6 +8,22 @@ import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
 @Dao
 interface PhanCongKtvDao {
 
+    @Query("""
+    UPDATE phan_cong_ktv 
+    SET 
+        dangXinGiaHan = 0,
+        soThoiGianXinGiaHan = 0,
+        thoiGianDuKien = thoiGianDuKien + :soPhutGiaHan,
+        tongThoiGianDaXinGiaHan = tongThoiGianDaXinGiaHan + :soPhutGiaHan
+    WHERE id = :phanCongKtvId
+""")
+    suspend fun duyetGiaHanCongThoiGian(
+        phanCongKtvId: Int,
+        soPhutGiaHan: Int
+    )
+
+
+
     @Query("UPDATE phan_cong_ktv SET dangXinGiaHan = 1, soThoiGianXinGiaHan = :thoiGian, soLanGiaHan = soLanGiaHan + 1 WHERE id = :phanCongKtvId")
     suspend fun xinGiaHan(phanCongKtvId: Int, thoiGian: Int)
 

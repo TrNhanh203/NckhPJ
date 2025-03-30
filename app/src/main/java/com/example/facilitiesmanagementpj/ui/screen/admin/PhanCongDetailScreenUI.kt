@@ -114,9 +114,9 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
     var selectedKtv: PhanCongKtvWithTaiKhoan? by remember { mutableStateOf(null) }
 
     selectedKtv?.let { ktv ->
-        KtvOptionsBottomSheet(item = ktv) {
-            selectedKtv = null
-        }
+        KtvOptionsBottomSheet( item = ktv,
+            navController = navController, // truyền vào
+            onDismiss = { selectedKtv = null })
     }
 
     Box(Modifier.fillMaxSize()) {
@@ -206,16 +206,35 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
-                    Text(
-                        text = item.taiKhoan.hoTen.toString(),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = item.taiKhoan.hoTen.toString(),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        if (item.phanCongKtv.dangXinGiaHan) {
+                            Spacer(Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFFF3E0), shape = RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    "Đang xin gia hạn",
+                                    color = Color(0xFFFF9800),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
+
                     Text(
                         text = item.phanCongKtv.trangThai,
                         style = MaterialTheme.typography.bodySmall,
                         color = borderColor
                     )
                 }
+
             }
         }
     }
@@ -223,7 +242,7 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) {
+fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, navController: NavController) {
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
 
     var showRejectReasonDialog by remember { mutableStateOf(false) }
@@ -234,7 +253,7 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) 
             Text("Tùy chọn cho trạng thái: ${item.phanCongKtv.trangThai}", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
-            val options = when (item.phanCongKtv.trangThai) {
+            val baseOptions = when (item.phanCongKtv.trangThai) {
                 TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
                 TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
                 TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
@@ -245,11 +264,24 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit) 
                 else -> emptyList()
             }
 
+            val options = baseOptions.toMutableList()
+
+            if (
+                item.phanCongKtv.trangThai == TrangThaiPhanCong.DANG_THUC_HIEN &&
+                item.phanCongKtv.dangXinGiaHan
+            ) {
+                options.add(0, "Xem yêu cầu gia hạn") // hoặc thêm ở cuối tùy bạn
+            }
+
+
             options.forEach { option ->
                 ListItem(
                     headlineContent = { Text(option) },
                     modifier = Modifier.clickable {
                         when (option) {
+                            "Xem yêu cầu gia hạn" -> {
+                                navController.navigate(Screen.XemYeuCauGiaHan.createRoute(item.phanCongKtv.id))
+                            }
                             "Xem lý do từ chối" -> showRejectReasonDialog = true
                             "Hủy bỏ" -> showConfirmCancelDialog = true
                             else -> {} // các option khác xử lý sau

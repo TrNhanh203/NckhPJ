@@ -48,15 +48,20 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.section.TacVuBottomSheet
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLamViecViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+
+
 
 
 
@@ -310,12 +315,51 @@ fun TabCongViec(
                             color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
                         )
                         Spacer(Modifier.height(4.dp))
-                        IconButton(onClick = {
-                            tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
-                            showTacVuSheet.value = true
-                        }) {
-                            Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
+                        if (dangXinGiaHan) {
+                            var showPopup by remember { mutableStateOf(false) }
+
+                            Box {
+                                IconButton(
+                                    onClick = { showPopup = !showPopup },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.HourglassTop,
+                                        contentDescription = "Chờ duyệt",
+                                        tint = Color.Gray
+                                    )
+                                }
+
+                                if (showPopup) {
+                                    Popup(
+                                        alignment = Alignment.TopCenter,
+                                        offset = IntOffset(0, -20), // đẩy lên phía trên icon
+                                        onDismissRequest = { showPopup = false }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(Color(0xFF333333), shape = RoundedCornerShape(8.dp))
+                                                .padding(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "Yêu cầu gia hạn của bạn đang chờ phê duyệt",
+                                                color = Color.White,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        } else {
+                            IconButton(onClick = {
+                                tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
+                                showTacVuSheet.value = true
+                            }) {
+                                Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
+                            }
                         }
+
 
 
                     }

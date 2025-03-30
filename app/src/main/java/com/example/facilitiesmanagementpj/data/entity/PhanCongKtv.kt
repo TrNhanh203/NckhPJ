@@ -15,7 +15,7 @@ data class PhanCongKtv(
     val trangThai: String = TrangThaiPhanCong.CHO_PHAN_HOI, // cập nhật dựa trên các tương tác của ktv
 
     val thoiGianDuKien: Int, // Phút, do admin quyết định khi phân công
-    val thoiGianPhatSinh: Int = 0, // Thời gian phát sinh thêm, do admin thêm (phút)
+    val thoiGianPhatSinh: Int = 0, // Thời gian phát sinh thêm
     val thoiGianBatDau: Long? = null, // Thời gian thực tế bắt đầu, được tính khi KTV bắt đầu làm việc này, sửa lại cho phép null vì đợi tới khi ktv check in mới có tgian
     val thoiGianHoanThien: Long? = null,   // Thời gian thực tế hoàn thành, được tính khi KTV hoàn thành công việc này
 
