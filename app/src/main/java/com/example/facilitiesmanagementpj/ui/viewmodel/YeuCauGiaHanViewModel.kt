@@ -30,16 +30,35 @@ class YeuCauGiaHanViewModel @Inject constructor(
 
     fun loadYeuCauGiaHan(phanCongKtvId: Int) {
         viewModelScope.launch {
-            val anh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+            val allAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
                 .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.XIN_GIA_HAN }
-                .sortedBy { it.thoiGianTaiLen }
 
-            _anhGiaHan.value = anh
+            // ✅ Tìm thời gian mới nhất trong nhóm
+            val latestTime = allAnh.maxOfOrNull { it.thoiGianTaiLen }
+
+            // ✅ Lọc ra những ảnh thuộc lần xin gần nhất
+            val latestGroup = allAnh.filter { it.thoiGianTaiLen == latestTime }
+
+            _anhGiaHan.value = latestGroup
 
             val pc = pcKtvRepo.getById(phanCongKtvId)
             _soPhutXinGiaHan.value = pc?.soThoiGianXinGiaHan ?: 0
         }
     }
+
+
+//    fun loadYeuCauGiaHan(phanCongKtvId: Int) {
+//        viewModelScope.launch {
+//            val anh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+//                .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.XIN_GIA_HAN }
+//                .sortedBy { it.thoiGianTaiLen }
+//
+//            _anhGiaHan.value = anh
+//
+//            val pc = pcKtvRepo.getById(phanCongKtvId)
+//            _soPhutXinGiaHan.value = pc?.soThoiGianXinGiaHan ?: 0
+//        }
+//    }
 
     fun duyetYeuCau(phanCongKtvId: Int) {
         viewModelScope.launch {
