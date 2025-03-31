@@ -17,13 +17,18 @@ import com.example.facilitiesmanagementpj.data.utils.formatTime
 import com.example.facilitiesmanagementpj.data.utils.uploadFileToFirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -267,12 +272,20 @@ class KtvLamViecViewModel @Inject constructor(
         _uiMessage.tryEmit(message)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("KTVLAMVIEC", "🔥 ViewModel đã bị huỷ")
+    }
+
+
+    private val _isGuiMinhChungLoading = MutableStateFlow(false)
+    val isGuiMinhChungLoading: StateFlow<Boolean> = _isGuiMinhChungLoading
 
     suspend fun guiMinhChungTacVu(
         phanCongKtvId: Int,
         tacVu: LoaiTacVu,
         soPhut: Int? = null
-    ): Boolean {
+    ): Boolean = withContext(NonCancellable) {
         val now = System.currentTimeMillis()
         val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
 
@@ -281,77 +294,170 @@ class KtvLamViecViewModel @Inject constructor(
             _dangXinGiaHan.value = true
         }
 
-        imageUris.value.forEach { uri ->
-            val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
-            val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
-            val note = _imageNotes[uri]
-            url?.let {
-                uploadedFiles.add(
-                    AnhMinhChungLamViec(
-                        phanCongKTVId = phanCongKtvId,
-                        loaiAnh = tacVu.loaiAnh,
-                        urlAnh = it,
-                        type = "image",
-                        thoiGianTaiLen = now,
-                        ghiChu = note
+        _isGuiMinhChungLoading.value = true
+        try {
+
+            imageUris.value.forEach { uri ->
+                val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
+                val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
+                val note = _imageNotes[uri]
+                url?.let {
+                    uploadedFiles.add(
+                        AnhMinhChungLamViec(
+                            phanCongKTVId = phanCongKtvId,
+                            loaiAnh = tacVu.loaiAnh,
+                            urlAnh = it,
+                            type = "image",
+                            thoiGianTaiLen = now,
+                            ghiChu = note
+                        )
                     )
-                )
+                }
             }
-        }
 
-        videoUri.value?.let { uri ->
-            val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
-            val url = uploadFileToFirebaseStorage(uri, fileName)
-            url?.let {
-                uploadedFiles.add(
-                    AnhMinhChungLamViec(
-                        phanCongKTVId = phanCongKtvId,
-                        loaiAnh = tacVu.loaiAnh,
-                        urlAnh = it,
-                        type = "video",
-                        thoiGianTaiLen = now
+            videoUri.value?.let { uri ->
+                val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
+                val url = uploadFileToFirebaseStorage(uri, fileName)
+                url?.let {
+                    uploadedFiles.add(
+                        AnhMinhChungLamViec(
+                            phanCongKTVId = phanCongKtvId,
+                            loaiAnh = tacVu.loaiAnh,
+                            urlAnh = it,
+                            type = "video",
+                            thoiGianTaiLen = now
+                        )
                     )
-                )
+                }
             }
+
+            // ❌ Không có file nào được upload
+            if (uploadedFiles.isEmpty()) {
+                if (isXinGiaHan) _dangXinGiaHan.value = false
+                showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
+                return@withContext false
+            }
+
+            // ✅ Upload xong, lưu DB
+            uploadedFiles.forEach { anhRepo.insert(it) }
+
+            // ✅ Cập nhật trạng thái tùy theo tác vụ
+            val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+            when (tacVu) {
+                LoaiTacVu.XIN_GIA_HAN -> {
+                    if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
+                }
+
+                LoaiTacVu.CHECK_IN -> {
+                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
+                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+                }
+
+                LoaiTacVu.TAM_NGHI -> {
+                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
+                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+                }
+
+                LoaiTacVu.CHECK_OUT -> {
+                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
+                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+                }
+            }
+
+            clearMedia()
+            return@withContext true
+        } finally {
+            _isGuiMinhChungLoading.value = false
         }
 
-        // ❌ Không có file nào được upload
-        if (uploadedFiles.isEmpty()) {
-            if (isXinGiaHan) _dangXinGiaHan.value = false
-            showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
-            return false
-        }
-
-        // ✅ Upload xong, lưu DB
-        uploadedFiles.forEach { anhRepo.insert(it) }
-
-        // ✅ Cập nhật trạng thái tùy theo tác vụ
-        val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-        when (tacVu) {
-            LoaiTacVu.XIN_GIA_HAN -> {
-                if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
-            }
-
-            LoaiTacVu.CHECK_IN -> {
-                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
-                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-            }
-
-            LoaiTacVu.TAM_NGHI -> {
-                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
-                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-            }
-
-            LoaiTacVu.CHECK_OUT -> {
-                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
-                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-            }
-        }
-
-
-        clearMedia()
-        return true
     }
+
+
+
+//    suspend fun guiMinhChungTacVu(
+//        phanCongKtvId: Int,
+//        tacVu: LoaiTacVu,
+//        soPhut: Int? = null
+//    ): Boolean {
+//        val now = System.currentTimeMillis()
+//        val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
+//
+//        val isXinGiaHan = tacVu == LoaiTacVu.XIN_GIA_HAN
+//        if (isXinGiaHan) {
+//            _dangXinGiaHan.value = true
+//        }
+//
+//        imageUris.value.forEach { uri ->
+//            val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
+//            val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
+//            val note = _imageNotes[uri]
+//            url?.let {
+//                uploadedFiles.add(
+//                    AnhMinhChungLamViec(
+//                        phanCongKTVId = phanCongKtvId,
+//                        loaiAnh = tacVu.loaiAnh,
+//                        urlAnh = it,
+//                        type = "image",
+//                        thoiGianTaiLen = now,
+//                        ghiChu = note
+//                    )
+//                )
+//            }
+//        }
+//
+//        videoUri.value?.let { uri ->
+//            val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
+//            val url = uploadFileToFirebaseStorage(uri, fileName)
+//            url?.let {
+//                uploadedFiles.add(
+//                    AnhMinhChungLamViec(
+//                        phanCongKTVId = phanCongKtvId,
+//                        loaiAnh = tacVu.loaiAnh,
+//                        urlAnh = it,
+//                        type = "video",
+//                        thoiGianTaiLen = now
+//                    )
+//                )
+//            }
+//        }
+//
+//        // ❌ Không có file nào được upload
+//        if (uploadedFiles.isEmpty()) {
+//            if (isXinGiaHan) _dangXinGiaHan.value = false
+//            showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
+//            return false
+//        }
+//
+//        // ✅ Upload xong, lưu DB
+//        uploadedFiles.forEach { anhRepo.insert(it) }
+//
+//        // ✅ Cập nhật trạng thái tùy theo tác vụ
+//        val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+//        when (tacVu) {
+//            LoaiTacVu.XIN_GIA_HAN -> {
+//                if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
+//            }
+//
+//            LoaiTacVu.CHECK_IN -> {
+//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
+//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//            }
+//
+//            LoaiTacVu.TAM_NGHI -> {
+//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
+//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//            }
+//
+//            LoaiTacVu.CHECK_OUT -> {
+//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
+//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//            }
+//        }
+//
+//
+//        clearMedia()
+//        return true
+//    }
 
 
 }

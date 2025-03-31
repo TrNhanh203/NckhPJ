@@ -208,13 +208,23 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             KtvXemChiTietPhanCongScreen(navController, phanCongId)
         }
 
+//        composable(
+//            route = Screen.KtvLamViec.route,
+//            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//            KtvLamViecScreen(navController, phanCongId)
+//        }
+
         composable(
             route = Screen.KtvLamViec.route,
             arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
         ) { backStackEntry ->
             val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-            KtvLamViecScreen(navController, phanCongId)
+            // 👇 Truyền backStackEntry vào
+            KtvLamViecScreen(navController, phanCongId, backStackEntry)
         }
+
 
 
         // Màn hình Người dùng (Sinh viên, Giảng viên)

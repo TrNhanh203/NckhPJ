@@ -3,6 +3,7 @@ package com.example.facilitiesmanagementpj.ui.screen.kythuatvien
 import android.net.Uri
 import android.util.Log
 import android.widget.VideoView
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -55,6 +56,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
+import androidx.navigation.NavBackStackEntry
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.section.TacVuBottomSheet
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
@@ -71,11 +73,12 @@ import java.util.*
 @Composable
 fun KtvLamViecScreen(
     navController: NavController,
-    phanCongId: Int
+    phanCongId: Int,
+    backStackEntry: NavBackStackEntry
 ) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val currentUser by sessionViewModel.currentUser.collectAsState()
-    val viewModel: PhanCongDetailViewModel = hiltViewModel()
+    val viewModel: PhanCongDetailViewModel = hiltViewModel(backStackEntry)
     val dsKtv by viewModel.dsKtv.collectAsState()
     val currentPhanCongKtvState = remember(dsKtv, currentUser) {
         derivedStateOf {
@@ -85,7 +88,7 @@ fun KtvLamViecScreen(
         }
     }
     val currentPhanCongKtv = currentPhanCongKtvState.value
-
+    val lamViecViewModel: KtvLamViecViewModel = hiltViewModel(backStackEntry)
 
 //    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
 //        .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
@@ -108,7 +111,14 @@ fun KtvLamViecScreen(
             TopAppBar(
                 title = { Text("Công việc hiện tại") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(
+                        onClick = {
+                            if (!lamViecViewModel.isGuiMinhChungLoading.value) {
+                                navController.popBackStack()
+                            }
+                        },
+                        enabled = !lamViecViewModel.isGuiMinhChungLoading.value
+                    ) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -145,7 +155,7 @@ fun KtvLamViecScreen(
             Column(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
-                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai, phanCongId)
+                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai, phanCongId, lamViecViewModel)
                     2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
@@ -229,7 +239,7 @@ fun TabCongViec(
     phanCongKtvId: Int,
     trangThai: String,
     phanCongId: Int,
-    viewModel: KtvLamViecViewModel = hiltViewModel()
+    viewModel: KtvLamViecViewModel
 ) {
     val pcdetailViewModel: PhanCongDetailViewModel = hiltViewModel()
     val imageUris by viewModel.imageUris.collectAsState()
@@ -254,8 +264,10 @@ fun TabCongViec(
     var showUploadErrorDialog by remember { mutableStateOf(false) }
     var messageText by remember { mutableStateOf("") }
 
-    val isGuiMinhChungLoading = remember { mutableStateOf(false) }
-
+    val isGuiMinhChungLoading by viewModel.isGuiMinhChungLoading.collectAsState()
+    BackHandler(enabled = isGuiMinhChungLoading) {
+        // ❌ Không làm gì cả => chặn thoát
+    }
 
     LaunchedEffect(Unit) {
         viewModel.uiMessage.collect { message ->
@@ -664,22 +676,18 @@ fun TabCongViec(
                     onSubmit = { soPhut ->
                         scope.launch {
                             showTacVuSheet.value = false
-                            isGuiMinhChungLoading.value = true
-                            try {
-                                val success = viewModel.guiMinhChungTacVu(
-                                    phanCongKtvId = phanCongKtvId,
-                                    tacVu = tacVu,
-                                    soPhut = soPhut
-                                )
-                                if (success){
-                                    pcdetailViewModel.loadDsKtv(phanCongId)
-                                    showTacVuSheet.value = false
-                                }
-                            } finally {
-                                isGuiMinhChungLoading.value = false
+                            val success = viewModel.guiMinhChungTacVu(
+                                phanCongKtvId = phanCongKtvId,
+                                tacVu = tacVu,
+                                soPhut = soPhut
+                            )
+                            if (success) {
+                                pcdetailViewModel.loadDsKtv(phanCongId)
+                                showTacVuSheet.value = false
                             }
                         }
                     }
+
 
 
                 )
@@ -714,7 +722,7 @@ fun TabCongViec(
             )
         }
 
-        if (isGuiMinhChungLoading.value) {
+        if (isGuiMinhChungLoading) {
             Log.d("DEBUG", "HIỂN THỊ LOADING UI")
             Box(
                 modifier = Modifier
