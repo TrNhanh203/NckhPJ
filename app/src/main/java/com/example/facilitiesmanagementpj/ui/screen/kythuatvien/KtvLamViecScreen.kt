@@ -244,6 +244,9 @@ fun TabCongViec(
     var showUploadErrorDialog by remember { mutableStateOf(false) }
     var messageText by remember { mutableStateOf("") }
 
+    val isGuiMinhChungLoading = remember { mutableStateOf(false) }
+
+
     LaunchedEffect(Unit) {
         viewModel.uiMessage.collect { message ->
             messageText = message
@@ -293,6 +296,7 @@ fun TabCongViec(
     }
 
     var showCheckInBlockedDialog by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
         if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
@@ -466,230 +470,262 @@ fun TabCongViec(
                     .padding(bottom = 24.dp)
             )
         }
-    }
 
-    if (showBottomSheet.value) {
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet.value = false },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 600.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+        if (showBottomSheet.value) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet.value = false },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 600.dp)
             ) {
-                val scrollState = rememberScrollState()
-
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(scrollState),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .fillMaxHeight()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Ảnh: ${imageUris.size}/5",
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                    val scrollState = rememberScrollState()
 
-                        IconButton(
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Ảnh: ${imageUris.size}/5",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                                    cameraImageUri = uri
+                                    cameraLauncher.launch(uri)
+                                }
+                            ) {
+                                Icon(Icons.Default.CameraAlt, contentDescription = "Chụp ảnh")
+                            }
+                        }
+
+                        imageUris.forEach { uri ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(uri),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clickable { selectedImage.value = uri }
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                OutlinedTextField(
+                                    value = viewModel.getNoteForImage(uri) ?: "",
+                                    onValueChange = { viewModel.updateNoteForImage(uri, it) },
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text("Nhập ghi chú...") },
+                                    maxLines = 2,
+                                    singleLine = false
+                                )
+                                IconButton(onClick = { viewModel.removeImage(uri) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Xóa ảnh", tint = Color.White)
+                                }
+                            }
+                        }
+
+                        videoUri?.let { uri ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                                    .background(Color.Black.copy(alpha = 0.1f))
+                                    .clickable { showVideoDialog.value = true },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("🎥", style = MaterialTheme.typography.headlineLarge)
+                                IconButton(
+                                    onClick = { viewModel.clearVideo() },
+                                    modifier = Modifier.align(Alignment.TopEnd)
+                                ) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Xóa video", tint = Color.Black)
+                                }
+                            }
+                        }
+                    }
+
+                    Column {
+                        Spacer(Modifier.height(12.dp))
+                        Button(
                             onClick = {
                                 val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
                                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
                                 cameraImageUri = uri
                                 cameraLauncher.launch(uri)
-                            }
+                            },
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = "Chụp ảnh")
+                            Icon(Icons.Default.CameraAlt, contentDescription = null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Chụp ảnh")
                         }
-                    }
 
-                    imageUris.forEach { uri ->
-                        Row(
+                        val canCheckIn = imageUris.isNotEmpty()
+
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    viewModel.checkIn(phanCongKtvId)
+                                    showBottomSheet.value = false
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                            enabled = canCheckIn
                         ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(uri),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clickable { selectedImage.value = uri }
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            OutlinedTextField(
-                                value = viewModel.getNoteForImage(uri) ?: "",
-                                onValueChange = { viewModel.updateNoteForImage(uri, it) },
-                                modifier = Modifier.weight(1f),
-                                placeholder = { Text("Nhập ghi chú...") },
-                                maxLines = 2,
-                                singleLine = false
-                            )
-                            IconButton(onClick = { viewModel.removeImage(uri) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Xóa ảnh", tint = Color.White)
+                            if (!canCheckIn) {
+                                Text(
+                                    text = "Bạn cần chụp ít nhất 1 ảnh để xác minh",
+                                    color = Color.Gray,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            } else {
+                                Text("Xác nhận CHECK-IN")
                             }
-                        }
-                    }
-
-                    videoUri?.let { uri ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp)
-                                .background(Color.Black.copy(alpha = 0.1f))
-                                .clickable { showVideoDialog.value = true },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("🎥", style = MaterialTheme.typography.headlineLarge)
-                            IconButton(
-                                onClick = { viewModel.clearVideo() },
-                                modifier = Modifier.align(Alignment.TopEnd)
-                            ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Xóa video", tint = Color.Black)
-                            }
-                        }
-                    }
-                }
-
-                Column {
-                    Spacer(Modifier.height(12.dp))
-                    Button(
-                        onClick = {
-                            val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
-                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
-                            cameraImageUri = uri
-                            cameraLauncher.launch(uri)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(Icons.Default.CameraAlt, contentDescription = null)
-                        Spacer(Modifier.width(4.dp))
-                        Text("Chụp ảnh")
-                    }
-
-                    val canCheckIn = imageUris.isNotEmpty()
-
-                    Spacer(Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                viewModel.checkIn(phanCongKtvId)
-                                showBottomSheet.value = false
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = canCheckIn
-                    ) {
-                        if (!canCheckIn) {
-                            Text(
-                                text = "Bạn cần chụp ít nhất 1 ảnh để xác minh",
-                                color = Color.Gray,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
-                        } else {
-                            Text("Xác nhận CHECK-IN")
                         }
                     }
                 }
             }
         }
-    }
 
-    selectedImage.value?.let { uri ->
-        Dialog(onDismissRequest = { selectedImage.value = null }) {
-            Image(
-                painter = rememberAsyncImagePainter(uri),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+        selectedImage.value?.let { uri ->
+            Dialog(onDismissRequest = { selectedImage.value = null }) {
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                )
+            }
+        }
+
+        if (showVideoDialog.value && videoUri != null) {
+            Dialog(
+                onDismissRequest = { showVideoDialog.value = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                AndroidView(
+                    factory = { context ->
+                        VideoView(context).apply {
+                            setVideoURI(videoUri)
+                            setOnPreparedListener { start() }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .padding(16.dp)
+                )
+            }
+        }
+
+        tacVuDangChon.value?.let { tacVu ->
+            if (showTacVuSheet.value) {
+                TacVuBottomSheet(
+                    tacVu = tacVu,
+                    imageUris = imageUris,
+                    videoUri = videoUri,
+                    onDismiss = { showTacVuSheet.value = false },
+                    onChupAnh = {
+                        val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                        cameraImageUri = uri
+                        cameraLauncher.launch(uri)
+                    },
+                    onXoaAnh = { viewModel.removeImage(it) },
+                    onXoaVideo = { viewModel.clearVideo() },
+                    getNoteForImage = viewModel::getNoteForImage,
+                    updateNoteForImage = viewModel::updateNoteForImage,
+                    onSubmit = { soPhut ->
+                        scope.launch {
+                            showTacVuSheet.value = false
+                            isGuiMinhChungLoading.value = true
+                            try {
+                                val success = viewModel.guiMinhChungTacVu(
+                                    phanCongKtvId = phanCongKtvId,
+                                    tacVu = tacVu,
+                                    soPhut = soPhut
+                                )
+                                if (success) showTacVuSheet.value = false
+                            } finally {
+                                isGuiMinhChungLoading.value = false // ✅ Dù gì cũng tắt loading
+                            }
+                        }
+                    }
+
+
+
+
+//                onSubmit = { soPhut ->
+//                    scope.launch {
+//                        viewModel.guiMinhChungTacVu(
+//                            phanCongKtvId = phanCongKtvId,
+//                            tacVu = tacVu,
+//                            soPhut = soPhut
+//                        )
+//                        showTacVuSheet.value = false
+//                    }
+//                }
+                )
+            }
+        }
+
+        if (showCheckInBlockedDialog) {
+            AlertDialog(
+                onDismissRequest = { showCheckInBlockedDialog = false },
+                title = { Text("Không thể bắt đầu công việc") },
+                text = {
+                    Text("Bạn đang thực hiện một công việc khác. Vui lòng hoàn thành trước khi bắt đầu công việc mới.")
+                },
+                confirmButton = {
+                    TextButton(onClick = { showCheckInBlockedDialog = false }) {
+                        Text("Đã hiểu")
+                    }
+                }
             )
         }
-    }
 
-    if (showVideoDialog.value && videoUri != null) {
-        Dialog(
-            onDismissRequest = { showVideoDialog.value = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            AndroidView(
-                factory = { context ->
-                    VideoView(context).apply {
-                        setVideoURI(videoUri)
-                        setOnPreparedListener { start() }
+        if (showUploadErrorDialog) {
+            AlertDialog(
+                onDismissRequest = { showUploadErrorDialog = false },
+                title = { Text("Thông báo") },
+                text = { Text(messageText) },
+                confirmButton = {
+                    TextButton(onClick = { showUploadErrorDialog = false }) {
+                        Text("Đã hiểu")
                     }
-                },
+                }
+            )
+        }
+
+        if (isGuiMinhChungLoading.value) {
+            Log.d("DEBUG", "HIỂN THỊ LOADING UI")
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-                    .padding(16.dp)
-            )
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .clickable(enabled = false) {}, // Chặn mọi tương tác
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
         }
     }
-
-    tacVuDangChon.value?.let { tacVu ->
-        if (showTacVuSheet.value) {
-            TacVuBottomSheet(
-                tacVu = tacVu,
-                imageUris = imageUris,
-                videoUri = videoUri,
-                onDismiss = { showTacVuSheet.value = false },
-                onChupAnh = {
-                    val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
-                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
-                    cameraImageUri = uri
-                    cameraLauncher.launch(uri)
-                },
-                onXoaAnh = { viewModel.removeImage(it) },
-                onXoaVideo = { viewModel.clearVideo() },
-                getNoteForImage = viewModel::getNoteForImage,
-                updateNoteForImage = viewModel::updateNoteForImage,
-                onSubmit = { soPhut ->
-                    scope.launch {
-                        viewModel.guiMinhChungTacVu(
-                            phanCongKtvId = phanCongKtvId,
-                            tacVu = tacVu,
-                            soPhut = soPhut
-                        )
-                        showTacVuSheet.value = false
-                    }
-                }
-            )
-        }
-    }
-
-    if (showCheckInBlockedDialog) {
-        AlertDialog(
-            onDismissRequest = { showCheckInBlockedDialog = false },
-            title = { Text("Không thể bắt đầu công việc") },
-            text = {
-                Text("Bạn đang thực hiện một công việc khác. Vui lòng hoàn thành trước khi bắt đầu công việc mới.")
-            },
-            confirmButton = {
-                TextButton(onClick = { showCheckInBlockedDialog = false }) {
-                    Text("Đã hiểu")
-                }
-            }
-        )
-    }
-
-    if (showUploadErrorDialog) {
-        AlertDialog(
-            onDismissRequest = { showUploadErrorDialog = false },
-            title = { Text("Thông báo") },
-            text = { Text(messageText) },
-            confirmButton = {
-                TextButton(onClick = { showUploadErrorDialog = false }) {
-                    Text("Đã hiểu")
-                }
-            }
-        )
-    }
-
 
 }
 
