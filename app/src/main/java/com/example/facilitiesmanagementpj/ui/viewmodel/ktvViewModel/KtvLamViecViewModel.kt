@@ -348,102 +348,10 @@ class KtvLamViecViewModel @Inject constructor(
             }
         }
 
+
         clearMedia()
         return true
     }
-
-
-
-//    fun guiMinhChungTacVu(
-//        phanCongKtvId: Int,
-//        tacVu: LoaiTacVu,
-//        soPhut: Int? = null
-//    ) {
-//        viewModelScope.launch {
-//            val now = System.currentTimeMillis()
-//            val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
-//
-//            val isXinGiaHan = tacVu == LoaiTacVu.XIN_GIA_HAN
-//            if (isXinGiaHan) {
-//                _dangXinGiaHan.value = true
-//            }
-//
-//            imageUris.value.forEach { uri ->
-//                val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
-//                val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
-//                val note = _imageNotes[uri]
-//                url?.let {
-//                    uploadedFiles.add(
-//                        AnhMinhChungLamViec(
-//                            phanCongKTVId = phanCongKtvId,
-//                            loaiAnh = tacVu.loaiAnh,
-//                            urlAnh = it,
-//                            type = "image",
-//                            thoiGianTaiLen = now,
-//                            ghiChu = note
-//                        )
-//                    )
-//                }
-//            }
-//
-//            videoUri.value?.let { uri ->
-//                val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
-//                val url = uploadFileToFirebaseStorage(uri, fileName)
-//                url?.let {
-//                    uploadedFiles.add(
-//                        AnhMinhChungLamViec(
-//                            phanCongKTVId = phanCongKtvId,
-//                            loaiAnh = tacVu.loaiAnh,
-//                            urlAnh = it,
-//                            type = "video",
-//                            thoiGianTaiLen = now
-//                        )
-//                    )
-//                }
-//            }
-//
-//            // Nếu không có ảnh/video nào được upload thành công thì cảnh báo và không cập nhật
-//            if (uploadedFiles.isEmpty()) {
-//                if (isXinGiaHan) _dangXinGiaHan.value = false
-//                showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
-//                return@launch
-//            }
-//
-//            // Insert tất cả file thành công vào DB
-//            uploadedFiles.forEach { anhRepo.insert(it) }
-//
-//            when (tacVu) {
-//                LoaiTacVu.XIN_GIA_HAN -> {
-//                    if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
-//                }
-//
-//                LoaiTacVu.CHECK_IN -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//
-//                LoaiTacVu.TAM_NGHI -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//
-//                LoaiTacVu.CHECK_OUT -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//            }
-//
-//            clearMedia()
-//        }
-//    }
-
-
-
-
-
 
 
 }

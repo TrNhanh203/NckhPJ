@@ -75,12 +75,20 @@ fun KtvLamViecScreen(
 ) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val currentUser by sessionViewModel.currentUser.collectAsState()
-
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
-    val ktvLamVieciewModel: KtvLamViecViewModel = hiltViewModel()
+    val dsKtv by viewModel.dsKtv.collectAsState()
+    val currentPhanCongKtvState = remember(dsKtv, currentUser) {
+        derivedStateOf {
+            dsKtv.firstOrNull {
+                it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId
+            }
+        }
+    }
+    val currentPhanCongKtv = currentPhanCongKtvState.value
 
-    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-        .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
+
+//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
+//        .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
     val isCurrentUserAllowed = currentPhanCongKtv != null
 
 //    val currentUserId = SessionManager.currentUser?.id
@@ -137,7 +145,7 @@ fun KtvLamViecScreen(
             Column(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
-                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai)
+                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai, phanCongId)
                     2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
@@ -220,8 +228,10 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
 fun TabCongViec(
     phanCongKtvId: Int,
     trangThai: String,
+    phanCongId: Int,
     viewModel: KtvLamViecViewModel = hiltViewModel()
 ) {
+    val pcdetailViewModel: PhanCongDetailViewModel = hiltViewModel()
     val imageUris by viewModel.imageUris.collectAsState()
     val videoUri by viewModel.videoUri.collectAsState()
     val thoiGianConLai by viewModel.thoiGianConLai.collectAsState()
@@ -661,26 +671,17 @@ fun TabCongViec(
                                     tacVu = tacVu,
                                     soPhut = soPhut
                                 )
-                                if (success) showTacVuSheet.value = false
+                                if (success){
+                                    pcdetailViewModel.loadDsKtv(phanCongId)
+                                    showTacVuSheet.value = false
+                                }
                             } finally {
-                                isGuiMinhChungLoading.value = false // ✅ Dù gì cũng tắt loading
+                                isGuiMinhChungLoading.value = false
                             }
                         }
                     }
 
 
-
-
-//                onSubmit = { soPhut ->
-//                    scope.launch {
-//                        viewModel.guiMinhChungTacVu(
-//                            phanCongKtvId = phanCongKtvId,
-//                            tacVu = tacVu,
-//                            soPhut = soPhut
-//                        )
-//                        showTacVuSheet.value = false
-//                    }
-//                }
                 )
             }
         }
