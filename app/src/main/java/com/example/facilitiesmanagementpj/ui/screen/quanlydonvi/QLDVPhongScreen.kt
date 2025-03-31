@@ -13,14 +13,17 @@ import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVPhongViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 
 @Composable
 fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel = hiltViewModel()) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val phongList by viewModel.phongList.collectAsState()
-    val donViId = SessionManager.currentUser?.donViId ?: 0
+    val donViId = currentUser?.donViId ?: 0
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(currentUser) {
         viewModel.loadPhongList(donViId)
     }
     com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)

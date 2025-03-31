@@ -27,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: PhongViewModel by viewModels()
-    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,14 +49,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    override fun onStop() {
-        super.onStop()
-        updateSessionStatus()
-    }
-
-    private fun updateSessionStatus() {
-                authViewModel.logout()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

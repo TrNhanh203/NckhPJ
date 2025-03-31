@@ -58,6 +58,7 @@ import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.section.TacVuBottomSheet
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLamViecViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -71,12 +72,15 @@ fun KtvLamViecScreen(
     navController: NavController,
     phanCongId: Int
 ) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
+
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val ktvLamVieciewModel: KtvLamViecViewModel = hiltViewModel()
 
-    val rememberedUserId = remember { SessionManager.currentUser?.id }
+    //val rememberedUserId = remember { SessionManager.currentUser?.id }
     val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-        .firstOrNull { it.taiKhoan.id == rememberedUserId && it.phanCongKtv.phanCongId == phanCongId }
+        .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
     val isCurrentUserAllowed = currentPhanCongKtv != null
 
 //    val currentUserId = SessionManager.currentUser?.id

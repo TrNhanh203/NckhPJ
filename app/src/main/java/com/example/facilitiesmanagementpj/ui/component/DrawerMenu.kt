@@ -12,10 +12,15 @@ import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AuthViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 @Composable
 fun DrawerMenu(navController: NavController, closeDrawer: () -> Unit) {
-    val loggedInUser = SessionManager.currentUser //  Kiểm tra trạng thái đăng nhập
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
+
+
+    val loggedInUser = currentUser //  Kiểm tra trạng thái đăng nhập
     val viewModel: AuthViewModel = hiltViewModel()// Lấy ViewModel
     ModalDrawerSheet(
         drawerContainerColor = Color.Black, // Màu nền đen
@@ -56,7 +61,7 @@ fun DrawerMenu(navController: NavController, closeDrawer: () -> Unit) {
                     selected = false,
                     onClick = {
 
-                        viewModel.logout() // Xóa session khi đăng xuất
+                        sessionViewModel.logout() // Xóa session khi đăng xuất
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }

@@ -41,6 +41,7 @@ import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 
 @Composable
@@ -340,13 +341,16 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
 
 @Composable
 fun TabThongTin(viewModel: PhanCongDetailViewModel) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
+
     val phanCong = viewModel.phanCong.collectAsState().value
     val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
     val tenDonVi = viewModel.tenDonVi.collectAsState().value
     val taiKhoanYeuCau = viewModel.taiKhoanYeuCau.collectAsState().value
     val taiKhoanTaoPhanCong = viewModel.taiKhoanTaoPhanCong.collectAsState().value
 
-    val currentUserId = SessionManager.currentUser?.id
+    val currentUserId = currentUser?.id
 
     Column(
         modifier = Modifier

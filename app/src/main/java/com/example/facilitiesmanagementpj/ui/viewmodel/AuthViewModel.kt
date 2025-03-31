@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.viewmodel
 
+import android.content.Context
 import androidx.annotation.OptIn
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -9,17 +10,27 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.repository.TaiKhoanRepository
 import com.example.facilitiesmanagementpj.data.session.SessionManager
+import com.example.facilitiesmanagementpj.data.session.UserSessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class LoginResult(val success: Boolean, val errorMessage: String? = null, val role: String? = null)
+data class LoginResult(
+    val success: Boolean,
+    val errorMessage: String? = null,
+    val role: String? = null
+)
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(private val repository: TaiKhoanRepository) : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val repository: TaiKhoanRepository,
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
-    private val _loginResult = mutableStateOf(LoginResult(success = false, errorMessage = null, role = null))
+    private val _loginResult =
+        mutableStateOf(LoginResult(success = false, errorMessage = null, role = null))
     val loginResult: State<LoginResult> = _loginResult
 
     @OptIn(UnstableApi::class)
@@ -35,13 +46,23 @@ class AuthViewModel @Inject constructor(private val repository: TaiKhoanReposito
                     TrangThaiTaiKhoan.BI_KHOA -> {
                         _loginResult.value = LoginResult(false, "Tài khoản của bạn đã bị khóa.")
                     }
+
                     TrangThaiTaiKhoan.CHO_XAC_THUC -> {
-                        _loginResult.value = LoginResult(false, "Tài khoản đang chờ xác thực. Vui lòng liên hệ quản trị viên.")
+                        _loginResult.value = LoginResult(
+                            false,
+                            "Tài khoản đang chờ xác thực. Vui lòng liên hệ quản trị viên."
+                        )
                     }
+
                     else -> {
-                        repository.updateTrangThai(user.id, TrangThaiTaiKhoan.TRUC_TUYEN) // ✅ Cập nhật trạng thái "TRỰC TUYẾN"
+                        repository.updateTrangThai(
+                            user.id,
+                            TrangThaiTaiKhoan.TRUC_TUYEN
+                        ) // ✅ Cập nhật trạng thái "TRỰC TUYẾN"
                         user.trangThai = TrangThaiTaiKhoan.TRUC_TUYEN
-                        SessionManager.login(user)
+                        //SessionManager.login(user)
+                        UserSessionManager.saveUser(context, user) // ✅ Lưu bằng DataStore
+
                         _loginResult.value = LoginResult(true, role = user.tenVaiTro)
                     }
                 }
@@ -51,15 +72,7 @@ class AuthViewModel @Inject constructor(private val repository: TaiKhoanReposito
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            SessionManager.logout { userId, status ->
-                launch { // ✅ Đảm bảo updateTrangThai được gọi từ coroutine
-                    repository.updateTrangThai(userId, status)
-                }
-            }
-        }
-    }
+
 
 
 }

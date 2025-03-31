@@ -22,19 +22,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DashboardOption
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import androidx.compose.runtime.getValue
+
 
 @Composable
 fun KtvDashboardScreen(navController: NavController) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
 
     ScaffoldLayout(
         title = "Admin DashBoard",
@@ -56,7 +63,7 @@ fun KtvDashboardScreen(navController: NavController) {
                 icon = Icons.Default.AccountCircle,
                 color = Color.Blue,
                 onClick = {
-                    SessionManager.currentUser?.let { user ->
+                    currentUser?.let { user ->
                         navController.navigate(Screen.ChuyenMonKyThuatVien.createRoute(user.id))
                     }
                 }
@@ -67,7 +74,7 @@ fun KtvDashboardScreen(navController: NavController) {
                 icon = Icons.Default.AccountBox,
                 color = Color.Blue,
                 onClick = {
-                    SessionManager.currentUser?.let { user ->
+                    currentUser?.let { user ->
                         navController.navigate(
                             Screen.KtvDanhSachCongViec.createRoute(user.id)
                         )

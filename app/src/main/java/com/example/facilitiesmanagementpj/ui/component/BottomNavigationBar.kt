@@ -10,15 +10,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) } // ✅ Biến để hiển thị thông báo
-    val currentUser = SessionManager.currentUser // ✅ Lấy thông tin tài khoản đang đăng nhập
+    val sessionViewModel : SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState() // ✅ Lấy thông tin tài khoản đang đăng nhập
 
     NavigationBar(
         modifier = Modifier.height(56.dp),
@@ -35,7 +38,7 @@ fun BottomNavigationBar(navController: NavController) {
                 if (currentUser == null) {
                     showDialog = true // ✅ Hiển thị cảnh báo nếu chưa đăng nhập
                 } else {
-                    val dashboardRoute = when (currentUser.tenVaiTro) {
+                    val dashboardRoute = when (currentUser!!.tenVaiTro) {
                         "Admin" -> Screen.AdminDashboard.route
                         "Kỹ Thuật Viên" -> Screen.KtvDashboard.route
                         "Quản Lý Đơn Vị" -> Screen.DonViDashboard.route

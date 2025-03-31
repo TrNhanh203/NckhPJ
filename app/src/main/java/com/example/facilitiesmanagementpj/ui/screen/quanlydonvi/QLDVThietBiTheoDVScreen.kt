@@ -1,6 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import com.example.facilitiesmanagementpj.ui.component.CustomTopAppBar
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 @Composable
 fun QLDVThietBiTheoDVScreen(
@@ -32,11 +34,13 @@ fun QLDVThietBiTheoDVScreen(
     yeuCauId: Int? = null,
     viewModel: QLDVThietBiViewModel = hiltViewModel()
 ) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val thietBiList by viewModel.filteredThietBiList.collectAsState()
     val selectedThietBiList by viewModel.selectedThietBiList.collectAsState()
-    val donViId = SessionManager.currentUser?.donViId ?: 0
+    val donViId = currentUser?.donViId ?: 0
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(currentUser) {
         viewModel.loadThietBiList(donViId)
         if (yeuCauId != null) {
             viewModel.loadChiTietYeuCau(yeuCauId)

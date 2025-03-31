@@ -38,6 +38,7 @@ import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceDetailViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +48,8 @@ fun AdminDeviceDetailScreen(
     thietBiId: Int,
     yeuCauId: Int
 ) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val viewModel: AdminDeviceDetailViewModel = hiltViewModel()
     val thietBi by viewModel.thietBi.collectAsState()
     val imageUris by viewModel.imageUris.collectAsState()
@@ -191,7 +194,7 @@ fun AdminDeviceDetailScreen(
                                             loaiPhanCong = loai,
                                             ghiChu = note,
                                             mucDoUuTien = mucDo,
-                                            nguoiTaoId = SessionManager.currentUser?.id ?: -1
+                                            nguoiTaoId = currentUser?.id ?: -1
                                         )
 
                                     },

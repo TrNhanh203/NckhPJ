@@ -19,19 +19,22 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVDanhSachYeuCauViewModel
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun DanhSachYeuCauScreen(navController: NavController, viewModel: QLDVDanhSachYeuCauViewModel = hiltViewModel()) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val yeuCauList by viewModel.filteredYeuCauList.collectAsState()
-    val donViId = SessionManager.currentUser?.donViId ?: 0
+    val donViId = currentUser?.donViId ?: 0
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var selectedYeuCau by remember { mutableStateOf<YeuCau?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(currentUser) {
         viewModel.loadYeuCauList(donViId)
     }
 

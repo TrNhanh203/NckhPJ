@@ -6,12 +6,17 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.R
 import com.example.facilitiesmanagementpj.data.session.SessionManager
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import androidx.compose.runtime.getValue
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,7 +27,10 @@ fun CustomTopAppBar(
     onNavigationIconClick: (() -> Unit)? = null,
     onBackClick: () -> Unit = { navController.popBackStack() } // Custom back navigation function
 ) {
-    val loggedInUser = SessionManager.currentUser
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
+
+    val loggedInUser = currentUser
     TopAppBar(
         title = { Text("${title} vt:${loggedInUser?.vaiTroId }", color = Color.White) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(

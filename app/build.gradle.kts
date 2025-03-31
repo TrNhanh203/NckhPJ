@@ -43,6 +43,11 @@ android {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    //data store
+    implementation("androidx.datastore:datastore-preferences:1.1.4")
+
     //icon library
     implementation ("androidx.compose.material:material-icons-extended:1.7.8")
 

@@ -34,6 +34,7 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
 
 @Composable
@@ -41,18 +42,18 @@ fun KtvXemChiTietPhanCongScreen(
     navController: NavController,
     phanCongId: Int
 ) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
+
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val tabTitles = listOf("Thông tin", "Thiết bị", "Minh chứng", "KTV tham gia")
     var showRejectDialog by remember { mutableStateOf(false) }
     var rejectReason by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    val currentUserId = SessionManager.currentUser?.id
-//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value // so sánh id user hiện tại với idTK trong bảng PhanCOngKTv_TK
-//        .firstOrNull { it.taiKhoan.id == currentUserId }
-    val rememberedUserId = remember { SessionManager.currentUser?.id }
+    val currentUserId = currentUser?.id
     val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-        .firstOrNull { it.taiKhoan.id == rememberedUserId && it.phanCongKtv.phanCongId == phanCongId }
+        .firstOrNull { it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCongId }
 
 
     val isCurrentUserAllowed = currentPhanCongKtv != null && currentPhanCongKtv.phanCongKtv.phanCongId == phanCongId
@@ -185,8 +186,10 @@ fun KtvXemChiTietPhanCongScreen(
 
 @Composable
 fun TabKtvThamGia(viewModel: PhanCongDetailViewModel, navController: NavController) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val list by viewModel.dsKtv.collectAsState()
-    val currentUserId = SessionManager.currentUser?.id
+    val currentUserId = currentUser?.id
 
     if (list.isEmpty()) {
         Column(
