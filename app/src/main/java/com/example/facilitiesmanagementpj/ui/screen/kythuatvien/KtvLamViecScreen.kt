@@ -1,6 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.kythuatvien
 
 import android.net.Uri
+import android.util.Log
 import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,7 +79,6 @@ fun KtvLamViecScreen(
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
     val ktvLamVieciewModel: KtvLamViecViewModel = hiltViewModel()
 
-    //val rememberedUserId = remember { SessionManager.currentUser?.id }
     val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
         .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
     val isCurrentUserAllowed = currentPhanCongKtv != null
@@ -137,7 +137,7 @@ fun KtvLamViecScreen(
             Column(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
-                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id,currentPhanCongKtv.phanCongKtv.trangThai,ktvLamVieciewModel)
+                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai)
                     2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
@@ -213,6 +213,8 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TabCongViec(
@@ -239,6 +241,15 @@ fun TabCongViec(
     val showTacVuSheet = remember { mutableStateOf(false) }
     val tacVuDangChon = remember { mutableStateOf<LoaiTacVu?>(null) }
 
+    var showUploadErrorDialog by remember { mutableStateOf(false) }
+    var messageText by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiMessage.collect { message ->
+            messageText = message
+            showUploadErrorDialog = true
+        }
+    }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -267,7 +278,7 @@ fun TabCongViec(
                 }
             }
         }
-    }
+    } // nhắc nhở gia hạn
 
     LaunchedEffect(Unit) {
         viewModel.loadThoiGianDuKien(phanCongKtvId)
@@ -281,8 +292,40 @@ fun TabCongViec(
         }
     }
 
+    var showCheckInBlockedDialog by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
+        if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Bạn cần xác minh để bắt đầu làm việc",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        viewModel.kiemTraTruocCheckIn(
+                            phanCongKtvId = phanCongKtvId,
+                            onKhongDuoc = {
+                                scope.launch {
+                                    showCheckInBlockedDialog = true
+                                }
+                            },
+                            onDuoc = {
+                                tacVuDangChon.value = LoaiTacVu.CHECK_IN
+                                showTacVuSheet.value = true
+                            }
+                        )
+                    },
+                    modifier = Modifier.size(96.dp),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.CameraAlt, contentDescription = null)
+                }
+            }
+        }
         if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
             Column(
                 modifier = Modifier
@@ -422,29 +465,6 @@ fun TabCongViec(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 24.dp)
             )
-        }
-    }
-
-
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Bạn cần xác minh để bắt đầu làm việc",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { tacVuDangChon.value = LoaiTacVu.CHECK_IN
-                        showTacVuSheet.value = true },
-                    modifier = Modifier.size(96.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = null)
-                }
-            }
         }
     }
 
@@ -642,10 +662,36 @@ fun TabCongViec(
         }
     }
 
+    if (showCheckInBlockedDialog) {
+        AlertDialog(
+            onDismissRequest = { showCheckInBlockedDialog = false },
+            title = { Text("Không thể bắt đầu công việc") },
+            text = {
+                Text("Bạn đang thực hiện một công việc khác. Vui lòng hoàn thành trước khi bắt đầu công việc mới.")
+            },
+            confirmButton = {
+                TextButton(onClick = { showCheckInBlockedDialog = false }) {
+                    Text("Đã hiểu")
+                }
+            }
+        )
+    }
+
+    if (showUploadErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showUploadErrorDialog = false },
+            title = { Text("Thông báo") },
+            text = { Text(messageText) },
+            confirmButton = {
+                TextButton(onClick = { showUploadErrorDialog = false }) {
+                    Text("Đã hiểu")
+                }
+            }
+        )
+    }
 
 
 }
-
 
 
 

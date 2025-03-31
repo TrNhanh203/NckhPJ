@@ -13,6 +13,9 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao, private val phanCongKtvDao: PhanCongKtvDao) {
 
+
+
+
     suspend fun getPhanCongIdByPhanCongKtvId(phanCongKtvId: Int): Int {
         return phanCongDao.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
     }

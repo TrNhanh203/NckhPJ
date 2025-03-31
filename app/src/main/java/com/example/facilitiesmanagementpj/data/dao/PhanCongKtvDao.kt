@@ -9,6 +9,15 @@ import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
 interface PhanCongKtvDao {
 
     @Query("""
+    SELECT COUNT(*) FROM phan_cong_ktv
+    WHERE taiKhoanKTVId = :userId
+    AND trangThai = :trangThaiDangTH
+    AND id != :phanCongKtvId
+    """)
+    suspend fun countDangThucHienKhac(userId: Int, phanCongKtvId: Int, trangThaiDangTH: String): Int
+
+
+    @Query("""
     UPDATE phan_cong_ktv 
     SET 
         dangXinGiaHan = 0,

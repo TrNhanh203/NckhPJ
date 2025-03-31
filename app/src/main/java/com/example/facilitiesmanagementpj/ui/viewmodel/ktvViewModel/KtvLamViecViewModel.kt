@@ -16,7 +16,10 @@ import com.example.facilitiesmanagementpj.data.utils.uploadFileToFirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -188,6 +191,30 @@ class KtvLamViecViewModel @Inject constructor(
     }
 
 
+    fun kiemTraTruocCheckIn(phanCongKtvId: Int, onKhongDuoc: () -> Unit, onDuoc: () -> Unit) {
+        viewModelScope.launch {
+            Log.d("kiemTraTruocCheckIn", "Ham kiem tra dang chay")
+            val pc = pcKtvRepo.getById(phanCongKtvId) ?: return@launch
+            val userId = pc.taiKhoanKTVId
+            val isBusy = pcKtvRepo.isDangThucHienCongViecKhac(userId, phanCongKtvId)
+            Log.d("kiemTraTruocCheckIn", "isBusy: $isBusy")
+            if (isBusy) {
+                onKhongDuoc()
+            } else {
+                onDuoc()
+            }
+        }
+    }
+
+
+    private val _uiMessage = MutableSharedFlow<String>()
+    val uiMessage: SharedFlow<String> = _uiMessage
+
+    fun showMessage(message: String) {
+        _uiMessage.tryEmit(message)
+    }
+
+
     fun guiMinhChungTacVu(
         phanCongKtvId: Int,
         tacVu: LoaiTacVu,
@@ -195,13 +222,19 @@ class KtvLamViecViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val now = System.currentTimeMillis()
+            val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
+
+            val isXinGiaHan = tacVu == LoaiTacVu.XIN_GIA_HAN
+            if (isXinGiaHan) {
+                _dangXinGiaHan.value = true
+            }
 
             imageUris.value.forEach { uri ->
                 val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
                 val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
                 val note = _imageNotes[uri]
                 url?.let {
-                    anhRepo.insert(
+                    uploadedFiles.add(
                         AnhMinhChungLamViec(
                             phanCongKTVId = phanCongKtvId,
                             loaiAnh = tacVu.loaiAnh,
@@ -218,7 +251,7 @@ class KtvLamViecViewModel @Inject constructor(
                 val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
                 val url = uploadFileToFirebaseStorage(uri, fileName)
                 url?.let {
-                    anhRepo.insert(
+                    uploadedFiles.add(
                         AnhMinhChungLamViec(
                             phanCongKTVId = phanCongKtvId,
                             loaiAnh = tacVu.loaiAnh,
@@ -230,10 +263,19 @@ class KtvLamViecViewModel @Inject constructor(
                 }
             }
 
+            // Nếu không có ảnh/video nào được upload thành công thì cảnh báo và không cập nhật
+            if (uploadedFiles.isEmpty()) {
+                if (isXinGiaHan) _dangXinGiaHan.value = false
+                showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
+                return@launch
+            }
+
+            // Insert tất cả file thành công vào DB
+            uploadedFiles.forEach { anhRepo.insert(it) }
+
             when (tacVu) {
                 LoaiTacVu.XIN_GIA_HAN -> {
                     if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
-                    _dangXinGiaHan.value = true
                 }
 
                 LoaiTacVu.CHECK_IN -> {
@@ -253,12 +295,85 @@ class KtvLamViecViewModel @Inject constructor(
                     val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
                     phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
                 }
-
             }
 
             clearMedia()
         }
     }
+
+
+
+//    fun guiMinhChungTacVu(
+//        phanCongKtvId: Int,
+//        tacVu: LoaiTacVu,
+//        soPhut: Int? = null
+//    ) {
+//        viewModelScope.launch {
+//            val now = System.currentTimeMillis()
+//
+//            imageUris.value.forEach { uri ->
+//                val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
+//                val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
+//                val note = _imageNotes[uri]
+//                url?.let {
+//                    anhRepo.insert(
+//                        AnhMinhChungLamViec(
+//                            phanCongKTVId = phanCongKtvId,
+//                            loaiAnh = tacVu.loaiAnh,
+//                            urlAnh = it,
+//                            type = "image",
+//                            thoiGianTaiLen = now,
+//                            ghiChu = note
+//                        )
+//                    )
+//                }
+//            }
+//
+//            videoUri.value?.let { uri ->
+//                val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
+//                val url = uploadFileToFirebaseStorage(uri, fileName)
+//                url?.let {
+//                    anhRepo.insert(
+//                        AnhMinhChungLamViec(
+//                            phanCongKTVId = phanCongKtvId,
+//                            loaiAnh = tacVu.loaiAnh,
+//                            urlAnh = it,
+//                            type = "video",
+//                            thoiGianTaiLen = now
+//                        )
+//                    )
+//                }
+//            }
+//
+//            when (tacVu) {
+//                LoaiTacVu.XIN_GIA_HAN -> {
+//                    _dangXinGiaHan.value = true
+//                    if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
+//                }
+//
+//                LoaiTacVu.CHECK_IN -> {
+//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
+//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//                }
+//
+//                LoaiTacVu.TAM_NGHI -> {
+//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
+//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//                }
+//
+//                LoaiTacVu.CHECK_OUT -> {
+//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
+//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//                }
+//
+//            }
+//
+//            clearMedia()
+//        }
+//    }
 
 
 

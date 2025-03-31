@@ -10,6 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun isDangThucHienCongViecKhac(userId: Int, phanCongKtvId: Int): Boolean {
+        return phanCongKtvDao.countDangThucHienKhac(userId, phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN) > 0
+    }
+
     suspend fun duyetGiaHan(phanCongKtvId: Int) {
         val pc = getById(phanCongKtvId) ?: return
 
