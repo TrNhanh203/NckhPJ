@@ -12,6 +12,8 @@ import com.example.facilitiesmanagementpj.data.repository.PhanCongKtvRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
+import com.example.facilitiesmanagementpj.data.utils.formatDuration
+import com.example.facilitiesmanagementpj.data.utils.formatTime
 import com.example.facilitiesmanagementpj.data.utils.uploadFileToFirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -78,22 +80,73 @@ class KtvLamViecViewModel @Inject constructor(
         _videoUri.value = null
     }
 
+
     fun startCountdown(phanCongKtvId: Int, thoiGianDuKienPhut: Int) {
-        countdownJob?.cancel() // Hủy job cũ nếu có
+        countdownJob?.cancel()
         countdownJob = viewModelScope.launch {
-            val listCheckin = anhRepo.getByPhanCongKtvId(phanCongKtvId)
-                .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
+            val listAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+                .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN || it.loaiAnh == LoaiAnhMinhChungLamViec.TAM_NGHI }
                 .sortedBy { it.thoiGianTaiLen }
-            val thoiGianBatDau = listCheckin.firstOrNull()?.thoiGianTaiLen ?: return@launch
-            val tongMillis = thoiGianDuKienPhut * 60_000L
-            val deadline = thoiGianBatDau + tongMillis
+
+            val pairs = mutableListOf<Pair<Long, Long>>() // các khoảng (checkin, tam_nghi)
+            var currentCheckInTime: Long? = null
+
+            for (anh in listAnh) {
+                when (anh.loaiAnh) {
+                    LoaiAnhMinhChungLamViec.CHECK_IN -> {
+                        // Nếu đang có check-in chưa kết thúc thì bỏ qua (tránh lỗi logic lặp)
+                        if (currentCheckInTime == null) {
+                            currentCheckInTime = anh.thoiGianTaiLen
+                        }
+                    }
+                    LoaiAnhMinhChungLamViec.TAM_NGHI -> {
+                        if (currentCheckInTime != null) {
+                            pairs.add(currentCheckInTime!! to anh.thoiGianTaiLen)
+                            currentCheckInTime = null
+                        }
+                    }
+                }
+            }
+
+            // Nếu có check-in cuối chưa bị tạm nghỉ → tính đến thời điểm hiện tại
+            currentCheckInTime?.let {
+                pairs.add(it to System.currentTimeMillis())
+            }
+
+            val tongThoiGianLamViec = pairs.sumOf { (start, end) -> end - start }
+
+            val tongThoiGianDuKienMillis = thoiGianDuKienPhut * 60_000L
+            val thoiGianCon = tongThoiGianDuKienMillis - tongThoiGianLamViec
+
             while (true) {
-                val thoiGianCon = deadline - System.currentTimeMillis()
-                _thoiGianConLai.value = thoiGianCon
+                _thoiGianConLai.value = thoiGianCon - (System.currentTimeMillis() - pairs.lastOrNull()?.second.orZero())
                 delay(60_000L)
             }
         }
     }
+
+    // Extension an toàn
+    fun Long?.orZero() = this ?: 0L
+
+
+//    fun startCountdown(phanCongKtvId: Int, thoiGianDuKienPhut: Int) {
+//        countdownJob?.cancel() // Hủy job cũ nếu có
+//        countdownJob = viewModelScope.launch {
+//            val listCheckin = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+//                .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
+//                .sortedBy { it.thoiGianTaiLen }
+//            val thoiGianBatDau = listCheckin.firstOrNull()?.thoiGianTaiLen ?: return@launch
+//            val tongMillis = thoiGianDuKienPhut * 60_000L
+//            val deadline = thoiGianBatDau + tongMillis
+//            while (true) {
+//                val thoiGianCon = deadline - System.currentTimeMillis()
+//                _thoiGianConLai.value = thoiGianCon
+//                delay(60_000L)
+//            }
+//        }
+//    }
+
+
 
     fun stopCountdown() {
         countdownJob?.cancel()
@@ -303,77 +356,7 @@ class KtvLamViecViewModel @Inject constructor(
 
 
 
-//    fun guiMinhChungTacVu(
-//        phanCongKtvId: Int,
-//        tacVu: LoaiTacVu,
-//        soPhut: Int? = null
-//    ) {
-//        viewModelScope.launch {
-//            val now = System.currentTimeMillis()
-//
-//            imageUris.value.forEach { uri ->
-//                val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
-//                val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
-//                val note = _imageNotes[uri]
-//                url?.let {
-//                    anhRepo.insert(
-//                        AnhMinhChungLamViec(
-//                            phanCongKTVId = phanCongKtvId,
-//                            loaiAnh = tacVu.loaiAnh,
-//                            urlAnh = it,
-//                            type = "image",
-//                            thoiGianTaiLen = now,
-//                            ghiChu = note
-//                        )
-//                    )
-//                }
-//            }
-//
-//            videoUri.value?.let { uri ->
-//                val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
-//                val url = uploadFileToFirebaseStorage(uri, fileName)
-//                url?.let {
-//                    anhRepo.insert(
-//                        AnhMinhChungLamViec(
-//                            phanCongKTVId = phanCongKtvId,
-//                            loaiAnh = tacVu.loaiAnh,
-//                            urlAnh = it,
-//                            type = "video",
-//                            thoiGianTaiLen = now
-//                        )
-//                    )
-//                }
-//            }
-//
-//            when (tacVu) {
-//                LoaiTacVu.XIN_GIA_HAN -> {
-//                    _dangXinGiaHan.value = true
-//                    if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
-//                }
-//
-//                LoaiTacVu.CHECK_IN -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//
-//                LoaiTacVu.TAM_NGHI -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//
-//                LoaiTacVu.CHECK_OUT -> {
-//                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
-//                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//                }
-//
-//            }
-//
-//            clearMedia()
-//        }
-//    }
+
 
 
 
