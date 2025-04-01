@@ -24,20 +24,36 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         val dsKtv = phanCongKtvDao.getAllByPhanCongId(phanCongId) // lấy tất cả PhanCongKtv liên quan
 
         val allTrangThai = dsKtv.map { it.trangThai }
+        val trangThaiCoGiaTri = allTrangThai.filter {
+            it != TrangThaiPhanCong.DA_TU_CHOI &&
+                    it != TrangThaiPhanCong.BI_HUY &&
+                    it != TrangThaiPhanCong.THAY_NGUOI
+        }
+
 
         val newTrangThai = when {
-            allTrangThai.all { it == TrangThaiPhanCong.HOAN_THANH } -> TrangThaiChungCuaPhanCong.HOAN_THANH
-            allTrangThai.all { it == TrangThaiPhanCong.CHO_PHAN_HOI || it == TrangThaiPhanCong.DA_TU_CHOI || it == TrangThaiPhanCong.BI_HUY} ->
-                TrangThaiChungCuaPhanCong.CHUA_BAT_DAU
-            allTrangThai.any { it == TrangThaiPhanCong.DANG_THUC_HIEN } ->
+            trangThaiCoGiaTri.isEmpty() -> TrangThaiChungCuaPhanCong.CHUA_BAT_DAU
+
+            trangThaiCoGiaTri.all { it == TrangThaiPhanCong.HOAN_THANH } ->
+                TrangThaiChungCuaPhanCong.HOAN_THANH
+
+            trangThaiCoGiaTri.all {
+                it == TrangThaiPhanCong.CHO_PHAN_HOI ||
+                        it == TrangThaiPhanCong.DA_CHAP_NHAN
+            } -> TrangThaiChungCuaPhanCong.CHUA_BAT_DAU
+
+            trangThaiCoGiaTri.any { it == TrangThaiPhanCong.DANG_THUC_HIEN } ->
                 TrangThaiChungCuaPhanCong.DANG_THUC_HIEN
-            allTrangThai.all { it == TrangThaiPhanCong.DA_CHAP_NHAN || it == TrangThaiPhanCong.TAM_NGHI || it == TrangThaiPhanCong.CHO_PHAN_HOI } ->
-                TrangThaiChungCuaPhanCong.DANG_TAM_NGHI
-//            allTrangThai.all {
-//                it == TrangThaiPhanCong.DA_TU_CHOI || it == TrangThaiPhanCong.BI_HUY || it == TrangThaiPhanCong.THAY_NGUOI
-//            } -> TrangThaiChungCuaPhanCong.BI_HUY
-            else -> TrangThaiChungCuaPhanCong.DANG_THUC_HIEN // fallback nếu trạng thái trộn
+
+            trangThaiCoGiaTri.all {
+                it == TrangThaiPhanCong.DA_CHAP_NHAN ||
+                        it == TrangThaiPhanCong.TAM_NGHI ||
+                        it == TrangThaiPhanCong.CHO_PHAN_HOI
+            } -> TrangThaiChungCuaPhanCong.DANG_TAM_NGHI
+
+            else -> TrangThaiChungCuaPhanCong.DANG_THUC_HIEN
         }
+
 
         // Cập nhật trạng thái của bản ghi phân công gốc
         phanCongDao.updateTrangThai(phanCongId, newTrangThai)

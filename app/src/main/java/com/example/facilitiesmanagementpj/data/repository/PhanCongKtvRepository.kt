@@ -10,6 +10,22 @@ import javax.inject.Singleton
 @Singleton
 class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
 
+    suspend fun capNhatThongTinCheckOut(
+        phanCongKtvId: Int,
+        thoiGianBatDau: Long?,
+        thoiGianHoanThien: Long,
+        thoiGianLamViec: Int,
+        thoiGianPhatSinh: Int
+    ) {
+        phanCongKtvDao.capNhatThongTinCheckOut(
+            phanCongKtvId = phanCongKtvId,
+            thoiGianBatDau = thoiGianBatDau,
+            thoiGianHoanThien = thoiGianHoanThien,
+            thoiGianLamViec = thoiGianLamViec,
+            thoiGianPhatSinh = thoiGianPhatSinh
+        )
+    }
+
     suspend fun isDangThucHienCongViecKhac(userId: Int, phanCongKtvId: Int): Boolean {
         return phanCongKtvDao.countDangThucHienKhac(userId, phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN) > 0
     }

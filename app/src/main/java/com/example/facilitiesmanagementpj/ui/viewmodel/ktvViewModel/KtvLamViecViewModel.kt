@@ -51,7 +51,6 @@ class KtvLamViecViewModel @Inject constructor(
     val thoiGianConLai = _thoiGianConLai.asStateFlow()
 
 
-
     private var countdownJob: Job? = null
 
     fun getNoteForImage(uri: Uri): String? {
@@ -104,6 +103,7 @@ class KtvLamViecViewModel @Inject constructor(
                             currentCheckInTime = anh.thoiGianTaiLen
                         }
                     }
+
                     LoaiAnhMinhChungLamViec.TAM_NGHI -> {
                         if (currentCheckInTime != null) {
                             pairs.add(currentCheckInTime!! to anh.thoiGianTaiLen)
@@ -124,7 +124,8 @@ class KtvLamViecViewModel @Inject constructor(
             val thoiGianCon = tongThoiGianDuKienMillis - tongThoiGianLamViec
 
             while (true) {
-                _thoiGianConLai.value = thoiGianCon - (System.currentTimeMillis() - pairs.lastOrNull()?.second.orZero())
+                _thoiGianConLai.value =
+                    thoiGianCon - (System.currentTimeMillis() - pairs.lastOrNull()?.second.orZero())
                 delay(60_000L)
             }
         }
@@ -340,7 +341,72 @@ class KtvLamViecViewModel @Inject constructor(
                 }
 
                 LoaiTacVu.CHECK_OUT -> {
-                    pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
+
+                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+                    val danhSachAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+
+                    // 1. Thời gian bắt đầu: ảnh CHECK_IN đầu tiên
+                    val thoiGianBatDau = danhSachAnh
+                        .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
+                        .minOfOrNull { it.thoiGianTaiLen }
+
+                    // 2. Thời gian hoàn thiện
+                    val thoiGianHoanThien = System.currentTimeMillis()
+
+                    // 3. Tính các cặp thời gian làm việc thực tế: CHECK_IN → TẠM NGHỈ hoặc → CHECK_OUT
+                    val sortedAnh = danhSachAnh
+                        .filter {
+                            it.loaiAnh in listOf(
+                                LoaiAnhMinhChungLamViec.CHECK_IN,
+                                LoaiAnhMinhChungLamViec.TAM_NGHI
+                            )
+                        }
+                        .sortedBy { it.thoiGianTaiLen }
+
+                    val pairs = mutableListOf<Pair<Long, Long>>()
+                    var currentCheckIn: Long? = null
+
+                    for (anh in sortedAnh) {
+                        when (anh.loaiAnh) {
+                            LoaiAnhMinhChungLamViec.CHECK_IN -> {
+                                if (currentCheckIn == null) currentCheckIn = anh.thoiGianTaiLen
+                            }
+
+                            LoaiAnhMinhChungLamViec.TAM_NGHI -> {
+                                if (currentCheckIn != null) {
+                                    pairs.add(currentCheckIn to anh.thoiGianTaiLen)
+                                    currentCheckIn = null
+                                }
+                            }
+                        }
+                    }
+
+                    // Nếu còn lần CHECK_IN cuối cùng chưa nghỉ thì tính đến thời điểm CHECK_OUT
+                    currentCheckIn?.let {
+                        pairs.add(it to thoiGianHoanThien)
+                    }
+
+                    val tongThoiGianLamViecMillis = pairs.sumOf { it.second - it.first }
+                    val tongThoiGianLamViecPhut = (tongThoiGianLamViecMillis / 60_000L).toInt()
+
+                    // 4. Thời gian phát sinh = toàn bộ thời gian - thời gian làm việc
+                    val thoiGianPhatSinhPhut = (
+                            (thoiGianHoanThien - (thoiGianBatDau ?: thoiGianHoanThien)) -
+                                    tongThoiGianLamViecMillis
+                            ).coerceAtLeast(0L) / 60_000L
+
+                    // 5. Ghi dữ liệu
+                    pcKtvRepo.capNhatThongTinCheckOut(
+                        phanCongKtvId = phanCongKtvId,
+                        thoiGianBatDau = thoiGianBatDau,
+                        thoiGianHoanThien = thoiGianHoanThien,
+                        thoiGianLamViec = tongThoiGianLamViecPhut,
+                        thoiGianPhatSinh = thoiGianPhatSinhPhut.toInt()
+                    )
+                    pcKtvRepo.updateTrangThaiPhanCongKtv(
+                        phanCongKtvId,
+                        TrangThaiPhanCong.HOAN_THANH
+                    )
                     phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
                 }
             }
@@ -354,91 +420,32 @@ class KtvLamViecViewModel @Inject constructor(
     }
 
 
+    private val _thongTinHoanThanh = MutableStateFlow<ThongTinHoanThanh?>(null)
+    val thongTinHoanThanh: StateFlow<ThongTinHoanThanh?> = _thongTinHoanThanh
 
-//    suspend fun guiMinhChungTacVu(
-//        phanCongKtvId: Int,
-//        tacVu: LoaiTacVu,
-//        soPhut: Int? = null
-//    ): Boolean {
-//        val now = System.currentTimeMillis()
-//        val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
-//
-//        val isXinGiaHan = tacVu == LoaiTacVu.XIN_GIA_HAN
-//        if (isXinGiaHan) {
-//            _dangXinGiaHan.value = true
-//        }
-//
-//        imageUris.value.forEach { uri ->
-//            val fileName = "${tacVu.name.lowercase()}_img_${now}_${uri.hashCode()}.jpg"
-//            val url = uploadFileToFirebaseStorage(uri, fileName, "lam_viec")
-//            val note = _imageNotes[uri]
-//            url?.let {
-//                uploadedFiles.add(
-//                    AnhMinhChungLamViec(
-//                        phanCongKTVId = phanCongKtvId,
-//                        loaiAnh = tacVu.loaiAnh,
-//                        urlAnh = it,
-//                        type = "image",
-//                        thoiGianTaiLen = now,
-//                        ghiChu = note
-//                    )
-//                )
-//            }
-//        }
-//
-//        videoUri.value?.let { uri ->
-//            val fileName = "${tacVu.name.lowercase()}_video_${now}.mp4"
-//            val url = uploadFileToFirebaseStorage(uri, fileName)
-//            url?.let {
-//                uploadedFiles.add(
-//                    AnhMinhChungLamViec(
-//                        phanCongKTVId = phanCongKtvId,
-//                        loaiAnh = tacVu.loaiAnh,
-//                        urlAnh = it,
-//                        type = "video",
-//                        thoiGianTaiLen = now
-//                    )
-//                )
-//            }
-//        }
-//
-//        // ❌ Không có file nào được upload
-//        if (uploadedFiles.isEmpty()) {
-//            if (isXinGiaHan) _dangXinGiaHan.value = false
-//            showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
-//            return false
-//        }
-//
-//        // ✅ Upload xong, lưu DB
-//        uploadedFiles.forEach { anhRepo.insert(it) }
-//
-//        // ✅ Cập nhật trạng thái tùy theo tác vụ
-//        val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-//        when (tacVu) {
-//            LoaiTacVu.XIN_GIA_HAN -> {
-//                if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
-//            }
-//
-//            LoaiTacVu.CHECK_IN -> {
-//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
-//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//            }
-//
-//            LoaiTacVu.TAM_NGHI -> {
-//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.TAM_NGHI)
-//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//            }
-//
-//            LoaiTacVu.CHECK_OUT -> {
-//                pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
-//                phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
-//            }
-//        }
-//
-//
-//        clearMedia()
-//        return true
-//    }
+    fun loadThongTinHoanThanh(phanCongKtvId: Int) {
+        viewModelScope.launch {
+            val pc = pcKtvRepo.getById(phanCongKtvId)
+            pc?.let {
+                _thongTinHoanThanh.value = ThongTinHoanThanh(
+                    thoiGianBatDau = it.thoiGianBatDau,
+                    thoiGianHoanThien = it.thoiGianHoanThien ?: System.currentTimeMillis(),
+                    thoiGianLamViec = it.thoiGianLamViecThucTe ?: 0,
+                    thoiGianPhatSinh = it.thoiGianPhatSinh ?: 0
+                )
+            }
+        }
+    }
+
+    data class ThongTinHoanThanh(
+        val thoiGianBatDau: Long?,
+        val thoiGianHoanThien: Long,
+        val thoiGianLamViec: Int,
+        val thoiGianPhatSinh: Int
+    )
+
+
+
 
 
 }

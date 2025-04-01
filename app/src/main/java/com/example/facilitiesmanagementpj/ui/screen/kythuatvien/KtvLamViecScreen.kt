@@ -60,6 +60,7 @@ import androidx.compose.ui.window.Popup
 import androidx.navigation.NavBackStackEntry
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.section.TacVuBottomSheet
+import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecViewModel.ThongTinHoanThanh
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLamViecViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
@@ -260,6 +261,7 @@ fun TabCongViec(
     var showUploadErrorDialog by remember { mutableStateOf(false) }
     var messageText by remember { mutableStateOf("") }
 
+    val thongTin by viewModel.thongTinHoanThanh.collectAsState()
     val isGuiMinhChungLoading by viewModel.isGuiMinhChungLoading.collectAsState()
     BackHandler(enabled = isGuiMinhChungLoading) {
         // ❌ Không làm gì cả => chặn thoát
@@ -269,6 +271,12 @@ fun TabCongViec(
         viewModel.uiMessage.collect { message ->
             messageText = message
             showUploadErrorDialog = true
+        }
+    }
+
+    LaunchedEffect(trangThai) {
+        if (trangThai == TrangThaiPhanCong.HOAN_THANH) {
+            viewModel.loadThongTinHoanThanh(phanCongKtvId)
         }
     }
 
@@ -487,6 +495,22 @@ fun TabCongViec(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 24.dp)
             )
+        }
+        if (trangThai == TrangThaiPhanCong.HOAN_THANH) {
+            // ✅ Biểu tượng lớn ở giữa đầu màn hình
+            Column(
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(72.dp))
+                Spacer(Modifier.height(8.dp))
+                Text("Công việc đã hoàn tất", style = MaterialTheme.typography.titleMedium, color = Color(0xFF388E3C))
+            }
+
+            // ✅ Card báo cáo bên dưới
+            thongTin?.let {
+                BaoCaoHoanThanhCard(it, modifier = Modifier.align(Alignment.Center))
+            }
         }
 
         if (showBottomSheet.value) {
@@ -752,6 +776,7 @@ fun TabTienTrinhLamViec(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -895,10 +920,54 @@ fun TabTienTrinhLamViec(
 
 
 
-private fun formatTime(millis: Long): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    return sdf.format(Date(millis))
+@Composable
+fun RowItem(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
+    }
 }
+
+@Composable
+fun BaoCaoHoanThanhCard(info: ThongTinHoanThanh, modifier: Modifier) {
+    Card(
+        modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("📋 Báo cáo công việc", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(12.dp))
+
+            RowItem("🔹 Thời gian bắt đầu:", formatTime(info.thoiGianBatDau))
+            RowItem("✅ Thời gian hoàn thành:", formatTime(info.thoiGianHoanThien))
+            RowItem("⏱️ Thời gian làm việc:", "${info.thoiGianLamViec} phút")
+            RowItem("🕒 Thời gian phát sinh:", "${info.thoiGianPhatSinh} phút")
+
+            Spacer(Modifier.height(16.dp))
+            LinearProgressIndicator(
+                progress = (info.thoiGianLamViec / (info.thoiGianLamViec + info.thoiGianPhatSinh).toFloat())
+                    .coerceIn(0f, 1f),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(4.dp))
+            Text("Tỷ lệ thời gian làm việc", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+        }
+    }
+}
+
+
+
+private fun formatTime(millis: Long?): String {
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    return millis?.let { sdf.format(Date(it)) } ?: "Không rõ"
+}
+
 
 fun formatMillis(millis: Long): String {
     val minutes = (millis / 1000 / 60) % 60

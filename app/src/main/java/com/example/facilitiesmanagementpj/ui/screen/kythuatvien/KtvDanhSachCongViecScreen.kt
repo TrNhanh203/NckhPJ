@@ -198,7 +198,18 @@ fun KtvDanhSachCongViecScreen(
                                                 )
                                             }
                                         }
-                                    } else {
+                                    }else if(selectedTabIndex == 2){
+                                        Button(
+                                            onClick = {
+                                                navController.navigate(
+                                                    Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
+                                                )
+                                            }
+                                        ) {
+                                            Text("Xem chi tiết")
+                                        }
+                                    }
+                                    else {
                                         Button(
                                             onClick = {
                                                 navController.navigate(

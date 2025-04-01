@@ -9,6 +9,24 @@ import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
 interface PhanCongKtvDao {
 
     @Query("""
+    UPDATE phan_cong_ktv 
+    SET thoiGianBatDau = :thoiGianBatDau,
+        thoiGianHoanThien = :thoiGianHoanThien,
+        thoiGianLamViecThucTe = :thoiGianLamViec,
+        thoiGianPhatSinh = :thoiGianPhatSinh
+    WHERE id = :phanCongKtvId
+""")
+    suspend fun capNhatThongTinCheckOut(
+        phanCongKtvId: Int,
+        thoiGianBatDau: Long?,
+        thoiGianHoanThien: Long,
+        thoiGianLamViec: Int,
+        thoiGianPhatSinh: Int
+    )
+
+
+
+    @Query("""
     SELECT COUNT(*) FROM phan_cong_ktv
     WHERE taiKhoanKTVId = :userId
     AND trangThai = :trangThaiDangTH
