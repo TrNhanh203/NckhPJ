@@ -299,6 +299,7 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                             }
                             "Xem lý do từ chối" -> showRejectReasonDialog = true
                             "Hủy bỏ" -> showConfirmCancelDialog = true
+                            "Xem tiến độ" -> {navController.navigate(Screen.AdminViewTienTrinhLamViec.createRoute(item.phanCongKtv.id))}
                             else -> {} // các option khác xử lý sau
                         }
                     }
