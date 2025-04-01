@@ -233,11 +233,9 @@ class KtvLamViecViewModel @Inject constructor(
 
     fun kiemTraTruocCheckIn(phanCongKtvId: Int, onKhongDuoc: () -> Unit, onDuoc: () -> Unit) {
         viewModelScope.launch {
-            Log.d("kiemTraTruocCheckIn", "Ham kiem tra dang chay")
             val pc = pcKtvRepo.getById(phanCongKtvId) ?: return@launch
             val userId = pc.taiKhoanKTVId
             val isBusy = pcKtvRepo.isDangThucHienCongViecKhac(userId, phanCongKtvId)
-            Log.d("kiemTraTruocCheckIn", "isBusy: $isBusy")
             if (isBusy) {
                 onKhongDuoc()
             } else {
@@ -252,11 +250,6 @@ class KtvLamViecViewModel @Inject constructor(
 
     fun showMessage(message: String) {
         _uiMessage.tryEmit(message)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("KTVLAMVIEC", "🔥 ViewModel đã bị huỷ")
     }
 
 
@@ -313,17 +306,14 @@ class KtvLamViecViewModel @Inject constructor(
                 }
             }
 
-            // ❌ Không có file nào được upload
             if (uploadedFiles.isEmpty()) {
                 if (isXinGiaHan) _dangXinGiaHan.value = false
                 showMessage("Không thể gửi minh chứng. Vui lòng chụp lại ít nhất 1 ảnh.")
                 return@withContext false
             }
 
-            // ✅ Upload xong, lưu DB
             uploadedFiles.forEach { anhRepo.insert(it) }
 
-            // ✅ Cập nhật trạng thái tùy theo tác vụ
             val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
             when (tacVu) {
                 LoaiTacVu.XIN_GIA_HAN -> {

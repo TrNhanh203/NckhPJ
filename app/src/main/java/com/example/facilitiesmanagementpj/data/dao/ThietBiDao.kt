@@ -28,6 +28,9 @@ interface ThietBiDao {
     @Update
     suspend fun updateThietBiStatus(thietBi: ThietBi)
 
+    @Query("UPDATE thiet_bi SET trangThai = :trangThai WHERE id = :id")
+    suspend fun updateTrangThai(id: Int, trangThai: String)
+
 
     @Query("""
     SELECT thiet_bi.id, thiet_bi.tenThietBi, thiet_bi.trangThai, loai_thiet_bi.tenLoai,

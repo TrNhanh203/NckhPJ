@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceListViewModel
@@ -73,7 +74,7 @@ fun AdminDeviceListScreen(
 
                 DropdownMenuFilter(
                     label = "Trạng thái",
-                    items = listOf("Bình thường", "Hỏng", "Đang bảo trì"),
+                    items = TrangThaiThietBi.ALL,
                     selected = viewModel.selectedTrangThai.collectAsState().value,
                     onSelectedChange = { viewModel.setTrangThaiFilter(it) }
                 )

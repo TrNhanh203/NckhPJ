@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 // 12. PhanCongKtvRepository
 @Singleton
-class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao) {
+class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: PhanCongKtvDao, thietBiDao: ThietBiDao) {
 
     suspend fun capNhatThongTinCheckOut(
         phanCongKtvId: Int,
@@ -68,6 +68,7 @@ class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: Phan
     }
 
     suspend fun updateTrangThaiPhanCongKtv(id: Int, trangThai: String) {
+
         phanCongKtvDao.updateTrangThaiPhanCongKtv(id, trangThai)
     }
 

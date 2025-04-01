@@ -5,13 +5,15 @@ import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiChungCuaPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 // 11. PhanCongRepository
 @Singleton
-class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao, private val phanCongKtvDao: PhanCongKtvDao) {
+class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDao, private val phanCongKtvDao: PhanCongKtvDao
+, private val thietBiDao: ThietBiDao) {
 
 
 
@@ -54,9 +56,26 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
             else -> TrangThaiChungCuaPhanCong.DANG_THUC_HIEN
         }
 
-
         // Cập nhật trạng thái của bản ghi phân công gốc
         phanCongDao.updateTrangThai(phanCongId, newTrangThai)
+
+        val pc = phanCongDao.getById(phanCongId)
+        val tbId = pc?.thietBiId
+        tbId?.let { id ->
+            when {
+                trangThaiCoGiaTri.any { it == TrangThaiPhanCong.DANG_THUC_HIEN } -> {
+                    thietBiDao.updateTrangThai(id, TrangThaiThietBi.DANG_BAO_TRI)
+                }
+
+                trangThaiCoGiaTri.all { it == TrangThaiPhanCong.HOAN_THANH } -> {
+                    thietBiDao.updateTrangThai(id, TrangThaiThietBi.DANG_HOAT_DONG)
+                }
+
+                trangThaiCoGiaTri.none { it == TrangThaiPhanCong.DANG_THUC_HIEN } -> {
+                    thietBiDao.updateTrangThai(id, TrangThaiThietBi.CHO_BAO_TRI)
+                }
+            }
+        }
     }
 
     suspend fun getSoTaskDangLam(taiKhoanId: Int): Int {

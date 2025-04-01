@@ -11,7 +11,7 @@ data class ThietBi(
     val loaiThietBiId: Int,
     val phongId: Int?,
     val tangId: Int?,
-    val trangThai: String = "binh_thuong",
+    val trangThai: String = "Đang Hoạt Động",
     val ngayDaCat: Long? = null,
     val ngayDungSuDung: Long? = null,
     val ghiChu: String? = null,
