@@ -44,6 +44,7 @@ import androidx.core.content.FileProvider
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import java.io.File
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
@@ -90,16 +91,10 @@ fun KtvLamViecScreen(
     val currentPhanCongKtv = currentPhanCongKtvState.value
     val lamViecViewModel: KtvLamViecViewModel = hiltViewModel(backStackEntry)
 
-//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-//        .firstOrNull { it.taiKhoan.id == currentUser?.id && it.phanCongKtv.phanCongId == phanCongId }
     val isCurrentUserAllowed = currentPhanCongKtv != null
-
-//    val currentUserId = SessionManager.currentUser?.id
-//    val currentPhanCongKtv = viewModel.dsKtv.collectAsState().value
-//        .firstOrNull { it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCongId }
-//    val isCurrentUserAllowed = currentPhanCongKtv != null
-
     var selectedTab by remember { mutableIntStateOf(1) } // tab giữa mặc định là "Thực hiện"
+    val isLoading by lamViecViewModel.isGuiMinhChungLoading.collectAsState()
+
 
     LaunchedEffect(Unit) {
         viewModel.loadPhanCongChiTiet(phanCongId)
@@ -113,11 +108,12 @@ fun KtvLamViecScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            if (!lamViecViewModel.isGuiMinhChungLoading.value) {
+                            if (!isLoading) {
                                 navController.popBackStack()
                             }
                         },
-                        enabled = !lamViecViewModel.isGuiMinhChungLoading.value
+
+                        enabled = !isLoading
                     ) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
@@ -763,14 +759,17 @@ fun TabTienTrinhLamViec(
         ) {
             // Dropdown bộ lọc loại ảnh
             var expanded by remember { mutableStateOf(false) }
+            val nhanHienThi = loaiLoc ?: "Tất cả"
+            val danhSachLoaiLoc = listOf("Tất cả") + LoaiAnhMinhChungLamViec.ALL
+
             Box {
                 OutlinedButton(onClick = { expanded = true }) {
                     Icon(Icons.Default.FilterList, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(loaiLoc ?: "Tất cả")
+                    Text(nhanHienThi)
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    LoaiAnhMinhChungLamViec.ALL.forEach { loai ->
+                    danhSachLoaiLoc.forEach { loai ->
                         DropdownMenuItem(
                             text = { Text(loai) },
                             onClick = {
@@ -844,28 +843,53 @@ fun TabTienTrinhLamViec(
                     .padding(16.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = loaiAnhToLabel(nhom.loaiAnh), style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    nhom.danhSachAnh.forEach { anh ->
-                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                            Image(
-                                painter = rememberAsyncImagePainter(anh.urlAnh),
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            anh.ghiChu?.takeIf { it.isNotBlank() }?.let { chu ->
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = chu,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.Gray
-                                )
+                    Text(
+                        text = loaiAnhToLabel(nhom.loaiAnh),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(380.dp) // Tuỳ chỉnh chiều cao hiển thị ảnh
+                    ) {
+                        items(nhom.danhSachAnh) { anh ->
+                            Card(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .fillMaxHeight()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(anh.urlAnh),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f)
+                                    )
+                                    anh.ghiChu?.takeIf { it.isNotBlank() }?.let { chu ->
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = chu,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
     }
 }
 

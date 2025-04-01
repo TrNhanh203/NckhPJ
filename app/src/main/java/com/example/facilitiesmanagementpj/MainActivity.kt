@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
-import com.example.facilitiesmanagementpj.data.session.SessionManager.currentUser
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import com.example.facilitiesmanagementpj.ui.navigation.AppNavigation
 import com.example.facilitiesmanagementpj.ui.screen.AddThietBiScreen

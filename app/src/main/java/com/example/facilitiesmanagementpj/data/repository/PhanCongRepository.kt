@@ -31,7 +31,7 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
                 TrangThaiChungCuaPhanCong.CHUA_BAT_DAU
             allTrangThai.any { it == TrangThaiPhanCong.DANG_THUC_HIEN } ->
                 TrangThaiChungCuaPhanCong.DANG_THUC_HIEN
-            allTrangThai.all { it == TrangThaiPhanCong.DA_CHAP_NHAN || it == TrangThaiPhanCong.TAM_NGHI } ->
+            allTrangThai.all { it == TrangThaiPhanCong.DA_CHAP_NHAN || it == TrangThaiPhanCong.TAM_NGHI || it == TrangThaiPhanCong.CHO_PHAN_HOI } ->
                 TrangThaiChungCuaPhanCong.DANG_TAM_NGHI
 //            allTrangThai.all {
 //                it == TrangThaiPhanCong.DA_TU_CHOI || it == TrangThaiPhanCong.BI_HUY || it == TrangThaiPhanCong.THAY_NGUOI

@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.facilitiesmanagementpj.data.session.SessionManager
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVThietBiViewModel
 import com.example.facilitiesmanagementpj.ui.component.DropdownMenuFilter

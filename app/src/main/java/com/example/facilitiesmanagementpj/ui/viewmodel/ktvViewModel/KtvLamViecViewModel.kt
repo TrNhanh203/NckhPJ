@@ -134,25 +134,6 @@ class KtvLamViecViewModel @Inject constructor(
     fun Long?.orZero() = this ?: 0L
 
 
-//    fun startCountdown(phanCongKtvId: Int, thoiGianDuKienPhut: Int) {
-//        countdownJob?.cancel() // Hủy job cũ nếu có
-//        countdownJob = viewModelScope.launch {
-//            val listCheckin = anhRepo.getByPhanCongKtvId(phanCongKtvId)
-//                .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
-//                .sortedBy { it.thoiGianTaiLen }
-//            val thoiGianBatDau = listCheckin.firstOrNull()?.thoiGianTaiLen ?: return@launch
-//            val tongMillis = thoiGianDuKienPhut * 60_000L
-//            val deadline = thoiGianBatDau + tongMillis
-//            while (true) {
-//                val thoiGianCon = deadline - System.currentTimeMillis()
-//                _thoiGianConLai.value = thoiGianCon
-//                delay(60_000L)
-//            }
-//        }
-//    }
-
-
-
     fun stopCountdown() {
         countdownJob?.cancel()
         countdownJob = null
