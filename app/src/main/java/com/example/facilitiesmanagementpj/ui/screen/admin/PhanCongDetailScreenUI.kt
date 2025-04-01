@@ -1,6 +1,9 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,6 +36,7 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtv
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
@@ -42,6 +46,7 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import androidx.core.net.toUri
 
 
 @Composable
@@ -248,6 +253,8 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
 
     var showRejectReasonDialog by remember { mutableStateOf(false) }
     var showConfirmCancelDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -280,7 +287,14 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                     headlineContent = { Text(option) },
                     modifier = Modifier.clickable {
                         when (option) {
+                            "Gọi điện" -> {
+                                goiDien(context, item.taiKhoan.soDienThoai)
+                                onDismiss()
+                            }
+                            "Xem thông tin cá nhân" -> {onDismiss()
+                                navController.navigate(Screen.AdminViewDetailProfile.createRoute(item.taiKhoan.id))}
                             "Xem yêu cầu gia hạn" -> {
+                                onDismiss()
                                 navController.navigate(Screen.XemYeuCauGiaHan.createRoute(item.phanCongKtv.id))
                             }
                             "Xem lý do từ chối" -> showRejectReasonDialog = true
@@ -529,3 +543,13 @@ fun TabMinhChung(viewModel: PhanCongDetailViewModel) {
 }
 
 
+fun goiDien(context: Context, soDienThoai: String?) {
+    if (!soDienThoai.isNullOrBlank()) {
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = "tel:$soDienThoai".toUri()
+        }
+        context.startActivity(intent)
+    } else {
+        Toast.makeText(context, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show()
+    }
+}
