@@ -6,8 +6,8 @@ object TrangThaiChungCuaPhanCong {
     const val DANG_THUC_HIEN = "Đang thực hiện"
     const val DANG_TAM_NGHI = "Đang tạm nghỉ"
     const val HOAN_THANH = "Hoàn thành"
-    const val NGHIEM_THU = "Nghiệm thu"
-    const val BI_HUY = "Bị Hủy"
+    //const val NGHIEM_THU = "Nghiệm thu"
+    //const val BI_HUY = "Bị Hủy"
 
 
     val ALL = listOf(
@@ -15,8 +15,6 @@ object TrangThaiChungCuaPhanCong {
         DANG_THUC_HIEN,
         DANG_TAM_NGHI,
         HOAN_THANH,
-        NGHIEM_THU,
-        BI_HUY
     )
 
     fun isValid(trangThai: String): Boolean {

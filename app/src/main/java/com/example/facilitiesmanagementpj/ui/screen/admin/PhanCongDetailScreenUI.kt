@@ -47,6 +47,7 @@ import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import androidx.core.net.toUri
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiChungCuaPhanCong
 
 
 @Composable
@@ -115,6 +116,7 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
         TrangThaiPhanCong.BI_HUY to 7
     )
     val list by viewModel.dsKtv.collectAsState()
+    val trangThaiChung by viewModel.trangThaiChung.collectAsState()
     val sortedList = list.sortedBy { trangThaiOrder[it.phanCongKtv.trangThai] ?: Int.MAX_VALUE }
 
     var selectedKtv: PhanCongKtvWithTaiKhoan? by remember { mutableStateOf(null) }
@@ -152,14 +154,27 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
             }
         }
 
-        LargeFloatingActionButton(
-            onClick = { navController.navigate(Screen.ChonKyThuatVien.createRoute(phanCongId = phanCongId)) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Thêm KTV", tint = Color.White, modifier = Modifier.size(24.dp))
+        if (trangThaiChung != TrangThaiChungCuaPhanCong.HOAN_THANH) {
+            LargeFloatingActionButton(
+                onClick = {
+                    navController.navigate(Screen.ChonKyThuatVien.createRoute(phanCongId = phanCongId))
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Thêm KTV", tint = Color.White, modifier = Modifier.size(24.dp))
+            }
+        } else {
+            Text(
+                "Phân công đã hoàn thành",
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp),
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

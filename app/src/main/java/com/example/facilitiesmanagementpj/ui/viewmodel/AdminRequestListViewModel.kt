@@ -8,6 +8,8 @@ import com.example.facilitiesmanagementpj.data.entity.YeuCau
 import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.repository.YeuCauRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +43,11 @@ class AdminRequestListViewModel @Inject constructor(
 
     fun loadYeuCauList() {
         viewModelScope.launch {
+            val danhSach = yeuCauRepository.getAllYeuCauTruNhapOnce()
+            danhSach.map { yeuCau ->
+                async { yeuCauRepository.capNhatTrangThaiYeuCau(yeuCau.id) }
+            }.awaitAll()
+
             yeuCauRepository.getAllYeuCauTruNhap().collect {
                 _yeuCauList.value = it
             }

@@ -73,14 +73,21 @@ class PhanCongDetailViewModel @Inject constructor(
     fun loadDsKtv(phanCongId: Int) {
         viewModelScope.launch {
             _dsKtv.value = phanCongRepository.getDsKtvByPhanCongId(phanCongId)
+            val pc = phanCongRepository.getPhanCongById(phanCongId)
+            _trangThaiChung.value = pc?.trangThai
         }
     }
+
+    private val _trangThaiChung = MutableStateFlow<String?>(null)
+    val trangThaiChung: StateFlow<String?> = _trangThaiChung
 
 
     fun loadPhanCongChiTiet(phanCongId: Int) {
         viewModelScope.launch {
             val pc = phanCongRepository.getPhanCongById(phanCongId)
             _phanCong.value = pc ?: return@launch
+            _trangThaiChung.value = pc.trangThai
+
 
             val ct = pc.chiTietYeuCauId.let { yeuCauRepository.getChiTietYeuCauById(it) }
             _chiTietYeuCau.value = ct
@@ -159,6 +166,7 @@ class PhanCongDetailViewModel @Inject constructor(
             _phanCong.value?.id?.let { loadDsKtv(it) }
         }
     }
+
 
 
 }

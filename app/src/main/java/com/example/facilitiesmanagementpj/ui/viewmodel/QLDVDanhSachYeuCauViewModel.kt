@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.entity.YeuCau
 import com.example.facilitiesmanagementpj.data.repository.YeuCauRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.map
 
 
 @HiltViewModel
@@ -30,6 +33,11 @@ class QLDVDanhSachYeuCauViewModel @Inject constructor(
 
     fun loadYeuCauList(donViId: Int) {
         viewModelScope.launch {
+            val danhSach = repository.getAllYeuCauTruNhapOnce()
+            danhSach.map { yeuCau ->
+                async { repository.capNhatTrangThaiYeuCau(yeuCau.id) }
+            }.awaitAll()
+
             repository.getYeuCauByDonVi(donViId).collect {
                 _yeuCauList.value = it
             }

@@ -8,6 +8,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface PhanCongDao {
 
+    @Query("SELECT * FROM phan_cong WHERE chiTietYeuCauId IN (:ids)")
+    suspend fun getByChiTietIds(ids: List<Int>): List<PhanCong>
+
+
     @Query("SELECT phanCongId FROM phan_cong_ktv WHERE id = :phanCongKtvId")
     suspend fun getPhanCongIdByPhanCongKtvId(phanCongKtvId: Int): Int
 

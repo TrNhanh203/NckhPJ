@@ -8,6 +8,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface YeuCauDao {
 
+    @Query("UPDATE yeu_cau SET trangThai = :trangThai WHERE id = :id")
+    suspend fun updateTrangThai(id: Int, trangThai: String)
+
+
     @Query("UPDATE yeu_cau SET trangThai = :status, lyDoTuChoi = :lyDoTuChoi WHERE id = :yeuCauId")
     suspend fun updateYeuCauKhiTuChoi(yeuCauId: Int, status: String, lyDoTuChoi: String)
 
@@ -35,6 +39,10 @@ interface YeuCauDao {
 
     @Query("SELECT * FROM yeu_cau WHERE trangThai != :excludedStatus")
     fun getAllYeuCauTruNhap(excludedStatus: String): Flow<List<YeuCau>>
+
+    @Query("SELECT * FROM yeu_cau WHERE trangThai != 'Đã Nghiệm Thu'")
+    suspend fun getAllTruNhapOnce(): List<YeuCau>
+
 
 
     @Query("SELECT * FROM yeu_cau WHERE donViId = :donViId")

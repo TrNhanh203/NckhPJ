@@ -5,6 +5,7 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiChungCuaPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.data.utils.deleteFileFromFirebaseStorage
 import kotlinx.coroutines.NonCancellable
@@ -20,8 +21,38 @@ import javax.inject.Singleton
 class YeuCauRepository @Inject constructor(
     private val yeuCauDao: YeuCauDao,
     private val chiTietYeuCauDao: ChiTietYeuCauDao,
-    private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao
+    private val anhMinhChungBaoCaoDao: AnhMinhChungBaoCaoDao,
+    private val phanCongDao: PhanCongDao,
 ) {
+
+
+    suspend fun capNhatTrangThaiYeuCau(yeuCauId: Int) {
+        val dsChiTiet = chiTietYeuCauDao.getAllByYeuCauId(yeuCauId)
+
+        // Nếu chưa có chi tiết => giữ nguyên
+        if (dsChiTiet.isEmpty()) return
+
+        val chiTietIds = dsChiTiet.map { it.id }
+        val dsPhanCong = phanCongDao.getByChiTietIds(chiTietIds)
+
+        val daCoPhanCong = chiTietIds.any { chiTietId ->
+            dsPhanCong.any { it.chiTietYeuCauId == chiTietId }
+        }
+
+        val daHoanThanhHet = chiTietIds.all { chiTietId ->
+            val pcs = dsPhanCong.filter { it.chiTietYeuCauId == chiTietId }
+            pcs.isNotEmpty() && pcs.all { it.trangThai == TrangThaiChungCuaPhanCong.HOAN_THANH }
+        }
+
+        val newStatus = when {
+            daHoanThanhHet -> TrangThaiYeuCau.DA_XU_LY
+            daCoPhanCong -> TrangThaiYeuCau.DANG_XU_LY
+            else -> return
+        }
+
+        yeuCauDao.updateTrangThai(yeuCauId, newStatus)
+    }
+
 
     suspend fun getChiTietYeuCauByYeuCauId(yeuCauId: Int): List<ChiTietYeuCau> {
         return chiTietYeuCauDao.getByYeuCauId(yeuCauId)
@@ -146,6 +177,9 @@ class YeuCauRepository @Inject constructor(
     fun getAllYeuCauTruNhap(): Flow<List<YeuCau>> = yeuCauDao.getAllYeuCauTruNhap(TrangThaiYeuCau.NHAP)
 
     fun getAllYeuCau(): Flow<List<YeuCau>> = yeuCauDao.getAll()
+
+    suspend fun getAllYeuCauTruNhapOnce(): List<YeuCau> = yeuCauDao.getAllTruNhapOnce()
+
     suspend fun insert(yeuCau: YeuCau) = yeuCauDao.insert(yeuCau)
     suspend fun update(yeuCau: YeuCau) = yeuCauDao.update(yeuCau)
     suspend fun delete(yeuCau: YeuCau) = yeuCauDao.delete(yeuCau)
