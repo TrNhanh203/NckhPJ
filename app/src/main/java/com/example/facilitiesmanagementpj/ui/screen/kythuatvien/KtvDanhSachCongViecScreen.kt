@@ -46,14 +46,12 @@ fun KtvDanhSachCongViecScreen(
                 it.phanCongKtv.trangThai == TrangThaiPhanCong.TAM_NGHI
     }
     val hoanThanh = allTasks.filter { it.phanCongKtv.trangThai == TrangThaiPhanCong.HOAN_THANH }
-    val thayNguoi = allTasks.filter { it.phanCongKtv.trangThai == TrangThaiPhanCong.THAY_NGUOI }
     val biHuy = allTasks.filter { it.phanCongKtv.trangThai == TrangThaiPhanCong.BI_HUY }
 
     val tabData = listOf(
         viecMoi to "Việc mới",
         dangLam to "Đang làm",
         hoanThanh to "Đã hoàn thành",
-        thayNguoi to "Thay người",
         biHuy to "Bị hủy"
     )
 
@@ -61,8 +59,7 @@ fun KtvDanhSachCongViecScreen(
         0 -> viecMoi
         1 -> dangLam
         2 -> hoanThanh
-        3 -> thayNguoi
-        4 -> biHuy
+        3 -> biHuy
         else -> emptyList()
     }.sortedWith(
         when (sortOption) {
@@ -199,6 +196,16 @@ fun KtvDanhSachCongViecScreen(
                                             }
                                         }
                                     }else if(selectedTabIndex == 2){
+                                        Button(
+                                            onClick = {
+                                                navController.navigate(
+                                                    Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
+                                                )
+                                            }
+                                        ) {
+                                            Text("Xem chi tiết")
+                                        }
+                                    }else if(selectedTabIndex == 3){
                                         Button(
                                             onClick = {
                                                 navController.navigate(

@@ -7,7 +7,6 @@ object TrangThaiPhanCong {
     const val DANG_THUC_HIEN = "Đang Thực Hiện"
     const val TAM_NGHI = "Tạm Nghỉ"
     const val HOAN_THANH = "Hoàn Thành"
-    const val THAY_NGUOI = "Thay Người" // chỉ áp dụng cho người làm giữa chừng thì bị thay
     const val BI_HUY = "Bị Hủy"
     //const val KHONG_PHAN_HOI = "Không Phản Hồi"
 
@@ -18,7 +17,6 @@ object TrangThaiPhanCong {
         DANG_THUC_HIEN,
         TAM_NGHI,
         HOAN_THANH,
-        THAY_NGUOI,
         BI_HUY,
         //KHONG_PHAN_HOI
     )

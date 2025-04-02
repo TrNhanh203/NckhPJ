@@ -20,6 +20,7 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.entity.TaiKhoan
+import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import kotlinx.coroutines.flow.first
 
@@ -166,7 +167,6 @@ class PhanCongDetailViewModel @Inject constructor(
             _phanCong.value?.id?.let { loadDsKtv(it) }
         }
     }
-
 
 
 }

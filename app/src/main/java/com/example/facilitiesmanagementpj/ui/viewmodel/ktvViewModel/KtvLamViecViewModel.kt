@@ -331,73 +331,7 @@ class KtvLamViecViewModel @Inject constructor(
                 }
 
                 LoaiTacVu.CHECK_OUT -> {
-
-                    val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
-                    val danhSachAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
-
-                    // 1. Thời gian bắt đầu: ảnh CHECK_IN đầu tiên
-                    val thoiGianBatDau = danhSachAnh
-                        .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
-                        .minOfOrNull { it.thoiGianTaiLen }
-
-                    // 2. Thời gian hoàn thiện
-                    val thoiGianHoanThien = System.currentTimeMillis()
-
-                    // 3. Tính các cặp thời gian làm việc thực tế: CHECK_IN → TẠM NGHỈ hoặc → CHECK_OUT
-                    val sortedAnh = danhSachAnh
-                        .filter {
-                            it.loaiAnh in listOf(
-                                LoaiAnhMinhChungLamViec.CHECK_IN,
-                                LoaiAnhMinhChungLamViec.TAM_NGHI
-                            )
-                        }
-                        .sortedBy { it.thoiGianTaiLen }
-
-                    val pairs = mutableListOf<Pair<Long, Long>>()
-                    var currentCheckIn: Long? = null
-
-                    for (anh in sortedAnh) {
-                        when (anh.loaiAnh) {
-                            LoaiAnhMinhChungLamViec.CHECK_IN -> {
-                                if (currentCheckIn == null) currentCheckIn = anh.thoiGianTaiLen
-                            }
-
-                            LoaiAnhMinhChungLamViec.TAM_NGHI -> {
-                                if (currentCheckIn != null) {
-                                    pairs.add(currentCheckIn to anh.thoiGianTaiLen)
-                                    currentCheckIn = null
-                                }
-                            }
-                        }
-                    }
-
-                    // Nếu còn lần CHECK_IN cuối cùng chưa nghỉ thì tính đến thời điểm CHECK_OUT
-                    currentCheckIn?.let {
-                        pairs.add(it to thoiGianHoanThien)
-                    }
-
-                    val tongThoiGianLamViecMillis = pairs.sumOf { it.second - it.first }
-                    val tongThoiGianLamViecPhut = (tongThoiGianLamViecMillis / 60_000L).toInt()
-
-                    // 4. Thời gian phát sinh = toàn bộ thời gian - thời gian làm việc
-                    val thoiGianPhatSinhPhut = (
-                            (thoiGianHoanThien - (thoiGianBatDau ?: thoiGianHoanThien)) -
-                                    tongThoiGianLamViecMillis
-                            ).coerceAtLeast(0L) / 60_000L
-
-                    // 5. Ghi dữ liệu
-                    pcKtvRepo.capNhatThongTinCheckOut(
-                        phanCongKtvId = phanCongKtvId,
-                        thoiGianBatDau = thoiGianBatDau,
-                        thoiGianHoanThien = thoiGianHoanThien,
-                        thoiGianLamViec = tongThoiGianLamViecPhut,
-                        thoiGianPhatSinh = thoiGianPhatSinhPhut.toInt()
-                    )
-                    pcKtvRepo.updateTrangThaiPhanCongKtv(
-                        phanCongKtvId,
-                        TrangThaiPhanCong.HOAN_THANH
-                    )
-                    phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+                    tinhVaLuuThongTinLamViec(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
                 }
             }
 
@@ -413,6 +347,81 @@ class KtvLamViecViewModel @Inject constructor(
     private val _thongTinHoanThanh = MutableStateFlow<ThongTinHoanThanh?>(null)
     val thongTinHoanThanh: StateFlow<ThongTinHoanThanh?> = _thongTinHoanThanh
 
+
+
+    suspend fun tinhVaLuuThongTinLamViec(
+        phanCongKtvId: Int,
+        trangThaiKetThuc: String // VD: TrangThaiPhanCong.HOAN_THANH hoặc TrangThaiPhanCong.BI_HUY
+    ) {
+        val danhSachAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+        val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+
+        // 1. Thời gian bắt đầu: ảnh CHECK_IN đầu tiên
+        val thoiGianBatDau = danhSachAnh
+            .filter { it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN }
+            .minOfOrNull { it.thoiGianTaiLen }
+
+        // 2. Thời gian hoàn thiện: thời điểm hiện tại
+        val thoiGianHoanThien = System.currentTimeMillis()
+
+        // 3. Tính các cặp thời gian làm việc thực tế: CHECK_IN → TẠM NGHỈ hoặc → CHECK_OUT/BI_HUY
+        val sortedAnh = danhSachAnh
+            .filter {
+                it.loaiAnh in listOf(
+                    LoaiAnhMinhChungLamViec.CHECK_IN,
+                    LoaiAnhMinhChungLamViec.TAM_NGHI
+                )
+            }
+            .sortedBy { it.thoiGianTaiLen }
+
+        val pairs = mutableListOf<Pair<Long, Long>>()
+        var currentCheckIn: Long? = null
+
+        for (anh in sortedAnh) {
+            when (anh.loaiAnh) {
+                LoaiAnhMinhChungLamViec.CHECK_IN -> {
+                    if (currentCheckIn == null) currentCheckIn = anh.thoiGianTaiLen
+                }
+
+                LoaiAnhMinhChungLamViec.TAM_NGHI -> {
+                    if (currentCheckIn != null) {
+                        pairs.add(currentCheckIn to anh.thoiGianTaiLen)
+                        currentCheckIn = null
+                    }
+                }
+            }
+        }
+
+        // Nếu còn lần CHECK_IN cuối cùng chưa nghỉ thì tính đến thời điểm hiện tại
+        currentCheckIn?.let {
+            pairs.add(it to thoiGianHoanThien)
+        }
+
+        val tongThoiGianLamViecMillis = pairs.sumOf { it.second - it.first }
+        val tongThoiGianLamViecPhut = (tongThoiGianLamViecMillis / 60_000L).toInt()
+
+        // 4. Thời gian phát sinh = tổng thời gian - thời gian làm việc
+        val thoiGianPhatSinhPhut = (
+                (thoiGianHoanThien - (thoiGianBatDau ?: thoiGianHoanThien)) - tongThoiGianLamViecMillis
+                ).coerceAtLeast(0L) / 60_000L
+
+        // 5. Ghi vào DB
+        pcKtvRepo.capNhatThongTinCheckOut(
+            phanCongKtvId = phanCongKtvId,
+            thoiGianBatDau = thoiGianBatDau,
+            thoiGianHoanThien = thoiGianHoanThien,
+            thoiGianLamViec = tongThoiGianLamViecPhut,
+            thoiGianPhatSinh = thoiGianPhatSinhPhut.toInt()
+        )
+
+        pcKtvRepo.updateTrangThaiPhanCongKtv(
+            phanCongKtvId,
+            trangThaiKetThuc
+        )
+
+        phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+    }
+
     fun loadThongTinHoanThanh(phanCongKtvId: Int) {
         viewModelScope.launch {
             val pc = pcKtvRepo.getById(phanCongKtvId)
@@ -426,6 +435,7 @@ class KtvLamViecViewModel @Inject constructor(
             }
         }
     }
+
 
     data class ThongTinHoanThanh(
         val thoiGianBatDau: Long?,

@@ -81,7 +81,6 @@ class AdminRequestDetailViewModel @Inject constructor(
                         //val notRespondedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.KHONG_PHAN_HOI)
                         val completedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.HOAN_THANH)
                         val rejectedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.DA_TU_CHOI)
-                        //val replacedCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.THAY_NGUOI)
                         //val canceledCount = phanCongKtvRepository.getTechnicianCountByStatus(phanCongId ?: 0, TrangThaiPhanCong.BI_HUY)
 
                         // Tính số kỹ thuật viên đang làm việc

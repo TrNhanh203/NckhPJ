@@ -48,6 +48,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FilterList
@@ -275,7 +276,7 @@ fun TabCongViec(
     }
 
     LaunchedEffect(trangThai) {
-        if (trangThai == TrangThaiPhanCong.HOAN_THANH) {
+        if (trangThai == TrangThaiPhanCong.HOAN_THANH || trangThai == TrangThaiPhanCong.BI_HUY) {
             viewModel.loadThongTinHoanThanh(phanCongKtvId)
         }
     }
@@ -512,6 +513,43 @@ fun TabCongViec(
                 BaoCaoHoanThanhCard(it, modifier = Modifier.align(Alignment.Center))
             }
         }
+        if (trangThai == TrangThaiPhanCong.BI_HUY) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Default.Block,
+                    contentDescription = null,
+                    tint = Color.Red,
+                    modifier = Modifier.size(72.dp)
+                )
+                Spacer(Modifier.height(8.dp))
+                Text("Phân công đã bị hủy", style = MaterialTheme.typography.titleMedium, color = Color.Red)
+
+                if (thongTin?.thoiGianBatDau != null) {
+                    Text(
+                        "Mọi nỗ lực trước đó của bạn vẫn được ghi nhận.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    )
+                } else {
+                    Text(
+                        "Bạn chưa bắt đầu công việc trước khi phân công bị hủy.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
+                }
+            }
+
+            thongTin?.thoiGianBatDau?.let {
+                BaoCaoHoanThanhCard(info = thongTin!!, modifier = Modifier.align(Alignment.Center))
+            }
+        }
+
+
 
         if (showBottomSheet.value) {
             ModalBottomSheet(

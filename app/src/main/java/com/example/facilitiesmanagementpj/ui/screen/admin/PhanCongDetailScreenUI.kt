@@ -47,7 +47,10 @@ import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import androidx.core.net.toUri
+import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiChungCuaPhanCong
+import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -112,8 +115,7 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
         TrangThaiPhanCong.DANG_THUC_HIEN to 3,
         TrangThaiPhanCong.TAM_NGHI to 4,
         TrangThaiPhanCong.HOAN_THANH to 5,
-        TrangThaiPhanCong.THAY_NGUOI to 6,
-        TrangThaiPhanCong.BI_HUY to 7
+        TrangThaiPhanCong.BI_HUY to 6
     )
     val list by viewModel.dsKtv.collectAsState()
     val trangThaiChung by viewModel.trangThaiChung.collectAsState()
@@ -186,7 +188,7 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
         TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
-        TrangThaiPhanCong.BI_HUY, TrangThaiPhanCong.THAY_NGUOI -> Color(0xFF9E9E9E)
+        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
         else -> Color.LightGray
     }
@@ -265,6 +267,7 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
 @Composable
 fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, navController: NavController) {
     val viewModel: PhanCongDetailViewModel = hiltViewModel()
+    val ktvLamViecViewModel: KtvLamViecViewModel = hiltViewModel()
 
     var showRejectReasonDialog by remember { mutableStateOf(false) }
     var showConfirmCancelDialog by remember { mutableStateOf(false) }
@@ -277,13 +280,14 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
             Spacer(Modifier.height(8.dp))
 
             val baseOptions = when (item.phanCongKtv.trangThai) {
-                TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
+                //hủy bỏ là hủy luôn người đó
+                TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
+                TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
+                TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện","Hủy bỏ")
+                TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
                 TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                TrangThaiPhanCong.THAY_NGUOI, TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                 else -> emptyList()
             }
 
@@ -312,8 +316,14 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                                 onDismiss()
                                 navController.navigate(Screen.XemYeuCauGiaHan.createRoute(item.phanCongKtv.id))
                             }
-                            "Xem lý do từ chối" -> showRejectReasonDialog = true
-                            "Hủy bỏ" -> showConfirmCancelDialog = true
+                            "Xem lý do từ chối" -> {
+                                onDismiss()
+                                showRejectReasonDialog = true
+                            }
+                            "Hủy bỏ" -> {
+                                onDismiss()
+                                showConfirmCancelDialog = true
+                            }
                             "Xem tiến độ" -> {navController.navigate(Screen.AdminViewTienTrinhLamViec.createRoute(item.phanCongKtv.id))}
                             else -> {} // các option khác xử lý sau
                         }
@@ -347,6 +357,14 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                     confirmButton = {
                         TextButton(onClick = {
                             viewModel.huyPhanCongChoKtv(item.phanCongKtv.id)
+                            // để tổng thời gian họ đang làm việc
+                            ktvLamViecViewModel.viewModelScope.launch {
+                                ktvLamViecViewModel.tinhVaLuuThongTinLamViec(
+                                    phanCongKtvId = item.phanCongKtv.id,
+                                    trangThaiKetThuc = TrangThaiPhanCong.BI_HUY
+                                )
+                            }
+
                             showConfirmCancelDialog = false
                             onDismiss() // đóng bottom sheet
                         }) {

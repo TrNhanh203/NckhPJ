@@ -13,7 +13,6 @@ fun getTrangThaiColor(trangThai: String): Color {
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800) // cam
         TrangThaiPhanCong.HOAN_THANH -> Color(0xFF388E3C) // xanh đậm
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336) // đỏ
-        TrangThaiPhanCong.THAY_NGUOI -> Color(0xFF9E9E9E) // xám
         TrangThaiPhanCong.BI_HUY -> Color(0xFF616161) // xám đậm
         else -> Color.Gray
     }

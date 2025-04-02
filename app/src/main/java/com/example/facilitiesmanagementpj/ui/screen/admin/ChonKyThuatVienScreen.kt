@@ -204,7 +204,6 @@ fun ChonKyThuatVienScreen(
                     TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                     TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
                     TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.THAY_NGUOI -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                     TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                     else -> emptyList()
                 }
@@ -266,7 +265,7 @@ fun getColorForTrangThaiPhanCong(trangThai: String?): Color {
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
         TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
-        TrangThaiPhanCong.BI_HUY, TrangThaiPhanCong.THAY_NGUOI -> Color(0xFF9E9E9E)
+        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
         else -> Color.LightGray
     }

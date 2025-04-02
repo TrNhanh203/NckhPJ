@@ -28,8 +28,7 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         val allTrangThai = dsKtv.map { it.trangThai }
         val trangThaiCoGiaTri = allTrangThai.filter {
             it != TrangThaiPhanCong.DA_TU_CHOI &&
-                    it != TrangThaiPhanCong.BI_HUY &&
-                    it != TrangThaiPhanCong.THAY_NGUOI
+                    it != TrangThaiPhanCong.BI_HUY
         }
 
 

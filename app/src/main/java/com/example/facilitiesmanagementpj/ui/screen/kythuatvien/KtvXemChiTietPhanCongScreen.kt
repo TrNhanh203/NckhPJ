@@ -223,7 +223,7 @@ fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navContro
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
         TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
-        TrangThaiPhanCong.BI_HUY, TrangThaiPhanCong.THAY_NGUOI -> Color(0xFF9E9E9E)
+        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
         else -> Color.LightGray
     }
