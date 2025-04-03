@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -26,6 +27,8 @@ fun ScaffoldLayout(
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -45,7 +48,8 @@ fun ScaffoldLayout(
                     onBackClick = onBackClick
                 )
             },
-            bottomBar = { if (showBottomBar) BottomNavigationBar(navController) },
+            //bottomBar = { if (showBottomBar) BottomNavigationBar(navController) },
+            bottomBar = {if (showBottomBar) CustomBottomBar(navController, currentRoute) },
             containerColor = Color.White,
             snackbarHost = snackbarHost ?: {},  // ✅ Cấu hình snackbarHost nếu có
         ) { innerPadding ->

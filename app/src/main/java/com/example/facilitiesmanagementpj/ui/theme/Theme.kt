@@ -58,6 +58,7 @@ val DarkColorScheme = darkColorScheme(
     outline = DividerGray,
     error = Color(0xFFCF6679),
     onError = Color.Black,
+
 )
 
 @Composable
