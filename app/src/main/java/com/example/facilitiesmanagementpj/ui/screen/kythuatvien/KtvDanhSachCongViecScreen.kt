@@ -1,16 +1,25 @@
 package com.example.facilitiesmanagementpj.ui.screen.kythuatvien
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -136,102 +145,122 @@ fun KtvDanhSachCongViecScreen(
                         onOptionSelected = { sortOption = it }
                     )
                 }
+                var selectedPhanCongId by remember { mutableStateOf<Int?>(null) }
+                var showSheet by remember { mutableStateOf(false) }
+
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(tasks) { item ->
                         var expanded by remember { mutableStateOf(false) }
+
+                        val phanCong = item.phanCong.phanCong
+                        val thietBi = item.phanCong.thietBi.thietBi
+                        val loaiThietBi = item.phanCong.thietBi.loaiThietBi
+                        val trangThai = item.phanCongKtv.trangThai
+
+                        val iconPrefix = when (phanCong.loaiPhanCong) {
+                            "Sửa Chữa" -> "🛠"
+                            "Kiểm Tra" -> "🔍"
+                            "Tháo Dỡ" -> "📦"
+                            else -> "📌"
+                        }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            shape = RoundedCornerShape(12.dp)
+                                .padding(vertical = 6.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable(
+                                ) {
+                                    selectedPhanCongId = phanCong.id
+                                    showSheet = true
+                                },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Loại phân công: ${item.phanCong.phanCong.loaiPhanCong}")
-                                Text("Thiết bị: ${item.phanCong.thietBi.thietBi.tenThietBi}")
-                                Text("Loại thiết bị: ${item.phanCong.thietBi.loaiThietBi?.tenLoai}")
-                                Text("Ưu tiên: ${item.phanCong.phanCong.mucDoUuTien}")
-                                Spacer(Modifier.height(8.dp))
+                                // Tiêu đề + trạng thái
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = item.phanCongKtv.trangThai,
-                                        color = getTrangThaiColor(item.phanCongKtv.trangThai),
-                                        style = MaterialTheme.typography.labelMedium
+                                        text = "$iconPrefix ${phanCong.loaiPhanCong}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold
                                     )
-                                    if (selectedTabIndex == 1) {
-                                        Box {
-                                            IconButton(onClick = { expanded = true }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.MoreVert,
-                                                    contentDescription = "Tùy chọn"
-                                                )
-                                            }
-                                            DropdownMenu(
-                                                expanded = expanded,
-                                                onDismissRequest = { expanded = false }
-                                            ) {
-                                                DropdownMenuItem(
-                                                    text = { Text("Xem chi tiết") },
-                                                    onClick = {
-                                                        navController.navigate(
-                                                            Screen.KtvXemChiTietPhanCong.createRoute(
-                                                                item.phanCong.phanCong.id
-                                                            )
-                                                        )
-                                                        expanded = false
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("Vào phiên làm việc") },
-                                                    onClick = {
-                                                        navController.navigate(
-                                                            Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
-                                                        )
-                                                        expanded = false
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }else if(selectedTabIndex == 2){
-                                        Button(
-                                            onClick = {
-                                                navController.navigate(
-                                                    Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
-                                                )
-                                            }
-                                        ) {
-                                            Text("Xem chi tiết")
-                                        }
-                                    }else if(selectedTabIndex == 3){
-                                        Button(
-                                            onClick = {
-                                                navController.navigate(
-                                                    Screen.KtvLamViec.createRoute(item.phanCong.phanCong.id)
-                                                )
-                                            }
-                                        ) {
-                                            Text("Xem chi tiết")
-                                        }
-                                    }
-                                    else {
-                                        Button(
-                                            onClick = {
-                                                navController.navigate(
-                                                    Screen.KtvXemChiTietPhanCong.createRoute(item.phanCong.phanCong.id)
-                                                )
-                                            }
-                                        ) {
-                                            Text("Xem chi tiết")
-                                        }
-                                    }
+
+                                    AssistChip(
+                                        onClick = {},
+                                        label = { Text(trangThai) },
+                                        colors = AssistChipDefaults.assistChipColors(
+                                            containerColor = getTrangThaiColor(item.phanCongKtv.trangThai),
+                                            labelColor = Color.White
+                                        )
+                                    )
                                 }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = "Thiết bị: ${thietBi.tenThietBi}",
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Text("Loại thiết bị: ${loaiThietBi?.tenLoai ?: "Không rõ"}")
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                PriorityLevelBar(level = phanCong.mucDoUuTien)
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
                             }
                         }
                     }
                 }
+                if (showSheet && selectedPhanCongId != null) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showSheet = false },
+                        dragHandle = null
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            ListItem(
+                                headlineContent = { Text("Xem chi tiết") },
+                                leadingContent = { Icon(Icons.Default.Info, contentDescription = null) },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        Screen.KtvXemChiTietPhanCong.createRoute(selectedPhanCongId!!)
+                                    )
+                                    showSheet = false
+                                }
+                            )
+                            ListItem(
+                                headlineContent = { Text("Vào phiên làm việc") },
+                                leadingContent = { Icon(Icons.Default.Work, contentDescription = null) },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        Screen.KtvLamViec.createRoute(selectedPhanCongId!!)
+                                    )
+                                    showSheet = false
+                                }
+                            )
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -259,5 +288,54 @@ fun DropdownMenuBox(
                 )
             }
         }
+    }
+}
+
+
+
+@Composable
+fun PriorityLevelBar(
+    level: Int, // từ 1 đến 5
+    modifier: Modifier = Modifier
+) {
+    val maxLevel = 5
+    val filledFraction = level.coerceIn(1, maxLevel) / maxLevel.toFloat()
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.height(24.dp)
+    ) {
+        // Icon lửa 🔥
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(Color(0xFF6A1B9A), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("🔥", fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        // Thanh ưu tiên
+        Box(
+            modifier = Modifier
+                .height(16.dp)
+                .weight(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFD1C4E9)) // màu nền chưa đầy
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(filledFraction)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFFFFA000)) // màu đầy (cam sáng)
+            )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        Text("Lv $level", style = MaterialTheme.typography.labelMedium)
     }
 }
