@@ -12,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +30,13 @@ import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.component.getTrangThaiColor
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvDanhSachCongViecViewModel
+import com.google.gson.internal.bind.util.ISO8601Utils.format
+import java.text.DateFormat
+import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,9 +81,9 @@ fun KtvDanhSachCongViecScreen(
         else -> emptyList()
     }.sortedWith(
         when (sortOption) {
-            "Ưu tiên" -> compareByDescending { it.phanCong.phanCong.mucDoUuTien }
-            "Thời gian dự kiến" -> compareBy { it.phanCongKtv.thoiGianDuKien }
-            "Ngày tạo" -> compareByDescending { it.phanCong.phanCong.thoiGianTaoPhanCong }
+            "Mức Độ" -> compareByDescending { it.phanCong.phanCong.mucDoUuTien }
+            "Thời Lượng" -> compareBy { it.phanCongKtv.thoiGianDuKien }
+            "Mới Nhất" -> compareByDescending { it.phanCong.phanCong.thoiGianTaoPhanCong }
             else -> compareBy { it.phanCongKtv.id }
         }
     )
@@ -131,27 +140,49 @@ fun KtvDanhSachCongViecScreen(
                     }
                 }
             } else {
-                Row(
+                Surface(
+                    tonalElevation = 2.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Sắp xếp theo:")
-                    Spacer(Modifier.width(8.dp))
-                    DropdownMenuBox(
-                        options = listOf("Ưu tiên", "Thời gian dự kiến", "Ngày tạo"),
-                        selectedOption = sortOption,
-                        onOptionSelected = { sortOption = it }
-                    )
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            val filterOptions = listOf("Mức Độ", "Thời Lượng", "Mới Nhất")
+                            filterOptions.forEach { option ->
+                                FilterChip(
+                                    selected = sortOption == option,
+                                    onClick = { sortOption = option },
+                                    label = {
+                                        Text(
+                                            option,
+                                            style = MaterialTheme.typography.labelLarge
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 4.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = Color.White,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        labelColor = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
+
                 var selectedPhanCongId by remember { mutableStateOf<Int?>(null) }
                 var showSheet by remember { mutableStateOf(false) }
 
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(tasks) { item ->
-                        var expanded by remember { mutableStateOf(false) }
-
                         val phanCong = item.phanCong.phanCong
                         val thietBi = item.phanCong.thietBi.thietBi
                         val loaiThietBi = item.phanCong.thietBi.loaiThietBi
@@ -221,6 +252,52 @@ fun KtvDanhSachCongViecScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                                    val ngayTaoFormatted = formatter.format(Date(phanCong.thoiGianTaoPhanCong))
+                                    val hours = item.phanCongKtv.thoiGianDuKien / 60
+                                    val minutes = item.phanCongKtv.thoiGianDuKien % 60
+                                    val thoiGianDuKienFormatted = if (hours > 0)
+                                        "${hours}h ${minutes}p"
+                                    else
+                                        "${minutes}p"
+
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Schedule,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text(
+                                            text = "Tạo: $ngayTaoFormatted",
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Timer,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text(
+                                            text = "Hạn: $thoiGianDuKienFormatted",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+
+
                             }
                         }
                     }
@@ -265,32 +342,6 @@ fun KtvDanhSachCongViecScreen(
         }
     }
 }
-
-@Composable
-fun DropdownMenuBox(
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Box {
-        OutlinedButton(onClick = { expanded = true }) {
-            Text(selectedOption)
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 
 
 @Composable
