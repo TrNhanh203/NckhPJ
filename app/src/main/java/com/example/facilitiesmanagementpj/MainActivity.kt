@@ -1,6 +1,8 @@
 package com.example.facilitiesmanagementpj
 
+import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -8,6 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.facilitiesmanagementpj.data.session.SessionManager
@@ -29,8 +34,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             FacilitiesManagementPJTheme {
+                val color = MaterialTheme.colorScheme.primary
+                Log.d("ThemeColor", "Current Primary Color = $color")
+
+                val statusBarColor = MaterialTheme.colorScheme.primary
+                val view = LocalView.current
+
+                // ✅ Dùng màu đã lưu để set status bar
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    window.statusBarColor = statusBarColor.toArgb()
+                }
                 AppNavigation()
                 //DebugScreen()
             }

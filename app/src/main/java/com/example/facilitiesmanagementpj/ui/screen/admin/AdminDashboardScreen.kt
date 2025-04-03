@@ -21,7 +21,7 @@ import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
 @Composable
 fun AdminDashboardScreen(navController: NavController) {
-    ScaffoldLayout(title = "Admin DashBoard", navController = navController, showBottomBar = true) { modifier ->
+    ScaffoldLayout(title = "Admin DashBoard", navController = navController, showBottomBar = true, isHomeScreen = false) { modifier ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

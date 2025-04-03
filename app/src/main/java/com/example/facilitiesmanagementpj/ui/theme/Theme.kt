@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 // Định nghĩa màu sắc theo bộ bạn đã chọn
-val IndigoPrimary = Color(0xFF3F51B5)
+val IndigoPrimary = Color(0xFF152693)
 val IndigoDark = Color(0xFF303F9F)
 val IndigoLight = Color(0xFFC5CAE9)
 
@@ -63,7 +63,7 @@ val DarkColorScheme = darkColorScheme(
 @Composable
 fun FacilitiesManagementPJTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

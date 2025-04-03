@@ -1,7 +1,10 @@
 package com.example.facilitiesmanagementpj.ui.component
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -38,6 +41,7 @@ fun ScaffoldLayout(
                     title = title,
                     navController = navController,
                     isHomeScreen = isHomeScreen,
+                    onNavigationIconClick = { scope.launch { drawerState.open() } },
                     onBackClick = onBackClick
                 )
             },
