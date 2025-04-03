@@ -1,73 +1,228 @@
 package com.example.facilitiesmanagementpj.ui.screen.common
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.viewmodel.ProfileViewModel
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 
+
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
-
     val taiKhoan by viewModel.taiKhoan.collectAsState()
 
     if (taiKhoan == null) {
-        Text("Đang tải dữ liệu...", modifier = Modifier.fillMaxSize()) // ✅ Hiển thị loading thay vì điều hướng về Login
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
         return
     }
 
     ScaffoldLayout(title = "Trang chủ", navController = navController, showBottomBar = true) { modifier ->
         Column(
-            modifier = Modifier.fillMaxSize().then(modifier),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .then(modifier)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
         ) {
-            Text("Hồ sơ cá nhân", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AvatarWithStatus(
+                    imageUrl = null, // hoặc tài khoản có avatar thì truyền link
+                    isOnline = taiKhoan!!.trangThai == "Trực Tuyến"
+                )
+            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-            ProfileInfoItem(label = "Tên tài khoản", value = taiKhoan!!.tenTaiKhoan)
-            ProfileInfoItem(label = "Họ và Tên", value = taiKhoan!!.hoTen ?: "Chưa cập nhật")
-            ProfileInfoItem(label = "Email", value = taiKhoan!!.email ?: "Chưa cập nhật")
-            ProfileInfoItem(label = "Số điện thoại", value = taiKhoan!!.soDienThoai ?: "Chưa cập nhật")
-            ProfileInfoItem(label = "Trạng thái", value = taiKhoan!!.trangThai)
-            ProfileInfoItem(label = "Lần đăng nhập cuối", value = taiKhoan!!.lastLogin?.toString() ?: "Chưa đăng nhập")
+
+            Text(
+                "Hồ sơ cá nhân",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            ProfileInfoItem("Tên tài khoản", taiKhoan!!.tenTaiKhoan)
+            ProfileInfoItem("Họ và Tên", taiKhoan!!.hoTen ?: "Chưa cập nhật")
+            ProfileInfoItem("Email", taiKhoan!!.email ?: "Chưa cập nhật")
+            ProfileInfoItem("Số điện thoại", taiKhoan!!.soDienThoai ?: "Chưa cập nhật")
+            ProfileInfoItem("Trạng thái", taiKhoan!!.trangThai)
+            ProfileInfoItem("Lần đăng nhập cuối", taiKhoan!!.lastLogin?.toString() ?: "Chưa đăng nhập")
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             Button(
-                onClick = { },
-                modifier = Modifier.fillMaxWidth()
+                onClick = { /* TODO */ },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text("Cập nhật thông tin")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = { navController.navigate(Screen.ChangePassword.route) },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
             ) {
                 Text("Đổi mật khẩu")
             }
         }
     }
-
-
 }
 
-// Composable hiển thị từng mục thông tin cá nhân
+
 @Composable
 fun ProfileInfoItem(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-        Text(text = value, style = MaterialTheme.typography.bodyLarge)
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
+
+
+@Composable
+fun AvatarWithStatus(
+    modifier: Modifier = Modifier,
+    imageUrl: String? = null,
+    isOnline: Boolean
+) {
+    Box(
+        modifier = modifier.size(96.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        // Avatar
+        if (imageUrl != null) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Avatar",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Avatar",
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(16.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Chấm trạng thái
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .background(
+                    color = if (isOnline) Color(0xFF4CAF50) else Color(0xFFF44336),
+                    shape = CircleShape
+                )
+                .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+        )
+    }
+}
+
+
+//@Composable
+//fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
+//
+//    val taiKhoan by viewModel.taiKhoan.collectAsState()
+//
+//    if (taiKhoan == null) {
+//        Text("Đang tải dữ liệu...", modifier = Modifier.fillMaxSize()) // ✅ Hiển thị loading thay vì điều hướng về Login
+//        return
+//    }
+//
+//    ScaffoldLayout(title = "Profile", navController = navController, showBottomBar = true) { modifier ->
+//        Column(
+//            modifier = Modifier.fillMaxSize().then(modifier),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text("Hồ sơ cá nhân", style = MaterialTheme.typography.headlineMedium)
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//            ProfileInfoItem(label = "Tên tài khoản", value = taiKhoan!!.tenTaiKhoan)
+//            ProfileInfoItem(label = "Họ và Tên", value = taiKhoan!!.hoTen ?: "Chưa cập nhật")
+//            ProfileInfoItem(label = "Email", value = taiKhoan!!.email ?: "Chưa cập nhật")
+//            ProfileInfoItem(label = "Số điện thoại", value = taiKhoan!!.soDienThoai ?: "Chưa cập nhật")
+//            ProfileInfoItem(label = "Trạng thái", value = taiKhoan!!.trangThai)
+//            ProfileInfoItem(label = "Lần đăng nhập cuối", value = taiKhoan!!.lastLogin?.toString() ?: "Chưa đăng nhập")
+//
+//            Spacer(modifier = Modifier.height(24.dp))
+//
+//            Button(
+//                onClick = { },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text("Cập nhật thông tin")
+//            }
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            Button(
+//                onClick = { navController.navigate(Screen.ChangePassword.route) },
+//                modifier = Modifier.fillMaxWidth(),
+//                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+//            ) {
+//                Text("Đổi mật khẩu")
+//            }
+//        }
+//    }
+//
+//
+//}
+//
+//// Composable hiển thị từng mục thông tin cá nhân
+//@Composable
+//fun ProfileInfoItem(label: String, value: String) {
+//    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+//        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+//        Text(text = value, style = MaterialTheme.typography.bodyLarge)
+//    }
+//}

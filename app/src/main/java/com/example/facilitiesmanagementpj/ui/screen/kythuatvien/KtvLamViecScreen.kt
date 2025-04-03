@@ -103,10 +103,11 @@ fun KtvLamViecScreen(
         viewModel.loadDsKtv(phanCongId)
     }
 
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Công việc hiện tại") },
+                title = { Text("Công việc hiện tại", color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -117,33 +118,85 @@ fun KtvLamViecScreen(
 
                         enabled = !isLoading
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back",  tint = MaterialTheme.colorScheme.onPrimary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Info, contentDescription = null) },
-                    label = { Text("Thông tin") },
+                    icon = {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = null,
+                            tint = if (selectedTab == 0)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Thông tin",
+                            color = if (selectedTab == 0)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Work, contentDescription = null) },
-                    label = { Text("Làm việc") },
+                    icon = {
+                        Icon(
+                            Icons.Default.Work,
+                            contentDescription = null,
+                            tint = if (selectedTab == 1)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Làm việc",
+                            color = if (selectedTab == 1)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.List, contentDescription = null) },
-                    label = { Text("Tiến trình") },
+                    icon = {
+                        Icon(
+                            Icons.Default.List,
+                            contentDescription = null,
+                            tint = if (selectedTab == 2)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Tiến trình",
+                            color = if (selectedTab == 2)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 }
                 )
             }
         }
+
     ) { padding ->
         if (!isCurrentUserAllowed) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -169,12 +222,19 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
     var isKtvExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
+        // Card: Thông tin yêu cầu
         Card(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { isThongTinExpanded = !isThongTinExpanded }
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    onClick = { isThongTinExpanded = !isThongTinExpanded }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("🔽 Thông tin yêu cầu", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "🔽 Thông tin yêu cầu",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 if (isThongTinExpanded) {
                     Spacer(Modifier.height(8.dp))
                     TabThongTin(viewModel)
@@ -184,12 +244,19 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
 
         Spacer(Modifier.height(12.dp))
 
+        // Card: Thiết bị liên quan
         Card(
             modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             onClick = { isThietBiExpanded = !isThietBiExpanded }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("🔽 Thiết bị liên quan", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "🔽 Thiết bị liên quan",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 if (isThietBiExpanded) {
                     Spacer(Modifier.height(8.dp))
                     TabThietBi(viewModel)
@@ -199,12 +266,19 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
 
         Spacer(Modifier.height(12.dp))
 
+        // Card: Minh chứng yêu cầu
         Card(
             modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             onClick = { isMinhChungExpanded = !isMinhChungExpanded }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("🔽 Minh chứng yêu cầu", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "🔽 Minh chứng yêu cầu",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 if (isMinhChungExpanded) {
                     Spacer(Modifier.height(8.dp))
                     TabMinhChung(viewModel)
@@ -214,12 +288,19 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
 
         Spacer(Modifier.height(12.dp))
 
+        // Card: KTV tham gia
         Card(
             modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             onClick = { isKtvExpanded = !isKtvExpanded }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("🔽 KTV tham gia", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "🔽 KTV tham gia",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 if (isKtvExpanded) {
                     Spacer(Modifier.height(8.dp))
                     TabKtvThamGia(viewModel, navController)
@@ -227,6 +308,7 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
             }
         }
     }
+
 }
 
 
@@ -505,7 +587,7 @@ fun TabCongViec(
             ) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(72.dp))
                 Spacer(Modifier.height(8.dp))
-                Text("Công việc đã hoàn tất", style = MaterialTheme.typography.titleMedium, color = Color(0xFF388E3C))
+                Text("Công việc đã hoàn tất", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary)
             }
 
             // ✅ Card báo cáo bên dưới

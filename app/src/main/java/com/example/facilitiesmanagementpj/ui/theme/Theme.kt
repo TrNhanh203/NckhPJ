@@ -25,11 +25,16 @@ val DividerGray = Color(0xFFBDBDBD)
 val PrimaryText = Color(0xFF212121)
 val SecondaryText = Color(0xFF757575)
 
+val MainBlue = Color(0xFF18447C) // Màu chủ đạo mới
+val MainBlueDark = Color(0xFF0F2D5A) // Cho onPrimaryContainer
+val MainBlueLight = Color(0xFFD7E4F5) // Cho primaryContainer
+
+
 val LightColorScheme = lightColorScheme(
-    primary = IndigoPrimary,
+    primary = MainBlue,
     onPrimary = Color.White,
-    primaryContainer = IndigoLight,
-    onPrimaryContainer = IndigoDark,
+    primaryContainer = MainBlueLight,
+    onPrimaryContainer = MainBlueDark,
 
     secondary = AccentBlue,
     onSecondary = Color.White,
@@ -40,26 +45,38 @@ val LightColorScheme = lightColorScheme(
     onBackground = PrimaryText,
     surface = BackgroundWhite,
     onSurface = PrimaryText,
+    surfaceVariant = Color(0xFFEFEFEF),
+    onSurfaceVariant = Color(0xFF444444),
 
     outline = DividerGray,
     error = Color(0xFFB00020),
     onError = Color.White,
 )
 
+
 val DarkColorScheme = darkColorScheme(
-    primary = IndigoLight,
-    onPrimary = IndigoDark,
+    primary = MainBlueLight,
+    onPrimary = MainBlueDark,
+    primaryContainer = MainBlue,
+    onPrimaryContainer = Color.White,
+
     secondary = AccentBlue,
     onSecondary = Color.Black,
+    secondaryContainer = AccentBlue.copy(alpha = 0.2f),
+    onSecondaryContainer = Color.White,
+
     background = Color(0xFF121212),
     onBackground = Color.White,
     surface = Color(0xFF1E1E1E),
     onSurface = Color.White,
+    surfaceVariant = Color(0xFF2A2A2A),
+    onSurfaceVariant = Color(0xFFDDDDDD),
+
     outline = DividerGray,
     error = Color(0xFFCF6679),
     onError = Color.Black,
-
 )
+
 
 @Composable
 fun FacilitiesManagementPJTheme(
