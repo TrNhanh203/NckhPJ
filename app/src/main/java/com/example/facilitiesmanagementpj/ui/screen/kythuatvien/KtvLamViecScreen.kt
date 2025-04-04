@@ -54,10 +54,12 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -73,9 +75,6 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLam
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-
-
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,7 +123,11 @@ fun KtvLamViecScreen(
 
                         enabled = !isLoading
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back",  tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -212,7 +215,13 @@ fun KtvLamViecScreen(
             Column(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
-                    1 -> TabCongViec(currentPhanCongKtv.phanCongKtv.id, currentPhanCongKtv.phanCongKtv.trangThai, phanCongId, lamViecViewModel)
+                    1 -> TabCongViec(
+                        currentPhanCongKtv.phanCongKtv.id,
+                        currentPhanCongKtv.phanCongKtv.trangThai,
+                        phanCongId,
+                        lamViecViewModel
+                    )
+
                     2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
@@ -233,7 +242,7 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    onClick = { isThongTinExpanded = !isThongTinExpanded }
+            onClick = { isThongTinExpanded = !isThongTinExpanded }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -318,7 +327,6 @@ fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavCon
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TabCongViec(
@@ -333,6 +341,9 @@ fun TabCongViec(
     val thoiGianConLai by viewModel.thoiGianConLai.collectAsState()
     val thoiGianDuKien by viewModel.thoiGianDuKien.collectAsState()
     val dangXinGiaHan by viewModel.dangXinGiaHan.collectAsState()
+    val soLanGiaHan by viewModel.soLanGiaHan.collectAsState()
+    val tongThoiGianGiaHan by viewModel.tongThoiGianGiaHan.collectAsState()
+
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -369,14 +380,6 @@ fun TabCongViec(
         }
     }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success && cameraImageUri != null) {
-            viewModel.addImage(cameraImageUri!!)
-        }
-    }
-
     LaunchedEffect(thoiGianConLai, thoiGianDuKien, trangThai) {
         val thoiGian = thoiGianConLai
         if (
@@ -400,6 +403,7 @@ fun TabCongViec(
 
     LaunchedEffect(Unit) {
         viewModel.loadThoiGianDuKien(phanCongKtvId)
+        viewModel.loadThongTinGiaHan(phanCongKtvId)
     }
 
     LaunchedEffect(trangThai, thoiGianDuKien) {
@@ -407,6 +411,14 @@ fun TabCongViec(
             viewModel.startCountdown(phanCongKtvId, thoiGianDuKien!!)
         } else {
             viewModel.stopCountdown()
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && cameraImageUri != null) {
+            viewModel.addImage(cameraImageUri!!)
         }
     }
 
@@ -468,12 +480,14 @@ fun TabCongViec(
                     // Vòng tròn nền với tiến độ
                     CircularProgressIndicator(
                         progress = (
-                                (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(thoiGianDuKien!! * 60_000L)) /
+                                (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(
+                                    thoiGianDuKien!! * 60_000L
+                                )) /
                                         (thoiGianDuKien!! * 60_000f)
                                 ).coerceIn(0f, 1f),
                         modifier = Modifier.fillMaxSize(),
                         color = Color(0xFFFFC107), // vàng chính
-                        trackColor = Color(0xFFE7CBA3), // vàng nhạt nền
+                        trackColor = Color(0xFFEAD2B0), // vàng nhạt nền
                         strokeWidth = 28.dp
 
                     )
@@ -510,7 +524,10 @@ fun TabCongViec(
                                     ) {
                                         Box(
                                             modifier = Modifier
-                                                .background(Color(0xFF333333), shape = RoundedCornerShape(8.dp))
+                                                .background(
+                                                    Color(0xFF333333),
+                                                    shape = RoundedCornerShape(8.dp)
+                                                )
                                                 .padding(8.dp)
                                         ) {
                                             Text(
@@ -529,27 +546,68 @@ fun TabCongViec(
                                 tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
                                 showTacVuSheet.value = true
                             }) {
-                                Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn",tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(36.dp)    )
+                                Icon(
+                                    Icons.Default.AddCircle,
+                                    contentDescription = "Gia hạn",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(36.dp)
+                                )
                             }
                         }
-
 
 
                     }
                 }
 
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AssistChip(
+                        onClick = {}, // Không cần hành động
+                        label = {
+                            Text("Gia hạn: $soLanGiaHan lần")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.History, contentDescription = null)
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    )
+
+                    AssistChip(
+                        onClick = {},
+                        label = {
+                            Text("Tổng: $tongThoiGianGiaHan phút")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Timer, contentDescription = null)
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    )
+                }
 
                 Spacer(Modifier.height(32.dp))
 
                 // Nút tạm nghỉ & hoàn thành
                 HanhDongRow(
-                    onPauseClick = { tacVuDangChon.value = LoaiTacVu.TAM_NGHI
-                                   showTacVuSheet.value = true },
-                    onCaptureClick = { tacVuDangChon.value = LoaiTacVu.TAM_NGHI
-                        showTacVuSheet.value = true},
-                    onCompleteClick = { tacVuDangChon.value = LoaiTacVu.CHECK_OUT
-                        showTacVuSheet.value = true}
+                    onPauseClick = {
+                        tacVuDangChon.value = LoaiTacVu.TAM_NGHI
+                        showTacVuSheet.value = true
+                    },
+                    onCaptureClick = {
+                        tacVuDangChon.value = LoaiTacVu.MINH_CHUNG
+                        showTacVuSheet.value = true
+                    },
+                    onCompleteClick = {
+                        tacVuDangChon.value = LoaiTacVu.CHECK_OUT
+                        showTacVuSheet.value = true
+                    }
                 )
 
 //                Row(
@@ -599,12 +657,23 @@ fun TabCongViec(
         if (trangThai == TrangThaiPhanCong.HOAN_THANH) {
             // ✅ Biểu tượng lớn ở giữa đầu màn hình
             Column(
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(72.dp))
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(72.dp)
+                )
                 Spacer(Modifier.height(8.dp))
-                Text("Công việc đã hoàn tất", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary)
+                Text(
+                    "Công việc đã hoàn tất",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
             }
 
             // ✅ Card báo cáo bên dưới
@@ -626,7 +695,11 @@ fun TabCongViec(
                     modifier = Modifier.size(72.dp)
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("Phân công đã bị hủy", style = MaterialTheme.typography.titleMedium, color = Color.Red)
+                Text(
+                    "Phân công đã bị hủy",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Red
+                )
 
                 if (thongTin?.thoiGianBatDau != null) {
                     Text(
@@ -653,7 +726,9 @@ fun TabCongViec(
         if (showBottomSheet.value) {
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheet.value = false },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 600.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 600.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -681,8 +756,15 @@ fun TabCongViec(
 
                             IconButton(
                                 onClick = {
-                                    val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
-                                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                                    val photoFile = File(
+                                        context.cacheDir,
+                                        "image_${System.currentTimeMillis()}.jpg"
+                                    )
+                                    val uri = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.provider",
+                                        photoFile
+                                    )
                                     cameraImageUri = uri
                                     cameraLauncher.launch(uri)
                                 }
@@ -713,7 +795,11 @@ fun TabCongViec(
                                     singleLine = false
                                 )
                                 IconButton(onClick = { viewModel.removeImage(uri) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Xóa ảnh", tint = Color.White)
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Xóa ảnh",
+                                        tint = Color.White
+                                    )
                                 }
                             }
                         }
@@ -732,7 +818,11 @@ fun TabCongViec(
                                     onClick = { viewModel.clearVideo() },
                                     modifier = Modifier.align(Alignment.TopEnd)
                                 ) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Xóa video", tint = Color.Black)
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Xóa video",
+                                        tint = Color.Black
+                                    )
                                 }
                             }
                         }
@@ -742,8 +832,15 @@ fun TabCongViec(
                         Spacer(Modifier.height(12.dp))
                         Button(
                             onClick = {
-                                val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
-                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                                val photoFile = File(
+                                    context.cacheDir,
+                                    "image_${System.currentTimeMillis()}.jpg"
+                                )
+                                val uri = FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.provider",
+                                    photoFile
+                                )
                                 cameraImageUri = uri
                                 cameraLauncher.launch(uri)
                             },
@@ -788,7 +885,9 @@ fun TabCongViec(
                 Image(
                     painter = rememberAsyncImagePainter(uri),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 )
             }
         }
@@ -821,8 +920,13 @@ fun TabCongViec(
                     videoUri = videoUri,
                     onDismiss = { showTacVuSheet.value = false },
                     onChupAnh = {
-                        val photoFile = File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
-                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
+                        val photoFile =
+                            File(context.cacheDir, "image_${System.currentTimeMillis()}.jpg")
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            photoFile
+                        )
                         cameraImageUri = uri
                         cameraLauncher.launch(uri)
                     },
@@ -844,7 +948,6 @@ fun TabCongViec(
                             }
                         }
                     }
-
 
 
                 )
@@ -895,8 +998,6 @@ fun TabCongViec(
 }
 
 
-
-
 @Composable
 fun TabTienTrinhLamViec(
     phanCongKtvId: Int,
@@ -914,7 +1015,9 @@ fun TabTienTrinhLamViec(
     Column(modifier = Modifier.fillMaxSize()) {
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -954,18 +1057,25 @@ fun TabTienTrinhLamViec(
                 Text("Chưa có dữ liệu nào")
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)) {
                 items(danhSachNhom) { nhom ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                        .clickable { nhomDuocChon = nhom },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable { nhomDuocChon = nhom },
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant // hoặc Color.White
                         )
 
                     ) {
-                        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Box(modifier = Modifier.size(56.dp)) {
                                 Image(
                                     painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
@@ -977,7 +1087,10 @@ fun TabTienTrinhLamViec(
                                         .align(Alignment.BottomEnd)
                                         .padding(2.dp)
                                         .size(18.dp)
-                                        .background(Color.Black.copy(alpha = 0.7f), shape = MaterialTheme.shapes.small),
+                                        .background(
+                                            Color.Black.copy(alpha = 0.7f),
+                                            shape = MaterialTheme.shapes.small
+                                        ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -989,8 +1102,14 @@ fun TabTienTrinhLamViec(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text(text = loaiAnhToLabel(nhom.loaiAnh), fontWeight = FontWeight.Bold)
-                                Text(text = formatTime(nhom.thoiGian), style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    text = loaiAnhToLabel(nhom.loaiAnh),
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = formatTime(nhom.thoiGian),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
                             }
                         }
                     }
@@ -1025,8 +1144,7 @@ fun TabTienTrinhLamViec(
                             Card(
                                 modifier = Modifier
                                     .width(300.dp)
-                                    .fillMaxHeight()
-                                ,
+                                    .fillMaxHeight(),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface // hoặc Color.White
                                 )
@@ -1063,11 +1181,12 @@ fun TabTienTrinhLamViec(
 }
 
 
-
 @Composable
 fun RowItem(label: String, value: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
@@ -1103,11 +1222,14 @@ fun BaoCaoHoanThanhCard(info: ThongTinHoanThanh, modifier: Modifier) {
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(4.dp))
-            Text("Tỷ lệ thời gian làm việc", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+            Text(
+                "Tỷ lệ thời gian làm việc",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
         }
     }
 }
-
 
 
 private fun formatTime(millis: Long?): String {
@@ -1129,6 +1251,7 @@ private fun loaiAnhToLabel(loai: String): String {
         LoaiAnhMinhChungLamViec.CHECK_OUT -> "Kết thúc làm việc"
         LoaiAnhMinhChungLamViec.TAM_NGHI -> "Tạm nghỉ"
         LoaiAnhMinhChungLamViec.XIN_GIA_HAN -> "Yêu cầu gia hạn"
+        LoaiAnhMinhChungLamViec.MINH_CHUNG -> "Minh chứng"
         else -> loai
     }
 }

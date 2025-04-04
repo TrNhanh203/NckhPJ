@@ -303,6 +303,9 @@ fun KtvDanhSachCongViecScreen(
                     }
                 }
                 if (showSheet && selectedPhanCongId != null) {
+                    val selectedItem = tasks.find { it.phanCong.phanCong.id == selectedPhanCongId }
+                    val trangThai = selectedItem?.phanCongKtv?.trangThai
+
                     ModalBottomSheet(
                         onDismissRequest = { showSheet = false },
                         dragHandle = null
@@ -321,19 +324,24 @@ fun KtvDanhSachCongViecScreen(
                                     showSheet = false
                                 }
                             )
-                            ListItem(
-                                headlineContent = { Text("Vào phiên làm việc") },
-                                leadingContent = { Icon(Icons.Default.Work, contentDescription = null) },
-                                colors = ListItemDefaults.colors(
-                                    containerColor = Color.Transparent
-                                ),
-                                modifier = Modifier.clickable {
-                                    navController.navigate(
-                                        Screen.KtvLamViec.createRoute(selectedPhanCongId!!)
-                                    )
-                                    showSheet = false
-                                }
-                            )
+
+                            if (trangThai != TrangThaiPhanCong.CHO_PHAN_HOI) {
+                                ListItem(
+                                    headlineContent = { Text("Vào phiên làm việc") },
+                                    leadingContent = { Icon(Icons.Default.Work, contentDescription = null) },
+                                    colors = ListItemDefaults.colors(
+                                        containerColor = Color.Transparent
+                                    ),
+                                    modifier = Modifier.clickable {
+                                        navController.navigate(
+                                            Screen.KtvLamViec.createRoute(selectedPhanCongId!!)
+                                        )
+                                        showSheet = false
+                                    }
+                                )
+                            }
+
+
                         }
                     }
                 }

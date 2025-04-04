@@ -269,7 +269,10 @@ class KtvLamViecViewModel @Inject constructor(
             _dangXinGiaHan.value = true
         }
 
-        _isGuiMinhChungLoading.value = true
+        if(tacVu != LoaiTacVu.MINH_CHUNG && tacVu != LoaiTacVu.XIN_GIA_HAN) {
+            _isGuiMinhChungLoading.value = true
+        }
+
         try {
 
             imageUris.value.forEach { uri ->
@@ -333,6 +336,10 @@ class KtvLamViecViewModel @Inject constructor(
                 LoaiTacVu.CHECK_OUT -> {
                     tinhVaLuuThongTinLamViec(phanCongKtvId, TrangThaiPhanCong.HOAN_THANH)
                 }
+
+                LoaiTacVu.MINH_CHUNG -> {
+
+                }
             }
 
             clearMedia()
@@ -343,10 +350,24 @@ class KtvLamViecViewModel @Inject constructor(
 
     }
 
+    private val _soLanGiaHan = MutableStateFlow(0)
+    val soLanGiaHan: StateFlow<Int> = _soLanGiaHan
+
+    private val _tongThoiGianGiaHan = MutableStateFlow(0)
+    val tongThoiGianGiaHan: StateFlow<Int> = _tongThoiGianGiaHan
+
+    fun loadThongTinGiaHan(phanCongKtvId: Int) {
+        viewModelScope.launch {
+            val pc = pcKtvRepo.getById(phanCongKtvId)
+            _soLanGiaHan.value = pc?.soLanGiaHan ?: 0
+            _tongThoiGianGiaHan.value = pc?.tongThoiGianDaXinGiaHan ?: 0
+        }
+    }
+
+
 
     private val _thongTinHoanThanh = MutableStateFlow<ThongTinHoanThanh?>(null)
     val thongTinHoanThanh: StateFlow<ThongTinHoanThanh?> = _thongTinHoanThanh
-
 
 
     suspend fun tinhVaLuuThongTinLamViec(

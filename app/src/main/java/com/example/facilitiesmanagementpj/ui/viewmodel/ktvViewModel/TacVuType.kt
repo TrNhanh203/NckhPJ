@@ -11,5 +11,6 @@ enum class LoaiTacVu(
     CHECK_IN("Check-in", "Check-In", LoaiAnhMinhChungLamViec.CHECK_IN),
     XIN_GIA_HAN("Xin gia hạn", "Gửi yêu cầu", LoaiAnhMinhChungLamViec.XIN_GIA_HAN, canNhapSoPhut = true),
     TAM_NGHI("Tạm nghỉ", "Xác nhận", LoaiAnhMinhChungLamViec.TAM_NGHI),
-    CHECK_OUT("Hoàn thành", "Check-Out", LoaiAnhMinhChungLamViec.CHECK_OUT)
+    CHECK_OUT("Hoàn thành", "Check-Out", LoaiAnhMinhChungLamViec.CHECK_OUT),
+    MINH_CHUNG("Minh chứng", "Gửi minh chứng", LoaiAnhMinhChungLamViec.MINH_CHUNG),
 }
