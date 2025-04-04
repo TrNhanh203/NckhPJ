@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -45,6 +46,7 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import java.io.File
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
@@ -54,7 +56,11 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
@@ -448,7 +454,7 @@ fun TabCongViec(
             ) {
                 Text(
                     text = if (thoiGianConLai!! <= 0) "Đã quá hạn:" else "Thời gian còn lại:",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -457,7 +463,7 @@ fun TabCongViec(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(240.dp)
                 ) {
                     // Vòng tròn nền với tiến độ
                     CircularProgressIndicator(
@@ -467,8 +473,8 @@ fun TabCongViec(
                                 ).coerceIn(0f, 1f),
                         modifier = Modifier.fillMaxSize(),
                         color = Color(0xFFFFC107), // vàng chính
-                        trackColor = Color(0xFFFFF8E1), // vàng nhạt nền
-                        strokeWidth = 10.dp
+                        trackColor = Color(0xFFE7CBA3), // vàng nhạt nền
+                        strokeWidth = 28.dp
 
                     )
 
@@ -477,7 +483,7 @@ fun TabCongViec(
                         Text(
                             //text = formatMillis(thoiGianConLai!!),
                             text = formatMillis(kotlin.math.abs(thoiGianConLai!!)),
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineLarge,
                             color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
                         )
                         Spacer(Modifier.height(4.dp))
@@ -491,7 +497,8 @@ fun TabCongViec(
                                     Icon(
                                         imageVector = Icons.Default.HourglassTop,
                                         contentDescription = "Chờ duyệt",
-                                        tint = Color.Gray
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(36.dp)
                                     )
                                 }
 
@@ -522,7 +529,8 @@ fun TabCongViec(
                                 tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
                                 showTacVuSheet.value = true
                             }) {
-                                Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn")
+                                Icon(Icons.Default.AddCircle, contentDescription = "Gia hạn",tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(36.dp)    )
                             }
                         }
 
@@ -535,40 +543,49 @@ fun TabCongViec(
                 Spacer(Modifier.height(32.dp))
 
                 // Nút tạm nghỉ & hoàn thành
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    FilledTonalButton(
-                        onClick = {
-                            tacVuDangChon.value = LoaiTacVu.TAM_NGHI
-                            showTacVuSheet.value = true
-                        }
-                        ,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.Pause, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        //Text("Tạm nghỉ")
-                    }
+                HanhDongRow(
+                    onPauseClick = { tacVuDangChon.value = LoaiTacVu.TAM_NGHI
+                                   showTacVuSheet.value = true },
+                    onCaptureClick = { tacVuDangChon.value = LoaiTacVu.TAM_NGHI
+                        showTacVuSheet.value = true},
+                    onCompleteClick = { tacVuDangChon.value = LoaiTacVu.CHECK_OUT
+                        showTacVuSheet.value = true}
+                )
 
-                    FilledTonalButton(
-                        onClick = {
-                            tacVuDangChon.value = LoaiTacVu.CHECK_OUT
-                            showTacVuSheet.value = true
-                        }
-                        ,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        //Text("Hoàn thành")
-                    }
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 8.dp),
+//                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+//                ) {
+//                    FilledTonalButton(
+//                        onClick = {
+//                            tacVuDangChon.value = LoaiTacVu.TAM_NGHI
+//                            showTacVuSheet.value = true
+//                        }
+//                        ,
+//                        modifier = Modifier.weight(1f),
+//                        shape = RoundedCornerShape(12.dp)
+//                    ) {
+//                        Icon(Icons.Default.Pause, contentDescription = null)
+//                        Spacer(Modifier.width(6.dp))
+//                        //Text("Tạm nghỉ")
+//                    }
+//
+//                    FilledTonalButton(
+//                        onClick = {
+//                            tacVuDangChon.value = LoaiTacVu.CHECK_OUT
+//                            showTacVuSheet.value = true
+//                        }
+//                        ,
+//                        modifier = Modifier.weight(1f),
+//                        shape = RoundedCornerShape(12.dp)
+//                    ) {
+//                        Icon(Icons.Default.CheckCircle, contentDescription = null)
+//                        Spacer(Modifier.width(6.dp))
+//                        //Text("Hoàn thành")
+//                    }
+//                }
 
             }
 
@@ -863,7 +880,6 @@ fun TabCongViec(
         }
 
         if (isGuiMinhChungLoading) {
-            Log.d("DEBUG", "HIỂN THỊ LOADING UI")
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -1114,6 +1130,76 @@ private fun loaiAnhToLabel(loai: String): String {
         LoaiAnhMinhChungLamViec.TAM_NGHI -> "Tạm nghỉ"
         LoaiAnhMinhChungLamViec.XIN_GIA_HAN -> "Yêu cầu gia hạn"
         else -> loai
+    }
+}
+
+@Composable
+fun HanhDongRow(
+    onPauseClick: () -> Unit,
+    onCaptureClick: () -> Unit,
+    onCompleteClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        IconActionButton(
+            icon = Icons.Default.Pause,
+            backgroundColor = Color(0xFFFFCDD2), // đỏ nhạt
+            contentColor = Color(0xFFD32F2F),
+            onClick = onPauseClick
+        )
+
+        IconActionButton(
+            icon = Icons.Default.PhotoCamera,
+            backgroundColor = Color(0xFFE0E0E0), // xám nhạt
+            contentColor = Color.DarkGray,
+            onClick = onCaptureClick
+        )
+
+        IconActionButton(
+            icon = Icons.Default.Check,
+            backgroundColor = Color(0xFFC8E6C9), // xanh lá nhạt
+            contentColor = Color(0xFF388E3C),
+            onClick = onCompleteClick
+        )
+    }
+}
+
+@Composable
+fun IconActionButton(
+    icon: ImageVector,
+    backgroundColor: Color,
+    contentColor: Color,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(64.dp)
+            .clip(CircleShape) // 👈 Bo tròn đều đẹp
+            .background(backgroundColor)
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = backgroundColor.copy(alpha = 0.5f),
+                shape = CircleShape
+            )
+            .shadow(
+                elevation = 4.dp, // 👈 Nhẹ hơn
+                shape = CircleShape,
+                ambientColor = Color.LightGray, // 👈 Bóng sáng, không bị đen
+                spotColor = Color.Gray.copy(alpha = 0.2f)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(30.dp) // 👈 Đủ lớn, nổi bật
+        )
     }
 }
 
