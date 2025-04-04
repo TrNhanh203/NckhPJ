@@ -45,7 +45,7 @@ val LightColorScheme = lightColorScheme(
     onBackground = PrimaryText,
     surface = BackgroundWhite,
     onSurface = PrimaryText,
-    surfaceVariant = Color(0xFFEFEFEF),
+    surfaceVariant = Color(0xFFE3EAF5),
     onSurfaceVariant = Color(0xFF444444),
 
     outline = DividerGray,

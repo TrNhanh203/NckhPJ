@@ -943,7 +943,11 @@ fun TabTienTrinhLamViec(
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         .clickable { nhomDuocChon = nhom },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant // hoặc Color.White
+                        )
+
                     ) {
                         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Box(modifier = Modifier.size(56.dp)) {
@@ -1006,6 +1010,10 @@ fun TabTienTrinhLamViec(
                                 modifier = Modifier
                                     .width(300.dp)
                                     .fillMaxHeight()
+                                ,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface // hoặc Color.White
+                                )
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -1057,6 +1065,9 @@ fun BaoCaoHoanThanhCard(info: ThongTinHoanThanh, modifier: Modifier) {
         modifier
             .fillMaxWidth()
             .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface // hoặc Color.White
+        ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {

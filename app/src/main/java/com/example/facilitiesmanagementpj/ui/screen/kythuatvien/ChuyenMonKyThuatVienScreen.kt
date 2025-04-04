@@ -184,7 +184,7 @@ fun ChuyenMonKyThuatVienScreen(
                 onDismissRequest = { showSheet = false },
                 dragHandle = null
             ) {
-                Column(Modifier.fillMaxHeight(0.85f)) {
+                Column(Modifier.fillMaxHeight(0.85f).background(MaterialTheme.colorScheme.surface)) {
                     TopAppBar(
                         title = { Text("Chỉnh sửa chuyên môn") },
                         actions = {
@@ -199,6 +199,13 @@ fun ChuyenMonKyThuatVienScreen(
                         }
                     )
 
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.outline,
+                        thickness = 1.dp
+                    )
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -208,8 +215,10 @@ fun ChuyenMonKyThuatVienScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .background(Color.Transparent)
                                     .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+
                             ) {
                                 Checkbox(
                                     checked = item.isChecked,

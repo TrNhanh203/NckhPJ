@@ -1,7 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
 import android.net.Uri
-import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.facilitiesmanagementpj.data.utils.LoaiPhanCong
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.component.TaoPhanCongBottomSheet
 import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceDetailViewModel
@@ -81,7 +80,6 @@ fun AdminDeviceDetailScreen(
     LaunchedEffect(chiTietYeuCau?.id) {
         chiTietYeuCau?.let {
             viewModel.checkPhanCongDaTao(it.id)
-
         }
     }
 
@@ -235,10 +233,12 @@ fun AdminDeviceDetailScreen(
                         val phanCongDaTao by viewModel.phanCongHienTai.collectAsState()
 
                         if (phanCongDaTao != null) {
+                            LaunchedEffect(phanCongDaTao!!.id) {
+                                navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
+                            }
                             OutlinedButton(
                                 onClick = {
                                     navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
-                                    println("Đi đến phân công ID = ${phanCongDaTao!!.id}")
                                 },
                                 modifier = buttonModifier,
                                 shape = RectangleShape
@@ -249,7 +249,7 @@ fun AdminDeviceDetailScreen(
                             val trangThaiYeuCau = yeuCau?.trangThai ?: ""
                             OutlinedButton(
                                 onClick = { showBottomSheet = true },
-                                enabled = trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN,
+                                enabled = (phanCongDaTao == null && (trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN || trangThaiYeuCau == TrangThaiYeuCau.DANG_XU_LY)),
                                 modifier = buttonModifier,
                                 shape = RectangleShape
                             ) {

@@ -162,12 +162,19 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                             .fillMaxWidth()
                             .padding(8.dp)
                             .clickable {
-                                navController.navigate(
+                                if (tabIndex.intValue == 1) {
+                                    // Tab "Đã phân công" → Điều hướng đến chi tiết phân công
+                                    item.phanCongId?.let {
+                                        navController.navigate(Screen.PhanCongDetail.createRoute(it))
+                                    }
+                                } else {
+                                    navController.navigate(
                                     Screen.AdminDeviceDetail.createRoute(
                                         item.chiTiet.thietBiId!!,
                                         item.chiTiet.yeuCauId
                                     )
-                                )
+                                )}
+
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {

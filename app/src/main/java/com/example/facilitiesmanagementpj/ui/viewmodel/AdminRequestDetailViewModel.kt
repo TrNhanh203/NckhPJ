@@ -97,7 +97,8 @@ class AdminRequestDetailViewModel @Inject constructor(
                         soVideo = soVideo,
                         anhDaiDien = anhDaiDien,
                         totalDoingTechnicians = totalDoingTechnicians,
-                        totalResponsibleTechnicians = totalResponsibleTechnicians
+                        totalResponsibleTechnicians = totalResponsibleTechnicians,
+                        phanCongId = phanCongId
 
                     )
                 }
@@ -206,7 +207,8 @@ class AdminRequestDetailViewModel @Inject constructor(
         val soVideo: Int,
         val anhDaiDien: String?,
         val totalDoingTechnicians: Int, // Số kỹ thuật viên đã chấp nhận
-        val totalResponsibleTechnicians: Int
+        val totalResponsibleTechnicians: Int,
+        val phanCongId: Int?
     )
 
     data class FilterCriteria(

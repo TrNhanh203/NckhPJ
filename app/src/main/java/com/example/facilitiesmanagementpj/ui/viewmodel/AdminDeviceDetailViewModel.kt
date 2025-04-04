@@ -127,7 +127,7 @@ class AdminDeviceDetailViewModel @Inject constructor(
                 trangThai = TrangThaiChungCuaPhanCong.CHUA_BAT_DAU,
                 soLuongKTVThamGia = 0
             )
-            phanCongRepository.insert(phanCong) // bạn cần hàm này
+            phanCongRepository.insert(phanCong)
             _phanCongHienTai.value = phanCongRepository.getPhanCongByChiTietYeuCau(chiTietYeuCauId)
 
 

@@ -1,5 +1,5 @@
 // Extracted UI logic for bottom sheet to prepare a new PhanCong
-package com.example.facilitiesmanagementpj.ui.screen.admin
+package com.example.facilitiesmanagementpj.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,14 +69,19 @@ fun TaoPhanCongBottomSheet(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Khu vực ghi chú cố định chiều cao và có thể scroll
-        Text("Ghi chú")
+        val isHintVisible = ghiChu.isBlank()
+
+        Text("Ghi chú", style = MaterialTheme.typography.labelLarge)
+
         Box(
             modifier = Modifier
                 .height(120.dp)
                 .fillMaxWidth()
-                .background(Color(0xFFF2F2F2), RoundedCornerShape(8.dp))
-                .padding(8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
         ) {
             BasicTextField(
                 value = ghiChu,
@@ -83,9 +89,19 @@ fun TaoPhanCongBottomSheet(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
-                textStyle = TextStyle(fontSize = 14.sp)
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             )
+
+            if (isHintVisible) {
+                Text(
+                    text = "Nhập nội dung ghi chú...",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            }
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
