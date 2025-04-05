@@ -35,6 +35,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
+import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.exportBienBanToPdf
 import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.formatMillis
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 
@@ -76,7 +78,12 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
                 .then(modifier)
         ) {
-            Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
+//            Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
+            BienBanNghiemThuScreen(
+                onHoanTat = { kyBena, kyBenb ->
+
+                }
+            )
         }
     }
 //    ScaffoldLayout(
@@ -90,143 +97,3 @@ fun HomeScreen(navController: NavController) {
 }
 
 
-@Composable
-fun DemoDangLamViecScreen() {
-    val tacVuDangChon = remember { mutableStateOf<LoaiTacVu?>(null) }
-    val showTacVuSheet = remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    val trangThai = TrangThaiPhanCong.DANG_THUC_HIEN
-    val thoiGianDuKien = 30 // phút
-    val thoiGianConLai = 10 * 60 * 1000L // còn 10 phút
-    val dangXinGiaHan = false
-    val soLanGiaHan = 2
-    val tongThoiGianDaXinGiaHan = 15
-
-    if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = if (thoiGianConLai <= 0) "Đã quá hạn:" else "Thời gian còn lại:",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Đồng hồ thời gian
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(240.dp)
-            ) {
-                CircularProgressIndicator(
-                    progress = (
-                            (thoiGianDuKien * 60_000L - thoiGianConLai.coerceAtMost(thoiGianDuKien * 60_000L)) /
-                                    (thoiGianDuKien * 60_000f)
-                            ).coerceIn(0f, 1f),
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.secondaryContainer,
-                    strokeWidth = 28.dp
-                )
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = formatMillis(kotlin.math.abs(thoiGianConLai)),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = if (thoiGianConLai < 5 * 60 * 1000)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(Modifier.height(4.dp))
-
-                    IconButton(onClick = {
-                        tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
-                        showTacVuSheet.value = true
-                    }) {
-                        Icon(
-                            Icons.Default.AddCircle,
-                            contentDescription = "Gia hạn",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // Thống kê gia hạn
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
-                Text(
-                    text = "Đã gia hạn: $soLanGiaHan lần",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "Tổng cộng: $tongThoiGianDaXinGiaHan phút",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(Modifier.height(32.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                FilledTonalButton(
-                    onClick = { /* Fake Tạm nghỉ */ },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.Pause, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Tạm nghỉ")
-                }
-
-                FilledTonalButton(
-                    onClick = { /* Fake hoàn thành */ },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Hoàn thành")
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            FilledTonalButton(
-                onClick = { /* Fake chụp ảnh */ },
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.PhotoCamera, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text("Minh chứng")
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 24.dp)
-            )
-        }
-    }
-}
