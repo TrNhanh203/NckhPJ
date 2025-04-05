@@ -36,6 +36,7 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecVi
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.viewinterop.AndroidView
@@ -60,10 +61,15 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.navigation.NavBackStackEntry
@@ -360,6 +366,7 @@ fun TabCongViec(
 
     var showUploadErrorDialog by remember { mutableStateOf(false) }
     var messageText by remember { mutableStateOf("") }
+    var showGiaHanHintDialog by remember { mutableStateOf(false) }
 
     val thongTin by viewModel.thongTinHoanThanh.collectAsState()
     val isGuiMinhChungLoading by viewModel.isGuiMinhChungLoading.collectAsState()
@@ -411,8 +418,16 @@ fun TabCongViec(
             viewModel.startCountdown(phanCongKtvId, thoiGianDuKien!!)
         } else {
             viewModel.stopCountdown()
+            if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
+                viewModel.loadThoiGianConLaiThamKhao(phanCongKtvId)
+            }
         }
     }
+
+    LaunchedEffect(phanCongKtvId) {
+        viewModel.loadThoiGianConLaiThamKhao(phanCongKtvId)
+    }
+
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -427,14 +442,64 @@ fun TabCongViec(
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
         if (trangThai == TrangThaiPhanCong.DA_CHAP_NHAN || trangThai == TrangThaiPhanCong.TAM_NGHI) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Bạn cần xác minh để bắt đầu làm việc",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WorkOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(180.dp)
+                                .padding(bottom = 12.dp)
+                        )
+
+                        Text(
+                            text = "Kiểm tra thời gian và chuẩn bị check-in nhé!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+
+
+                        val thoiGianConLaiThamKhao by viewModel.thoiGianConLaiThamKhao.collectAsState()
+                        if (thoiGianConLaiThamKhao != null && thoiGianDuKien != null) {
+                            TimeProgressBarWithGiaHanHint(
+                                thoiGianConLai = thoiGianConLaiThamKhao!!,
+                                thoiGianDuKien = thoiGianDuKien!!,
+                                onGiaHanHintClick = {
+                                    showGiaHanHintDialog = true
+                                }
+                            )
+
+                        }
+                    }
+
+                }
+
+                Spacer(modifier = Modifier.height(80.dp))
+                CheckInButton(
                     onClick = {
                         viewModel.kiemTraTruocCheckIn(
                             phanCongKtvId = phanCongKtvId,
@@ -448,149 +513,213 @@ fun TabCongViec(
                                 showTacVuSheet.value = true
                             }
                         )
-                    },
-                    modifier = Modifier.size(96.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = null)
-                }
+                    }
+                )
+
+
+//                Text(
+//                    text = "Bạn cần xác minh để bắt đầu làm việc",
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    color = Color.Gray
+//                )
+//                Spacer(modifier = Modifier.height(16.dp))
+//                Button(
+//                    onClick = {
+//                        viewModel.kiemTraTruocCheckIn(
+//                            phanCongKtvId = phanCongKtvId,
+//                            onKhongDuoc = {
+//                                scope.launch {
+//                                    showCheckInBlockedDialog = true
+//                                }
+//                            },
+//                            onDuoc = {
+//                                tacVuDangChon.value = LoaiTacVu.CHECK_IN
+//                                showTacVuSheet.value = true
+//                            }
+//                        )
+//                    },
+//                    modifier = Modifier.size(96.dp),
+//                    shape = MaterialTheme.shapes.extraLarge,
+//                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+//                ) {
+//                    Icon(Icons.Default.CameraAlt, contentDescription = null)
+//                }
             }
         }
         if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = if (thoiGianConLai!! <= 0) "Đã quá hạn:" else "Thời gian còn lại:",
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                // Vòng tròn thời gian còn lại
-                Box(
-                    contentAlignment = Alignment.Center,
+                Card(
                     modifier = Modifier
-                        .size(240.dp)
+                        .fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
-                    // Vòng tròn nền với tiến độ
-                    CircularProgressIndicator(
-                        progress = (
-                                (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(
-                                    thoiGianDuKien!! * 60_000L
-                                )) /
-                                        (thoiGianDuKien!! * 60_000f)
-                                ).coerceIn(0f, 1f),
-                        modifier = Modifier.fillMaxSize(),
-                        color = Color(0xFFFFC107), // vàng chính
-                        trackColor = Color(0xFFEAD2B0), // vàng nhạt nền
-                        strokeWidth = 28.dp
-
-                    )
-
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
-                            //text = formatMillis(thoiGianConLai!!),
-                            text = formatMillis(kotlin.math.abs(thoiGianConLai!!)),
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
+                            text = if (thoiGianConLai!! <= 0) "Đã quá hạn:" else "Thời gian còn lại:",
+                            style = MaterialTheme.typography.titleLarge
                         )
-                        Spacer(Modifier.height(4.dp))
-                        if (dangXinGiaHan) {
-                            var showPopup by remember { mutableStateOf(false) }
 
-                            Box {
-                                IconButton(
-                                    onClick = { showPopup = !showPopup },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.HourglassTop,
-                                        contentDescription = "Chờ duyệt",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
+                        Spacer(Modifier.height(16.dp))
+                        // Vòng tròn thời gian còn lại
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(240.dp)
+                        ) {
+                            // Vòng tròn nền với tiến độ
+                            CircularProgressIndicator(
+                                progress = (
+                                        (thoiGianDuKien!! * 60_000L - thoiGianConLai!!.coerceAtMost(
+                                            thoiGianDuKien!! * 60_000L
+                                        )) /
+                                                (thoiGianDuKien!! * 60_000f)
+                                        ).coerceIn(0f, 1f),
+                                modifier = Modifier.fillMaxSize(),
+                                color = Color(0xFFFFC107), // vàng chính
+                                trackColor = Color(0xFFF3DAB7), // vàng nhạt nền
+                                strokeWidth = 28.dp
 
-                                if (showPopup) {
-                                    Popup(
-                                        alignment = Alignment.TopCenter,
-                                        offset = IntOffset(0, -20), // đẩy lên phía trên icon
-                                        onDismissRequest = { showPopup = false }
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(
-                                                    Color(0xFF333333),
-                                                    shape = RoundedCornerShape(8.dp)
-                                                )
-                                                .padding(8.dp)
+                            )
+
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    //text = formatMillis(thoiGianConLai!!),
+                                    text = formatMillis(kotlin.math.abs(thoiGianConLai!!)),
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = if (thoiGianConLai!! < 5 * 60 * 1000) Color.Red else Color.Unspecified
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                if (dangXinGiaHan) {
+                                    var showPopup by remember { mutableStateOf(false) }
+
+                                    Box {
+                                        IconButton(
+                                            onClick = { showPopup = !showPopup },
                                         ) {
-                                            Text(
-                                                text = "Yêu cầu gia hạn của bạn đang chờ phê duyệt",
-                                                color = Color.White,
-                                                style = MaterialTheme.typography.bodySmall
+                                            Icon(
+                                                imageVector = Icons.Default.HourglassTop,
+                                                contentDescription = "Chờ duyệt",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(36.dp)
                                             )
                                         }
+
+                                        if (showPopup) {
+                                            Popup(
+                                                alignment = Alignment.TopCenter,
+                                                offset = IntOffset(0, -20), // đẩy lên phía trên icon
+                                                onDismissRequest = { showPopup = false }
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .background(
+                                                            Color(0xFF333333),
+                                                            shape = RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(8.dp)
+                                                ) {
+                                                    Text(
+                                                        text = "Yêu cầu gia hạn của bạn đang chờ phê duyệt",
+                                                        color = Color.White,
+                                                        style = MaterialTheme.typography.bodySmall
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                } else {
+                                    IconButton(onClick = {
+                                        tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
+                                        showTacVuSheet.value = true
+                                    }) {
+                                        Icon(
+                                            Icons.Default.AddCircle,
+                                            contentDescription = "Gia hạn",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(36.dp)
+                                        )
                                     }
                                 }
-                            }
 
 
-                        } else {
-                            IconButton(onClick = {
-                                tacVuDangChon.value = LoaiTacVu.XIN_GIA_HAN
-                                showTacVuSheet.value = true
-                            }) {
-                                Icon(
-                                    Icons.Default.AddCircle,
-                                    contentDescription = "Gia hạn",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(36.dp)
-                                )
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp)
+                                .align(Alignment.CenterHorizontally),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        text = "Gia hạn: $soLanGiaHan lần",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.History,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            )
+
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        text = "Tổng: $tongThoiGianGiaHan phút",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Timer,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            )
+                        }
 
                     }
+
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AssistChip(
-                        onClick = {}, // Không cần hành động
-                        label = {
-                            Text("Gia hạn: $soLanGiaHan lần")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.History, contentDescription = null)
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
-                    )
-
-                    AssistChip(
-                        onClick = {},
-                        label = {
-                            Text("Tổng: $tongThoiGianGiaHan phút")
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Timer, contentDescription = null)
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
-                    )
-                }
 
                 Spacer(Modifier.height(32.dp))
 
@@ -969,6 +1098,22 @@ fun TabCongViec(
             )
         }
 
+        if (showGiaHanHintDialog) {
+            AlertDialog(
+                onDismissRequest = { showGiaHanHintDialog = false },
+                title = { Text("Gợi ý gia hạn") },
+                text = {
+                    Text("Bạn có thể xin gia hạn thêm thời gian sau khi đã check-in nếu cần thêm thời gian để hoàn thành công việc.")
+                },
+                confirmButton = {
+                    TextButton(onClick = { showGiaHanHintDialog = false }) {
+                        Text("Đã hiểu")
+                    }
+                }
+            )
+        }
+
+
         if (showUploadErrorDialog) {
             AlertDialog(
                 onDismissRequest = { showUploadErrorDialog = false },
@@ -1237,6 +1382,19 @@ private fun formatTime(millis: Long?): String {
     return millis?.let { sdf.format(Date(it)) } ?: "Không rõ"
 }
 
+fun formatMinutes(millis: Long): String {
+    val totalMinutes = (millis / 60_000L).toInt()
+    val hours = totalMinutes / 60
+    val minutes = totalMinutes % 60
+
+    return if (hours > 0) {
+        String.format("%02d:%02d", hours, minutes) // ví dụ: 01:25
+    } else {
+        "$minutes phút"
+    }
+}
+
+
 
 fun formatMillis(millis: Long): String {
     val minutes = (millis / 1000 / 60) % 60
@@ -1321,8 +1479,158 @@ fun IconActionButton(
             imageVector = icon,
             contentDescription = null,
             tint = contentColor,
-            modifier = Modifier.size(30.dp) // 👈 Đủ lớn, nổi bật
+            modifier = Modifier.size(30.dp)
         )
     }
 }
+
+@Composable
+fun CheckInButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(64.dp)
+            .fillMaxWidth(0.8f)
+            .shadow(6.dp, shape = RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
+        ),
+        elevation = ButtonDefaults.elevatedButtonElevation()
+    ) {
+        Icon(
+            imageVector = Icons.Default.CameraAlt,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Bắt đầu Check-in",
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+
+
+@Composable
+fun TimeProgressBar(
+    thoiGianConLai: Long,
+    thoiGianDuKien: Int
+) {
+    val totalTimeMillis = thoiGianDuKien * 60_000L
+    val remainingTimeMillis = thoiGianConLai.coerceAtMost(totalTimeMillis)
+    val progress = (remainingTimeMillis.toFloat() / totalTimeMillis).coerceIn(0f, 1f)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "Còn lại: ${formatMinutes(remainingTimeMillis)} / ${formatMinutes(totalTimeMillis)}",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(36.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.08f),
+                    spotColor = Color.Black.copy(alpha = 0.12f)
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(progress)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFFEB3B), Color(0xFFFF5722)) // vàng → cam
+                        )
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeProgressBarWithGiaHanHint(
+    thoiGianConLai: Long,
+    thoiGianDuKien: Int,
+    onGiaHanHintClick: () -> Unit
+) {
+    val totalTimeMillis = thoiGianDuKien * 60_000L
+    val remainingTimeMillis = thoiGianConLai.coerceAtMost(totalTimeMillis)
+    val progress = (remainingTimeMillis.toFloat() / totalTimeMillis).coerceIn(0f, 1f)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Còn lại: ${formatMinutes(remainingTimeMillis)} / ${formatMinutes(totalTimeMillis)}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            IconButton(onClick = onGiaHanHintClick) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Gợi ý gia hạn",
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(36.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.08f),
+                    spotColor = Color.Black.copy(alpha = 0.12f)
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(progress)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFFEB3B), Color(0xFFFF5722))
+                        )
+                    )
+            )
+        }
+    }
+}
+
+
+
+
 

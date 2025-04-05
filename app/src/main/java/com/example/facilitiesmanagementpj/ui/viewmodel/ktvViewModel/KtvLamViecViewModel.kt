@@ -84,6 +84,55 @@ class KtvLamViecViewModel @Inject constructor(
         _videoUri.value = null
     }
 
+    private val _thoiGianConLaiThamKhao = MutableStateFlow<Long?>(null)
+    val thoiGianConLaiThamKhao: StateFlow<Long?> = _thoiGianConLaiThamKhao
+
+
+    fun loadThoiGianConLaiThamKhao(phanCongKtvId: Int) {
+        viewModelScope.launch {
+            val pc = pcKtvRepo.getById(phanCongKtvId)
+            val thoiGianDuKienPhut = pc?.thoiGianDuKien ?: 0
+            val listAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+                .filter {
+                    it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN ||
+                            it.loaiAnh == LoaiAnhMinhChungLamViec.TAM_NGHI
+                }
+                .sortedBy { it.thoiGianTaiLen }
+
+            val pairs = mutableListOf<Pair<Long, Long>>()
+            var currentCheckInTime: Long? = null
+
+            for (anh in listAnh) {
+                when (anh.loaiAnh) {
+                    LoaiAnhMinhChungLamViec.CHECK_IN -> {
+                        if (currentCheckInTime == null) {
+                            currentCheckInTime = anh.thoiGianTaiLen
+                        }
+                    }
+
+                    LoaiAnhMinhChungLamViec.TAM_NGHI -> {
+                        if (currentCheckInTime != null) {
+                            pairs.add(currentCheckInTime!! to anh.thoiGianTaiLen)
+                            currentCheckInTime = null
+                        }
+                    }
+                }
+            }
+
+            // Nếu có phiên làm việc đang mở (chưa tạm nghỉ), tính đến thời điểm hiện tại
+            currentCheckInTime?.let {
+                pairs.add(it to System.currentTimeMillis())
+            }
+
+            val tongMillis = pairs.sumOf { (start, end) -> end - start }
+            val soPhutDaLam = (tongMillis / 60_000L).toInt()
+
+            val soPhutConLai = (thoiGianDuKienPhut - soPhutDaLam).coerceAtLeast(0)
+            _thoiGianConLaiThamKhao.value = soPhutConLai * 60_000L
+        }
+    }
+
+
 
     fun startCountdown(phanCongKtvId: Int, thoiGianDuKienPhut: Int) {
         countdownJob?.cancel()
