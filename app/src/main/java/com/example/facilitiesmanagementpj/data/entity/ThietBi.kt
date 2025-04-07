@@ -12,7 +12,7 @@ data class ThietBi(
     val phongId: Int?,
     val tangId: Int?,
     val trangThai: String = "Đang Hoạt Động",
-    val ngayDaCat: Long? = null,
+    val ngayDaCat: Long? = null, // ngay cài đặt (đưa vào dùng)
     val ngayDungSuDung: Long? = null,
     val ghiChu: String? = null,
     val ngayBaoDuongGanNhat: Long?, // ✅ Ngày thực hiện bảo dưỡng gần nhất

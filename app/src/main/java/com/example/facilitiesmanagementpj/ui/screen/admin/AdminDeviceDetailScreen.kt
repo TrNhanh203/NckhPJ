@@ -46,6 +46,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.facilitiesmanagementpj.R
 import com.example.facilitiesmanagementpj.data.entity.ThietBi
 import com.example.facilitiesmanagementpj.data.utils.LoaiPhanCong
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBiColor
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
@@ -54,7 +55,9 @@ import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceDetailViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
@@ -119,17 +122,16 @@ fun AdminDeviceDetailScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(16.dp)
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp , bottom = 64.dp)
+
                         .then(modifier),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     thietBi?.let { tb ->
                         ThongTinThietBiCard(thietBi = tb)
-                        GhiChuCard(ghiChu = tb.ghiChu)
-
                         ViTriThietBiCard(viTri = viTri)
-
                         CardThongKeBaoDuong(tb)
+                        GhiChuCard(ghiChu = tb.ghiChu)
 
 
                         if (isYeuCau && chiTietYeuCau != null) {
@@ -219,26 +221,29 @@ fun AdminDeviceDetailScreen(
                 BottomAppBar(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .height(54.dp),
+                        .height(64.dp), // ⬆️ tăng nhẹ cho cân nút
                     tonalElevation = 8.dp,
                     containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp), // ⬆️ thêm padding đều hơn
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         val buttonModifier = Modifier
                             .weight(1f)
-                            .height(40.dp)
+                            .height(48.dp)
 
                         OutlinedButton(
                             onClick = { /* TODO: Xem lịch sử */ },
                             modifier = buttonModifier,
-                            shape = RectangleShape
+                            shape = RoundedCornerShape(12.dp), // 👈 bo góc
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
                         ) {
-                            Text("Xem lịch sử")
+                            Text("Xem lịch sử", style = MaterialTheme.typography.titleSmall)
                         }
 
                         val phanCongDaTao by viewModel.phanCongHienTai.collectAsState()
@@ -252,25 +257,32 @@ fun AdminDeviceDetailScreen(
                                     navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
                                 },
                                 modifier = buttonModifier,
-                                shape = RectangleShape
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                )
                             ) {
-                                Text("Xem phân công")
+                                Text("Xem phân công", style = MaterialTheme.typography.titleSmall)
                             }
                         } else if (isYeuCau) {
                             val trangThaiYeuCau = yeuCau?.trangThai ?: ""
                             OutlinedButton(
                                 onClick = { showBottomSheet = true },
-                                enabled = (phanCongDaTao == null && (trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN || trangThaiYeuCau == TrangThaiYeuCau.DANG_XU_LY)),
+                                enabled = (thietBi!!.trangThai == TrangThaiThietBi.DANG_HOAT_DONG &&
+                                        (trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN || trangThaiYeuCau == TrangThaiYeuCau.DANG_XU_LY)),
                                 modifier = buttonModifier,
-                                shape = RectangleShape
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                    disabledContentColor = MaterialTheme.colorScheme.outline
+                                )
                             ) {
-                                Text("Tạo phân công")
+                                Text("Tạo phân công", style = MaterialTheme.typography.titleSmall)
                             }
                         }
-
-
                     }
                 }
+
             }
 
         }
@@ -346,47 +358,59 @@ fun ViTriThietBiCard(viTri: String?) {
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // ✅ GIỮ NGUYÊN MÀU ICON
-            Image(
-                painter = painterResource(id = R.drawable.ic_location),
-                contentDescription = null,
+        Column {
+            // 🔹 Dải màu
+            Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .padding(end = 4.dp)
-                // Không tint
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .background(MaterialTheme.colorScheme.primary)
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // ✅ GIỮ NGUYÊN MÀU ICON
+                Image(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .padding(end = 4.dp)
+                    // Không tint
+                )
 
-            val parts = (viTri ?: "Đang cập nhật...").split(">")
-            val annotatedText = buildAnnotatedString {
-                parts.forEachIndexed { index, part ->
-                    append(part.trim())
-                    if (index != parts.lastIndex) {
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ) {
-                            append(" > ")
+                Spacer(modifier = Modifier.width(8.dp))
+
+                val parts = (viTri ?: "Đang cập nhật...").split(">")
+                val annotatedText = buildAnnotatedString {
+                    parts.forEachIndexed { index, part ->
+                        append(part.trim())
+                        if (index != parts.lastIndex) {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
+                                append(" > ")
+                            }
                         }
                     }
                 }
-            }
 
-            Text(
-                text = annotatedText,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                Text(
+                    text = annotatedText,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-            )
+            }
         }
+
+
     }
 }
 
@@ -394,46 +418,120 @@ fun ViTriThietBiCard(viTri: String?) {
 
 @Composable
 fun CardThongKeBaoDuong(thietBi: ThietBi) {
-    val ganNhat = thietBi.ngayBaoDuongGanNhat?.let { Date(it) }
-    val tiepTheo = thietBi.ngayBaoDuongTiepTheo?.let { Date(it) }
+    val ngayTiepTheo = thietBi.ngayBaoDuongTiepTheo?.let { Date(it) }
+    val ngayGanNhat = thietBi.ngayBaoDuongGanNhat?.let { Date(it) }
     val cycle = thietBi.baoDuongDinhKy ?: 0
 
-    val daysSinceLast = ganNhat?.let {
-        ((System.currentTimeMillis() - it.time) / (1000 * 60 * 60 * 24)).toInt()
+    // Tính số ngày còn lại đến kỳ tiếp theo
+    val daysLeft = ngayTiepTheo?.let {
+        ((it.time - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
     } ?: 0
 
-    val progress = if (cycle > 0) daysSinceLast / cycle.toFloat() else 0f
+    val progress = if (cycle > 0 && daysLeft >= 0) {
+        1f - (daysLeft / cycle.toFloat())
+    } else 1f
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("📊 Thống kê bảo dưỡng", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-
-            Spacer(Modifier.height(8.dp))
-
-            Text("🔁 Chu kỳ: ${cycle} ngày")
-            Text("🕒 Gần nhất: ${ganNhat?.toString() ?: "Không rõ"}")
-            Text("📅 Kế tiếp: ${tiepTheo?.toString() ?: "Không rõ"}")
-
-            Spacer(Modifier.height(12.dp))
-
-            // Tiến độ chu kỳ
-            LinearProgressIndicator(
-                progress = progress.coerceIn(0f, 1f),
+        Column {
+            // 🔷 HEADER
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(12.dp)
-                    .clip(RoundedCornerShape(6.dp)),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-            )
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = "🔧 Thông tin bảo dưỡng",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-            Spacer(Modifier.height(4.dp))
-            Text("${(progress * 100).toInt()}% chu kỳ đã trôi qua", style = MaterialTheme.typography.labelSmall)
+            // 🔽 BODY: 2 CỘT
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .padding(16.dp)
+            ) {
+                // ◀️ VÒNG TRÒN BÊN TRÁI
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Còn lại",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            progress = progress.coerceIn(0f, 1f),
+                            strokeWidth = 12.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.size(100.dp)
+                        )
+                        Text(
+                            text = "${daysLeft.coerceAtLeast(0)} ngày",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // ▶️ THÔNG TIN BÊN PHẢI
+                Column(modifier = Modifier.weight(2f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceEvenly) {
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+                    Text(
+                        text = "Chu kỳ BD: ${cycle} ngày",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary)
+                    )
+
+                    Text(
+                        text = "Sử dụng từ: " +
+                                (thietBi.ngayDaCat?.let { sdf.format(Date(it)) }
+                                    ?: thietBi.ngayDungSuDung?.let { "Dừng sử dụng: ${sdf.format(Date(it))}" }
+                                    ?: "Chưa cập nhật"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+
+
+                    Text(
+                        text = "BD Gần nhất: ${ngayGanNhat?.let { sdf.format(it) } ?: "Không rõ"}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Text(
+                        text = "BD Kế tiếp: ${ngayTiepTheo?.let { sdf.format(it) } ?: "Không rõ"}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
@@ -578,24 +676,34 @@ fun GhiChuCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = { isExpanded = !isExpanded }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = if (isExpanded) "📋 Ghi chú (đang mở)" else "📋 Ghi chú (nhấn để xem)",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
+        Column{
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .background(MaterialTheme.colorScheme.primary)
             )
 
-            if (isExpanded) {
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = ghiChu ?: "Không có ghi chú",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    lineHeight = 20.sp
+                    text = if (isExpanded) "📋 Ghi chú (đang mở)" else "📋 Ghi chú (nhấn để xem)",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
                 )
+
+                if (isExpanded) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = ghiChu ?: "Không có ghi chú",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 20.sp
+                    )
+                }
             }
         }
+
     }
 }
 
