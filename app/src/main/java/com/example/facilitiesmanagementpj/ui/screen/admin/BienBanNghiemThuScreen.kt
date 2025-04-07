@@ -35,11 +35,6 @@ import java.io.FileOutputStream
 import androidx.core.graphics.scale
 
 
-// Các thành phần tự định nghĩa bạn cần thêm trong dự án
-
-
-
-
 // Composable màn hình nghiệm thu có chữ ký điện tử (dữ liệu fake để test preview)
 // Composable màn hình nghiệm thu có chữ ký điện tử – 3 tab: preview, ký A, ký B
 @Composable
@@ -314,96 +309,6 @@ fun exportBienBanToPdf(
 
     Toast.makeText(context, "✅ Đã tạo PDF mẫu đẹp tại:\n${file.absolutePath}", Toast.LENGTH_LONG).show()
 }
-
-
-
-//fun exportBienBanToPdf(
-//    context: Context,
-//    thongTin: PhanCongThongTin,
-//    kyA: Bitmap,
-//    kyB: Bitmap
-//) {
-//    val pdf = PdfDocument()
-//    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-//    val page = pdf.startPage(pageInfo)
-//    val canvas = page.canvas
-//
-//    val paint = Paint().apply {
-//        color = android.graphics.Color.BLACK
-//        textSize = 14f
-//        isAntiAlias = true
-//    }
-//
-//    var y = 50f
-//    val centerX = canvas.width / 2f
-//
-//    fun drawCenter(text: String, textSize: Float = 14f, bold: Boolean = false) {
-//        paint.textSize = textSize
-//        paint.isFakeBoldText = bold
-//        val textWidth = paint.measureText(text)
-//        canvas.drawText(text, centerX - textWidth / 2, y, paint)
-//        y += 24f
-//    }
-//
-//    fun drawLeft(text: String, indent: Float = 40f) {
-//        paint.textSize = 14f
-//        paint.isFakeBoldText = false
-//        canvas.drawText(text, indent, y, paint)
-//        y += 22f
-//    }
-//
-//    // --- Nội dung chính ---
-//    drawCenter("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM", bold = true)
-//    drawCenter("Độc lập – Tự do – Hạnh phúc", bold = true)
-//    y += 12f
-//
-//    drawCenter("BIÊN BẢN NGHIỆM THU", textSize = 16f, bold = true)
-//    drawCenter("v/v: bảo trì, sửa chữa thiết bị")
-//    y += 12f
-//
-//    drawLeft("Căn cứ Giấy đề xuất ngày ... tháng ... năm ... của PHÒNG HÀNH CHÍNH về việc sửa chữa máy móc thiết bị;")
-//    y += 10f
-//    drawLeft("Hôm nay, ngày ... tháng ... năm ..., chúng tôi gồm có:")
-//    drawLeft("Ông/Bà: TRẦN THỊ ADMIN    Chức vụ: Quản trị viên – Phòng Hành chính")
-//    drawLeft("Ông/Bà: NGUYỄN VĂN KỸ     Chức vụ: Kỹ thuật viên – Phòng Kỹ thuật")
-//    y += 10f
-//    drawLeft("Chúng tôi thống nhất nghiệm thu các thiết bị đã sửa chữa như sau:")
-//    drawLeft("1. Máy in HP 1020 – P.203: Thay hộp mực, vệ sinh")
-//    drawLeft("2. Máy chiếu Epson X500 – P.205: Kiểm tra nguồn và ống kính")
-//    y += 10f
-//
-//    drawLeft("Chúng tôi xác nhận các thiết bị trên đã hoạt động tốt sau khi sửa chữa, bảo trì.")
-//    y += 16f
-//    drawLeft("Biên bản gồm 01 trang, lập thành 02 bản, mỗi bên giữ một bản và có giá trị pháp lý như nhau.")
-//    y += 40f
-//
-//    // --- Chữ ký ---
-//    paint.textSize = 14f
-//    paint.isFakeBoldText = true
-//    canvas.drawText("ĐD Đơn vị sử dụng thiết bị", 60f, y, paint)
-//    canvas.drawText("ĐD Phòng Kỹ thuật", 350f, y, paint)
-//
-//    paint.isFakeBoldText = false
-//    paint.textSize = 12f
-//    canvas.drawText("(Ký, ghi rõ họ tên)", 70f, y + 18f, paint)
-//    canvas.drawText("(Ký, ghi rõ họ tên)", 365f, y + 18f, paint)
-//
-//    // Chèn ảnh chữ ký
-//    val sigSize = 100
-//    canvas.drawBitmap(kyA.scale(sigSize, sigSize, false), 70f, y + 40f, null)
-//    canvas.drawBitmap(kyB.scale(sigSize, sigSize, false), 360f, y + 40f, null)
-//
-//    pdf.finishPage(page)
-//
-//    val file = File(
-//        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-//        "bien_ban_nghiem_thu_mau_chuan.pdf"
-//    )
-//    pdf.writeTo(FileOutputStream(file))
-//    pdf.close()
-//
-//    Toast.makeText(context, "Đã tạo PDF mẫu chuẩn tại:\n${file.absolutePath}", Toast.LENGTH_LONG).show()
-//}
 
 
 

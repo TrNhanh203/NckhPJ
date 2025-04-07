@@ -71,11 +71,11 @@ fun HomeScreen(navController: NavController) {
                 .then(modifier)
         ) {
             Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
-//            BienBanNghiemThuScreen(
-//                onHoanTat = { kyBena, kyBenb ->
-//
-//                }
-//            )
+            BienBanNghiemThuScreen(
+                onHoanTat = { kyBena, kyBenb ->
+
+                }
+            )
         }
     }
 //    ScaffoldLayout(

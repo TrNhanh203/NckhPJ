@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.People
@@ -84,25 +86,6 @@ fun AdminRequestListScreen(navController: NavController) {
                 }
             )
 
-
-//            DropdownMenuFilter(
-//                label = "Trạng thái",
-//                items = TrangThaiYeuCau.ALL,
-//                selected = selectedTrangThai,
-//                onSelectedChange = { viewModel.setTrangThaiFilter(it) }
-//            )
-//
-//            DropdownMenuFilter(
-//                label = "Đơn vị",
-//                items = donViList.map { it.tenDonVi },
-//                selected = selectedDonVi?.let { id ->
-//                    donViList.find { it.id == id }?.tenDonVi
-//                },
-//                onSelectedChange = { selectedName ->
-//                    val selectedDonVi = donViList.find { it.tenDonVi == selectedName }
-//                    viewModel.setDonViFilter(selectedDonVi?.id)
-//                }
-//            )
             LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(requestList) { request ->
                     RequestCard(
@@ -476,7 +459,7 @@ fun DotLevelBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.People,
+                imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
                 tint = textColor,
                 modifier = Modifier.size(14.dp)
