@@ -30,15 +30,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
-import com.example.facilitiesmanagementpj.ui.screen.admin.exportBienBanToPdf
-import com.example.facilitiesmanagementpj.ui.screen.kythuatvien.formatMillis
-import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.LoaiTacVu
 
 
 @Composable
@@ -78,12 +70,12 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
                 .then(modifier)
         ) {
-//            Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
-            BienBanNghiemThuScreen(
-                onHoanTat = { kyBena, kyBenb ->
-
-                }
-            )
+            Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
+//            BienBanNghiemThuScreen(
+//                onHoanTat = { kyBena, kyBenb ->
+//
+//                }
+//            )
         }
     }
 //    ScaffoldLayout(
