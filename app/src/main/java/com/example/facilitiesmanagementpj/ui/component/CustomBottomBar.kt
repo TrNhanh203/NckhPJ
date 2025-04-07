@@ -41,7 +41,7 @@ fun CustomBottomBar(
         Surface(
             tonalElevation = 8.dp,
             shadowElevation = 8.dp,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,7 +93,7 @@ fun CustomBottomBar(
         Box(
             modifier = Modifier
                 .size(80.dp)
-                .background(Color.White, CircleShape)
+                .background(MaterialTheme.colorScheme.surface, CircleShape)
                 .align(Alignment.TopCenter)
         )
 
@@ -101,7 +101,7 @@ fun CustomBottomBar(
         FloatingActionButton(
             onClick = { navController.navigate(Screen.Home.route) },
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(6.dp),
             modifier = Modifier
@@ -139,7 +139,7 @@ fun BottomBarItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
+    val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable { onClick() }
@@ -148,122 +148,4 @@ fun BottomBarItem(
         Text(label, fontSize = 12.sp, color = color)
     }
 }
-
-
-//@Composable
-//fun CustomBottomBar(
-//    navController: NavController,
-//    currentRoute: String?
-//) {
-//    val sessionViewModel: SessionViewModel = hiltViewModel()
-//    val currentUser by sessionViewModel.currentUser.collectAsState()
-//    var showDialog by remember { mutableStateOf(false) }
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(84.dp)
-//            .background(Color.Transparent),
-//        contentAlignment = Alignment.BottomCenter
-//    ) {
-//        // Bar nền
-//        Surface(
-//            tonalElevation = 8.dp,
-//            shadowElevation = 8.dp,
-//            color = Color.White,
-//            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(64.dp)
-//                .align(Alignment.BottomCenter)
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxSize(),
-//                horizontalArrangement = Arrangement.SpaceAround,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                // Dashboard
-//                BottomBarItem(
-//                    icon = Icons.Default.DateRange,
-//                    label = "Dashboard",
-//                    isSelected = currentRoute in listOf(Screen.AdminDashboard.route, Screen.KtvDashboard.route, Screen.DonViDashboard.route) == true,
-//                    onClick = {
-//                        if (currentUser == null) showDialog = true
-//                        else {
-//                            val route = when (currentUser!!.tenVaiTro) {
-//                                "Admin" -> Screen.AdminDashboard.route
-//                                "Kỹ Thuật Viên" -> Screen.KtvDashboard.route
-//                                "Quản Lý Đơn Vị" -> Screen.DonViDashboard.route
-//                                else -> null
-//                            }
-//                            route?.let { navController.navigate(it) }
-//                        }
-//                    }
-//                )
-//
-//                Spacer(modifier = Modifier.width(64.dp)) // chừa chỗ cho FAB
-//
-//                // Hồ sơ
-//                BottomBarItem(
-//                    icon = Icons.Default.Person,
-//                    label = "Hồ sơ",
-//                    isSelected = currentRoute == Screen.Profile.route,
-//                    onClick = {
-//                        if (currentUser == null) showDialog = true
-//                        else navController.navigate(Screen.Profile.route)
-//                    }
-//                )
-//            }
-//        }
-//
-//        // FAB giữa
-//        FloatingActionButton(
-//            onClick = { navController.navigate(Screen.Home.route) },
-//            containerColor = MaterialTheme.colorScheme.primary,
-//            contentColor = Color.White,
-//            shape = CircleShape,
-//            elevation = FloatingActionButtonDefaults.elevation(8.dp),
-//            modifier = Modifier
-//                .size(56.dp) // Có thể giảm nhẹ nếu muốn đồng đều hơn
-//                .offset(y = (-8).dp)
-//        ) {
-//            Icon(Icons.Default.Home, contentDescription = "Trang chủ")
-//        }
-//    }
-//
-//    // Dialog chưa đăng nhập
-//    if (showDialog) {
-//        AlertDialog(
-//            onDismissRequest = { showDialog = false },
-//            title = { Text("Bạn chưa đăng nhập") },
-//            text = { Text("Bạn có muốn chuyển đến trang đăng nhập không?") },
-//            confirmButton = {
-//                Button(onClick = {
-//                    navController.navigate(Screen.Login.route)
-//                    showDialog = false
-//                }) { Text("Đăng nhập") }
-//            },
-//            dismissButton = {
-//                OutlinedButton(onClick = { showDialog = false }) { Text("Hủy") }
-//            }
-//        )
-//    }
-//}
-//
-//@Composable
-//fun BottomBarItem(
-//    icon: ImageVector,
-//    label: String,
-//    isSelected: Boolean,
-//    onClick: () -> Unit
-//) {
-//    val color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = Modifier.clickable { onClick() }
-//    ) {
-//        Icon(icon, contentDescription = label, tint = color)
-//        Text(label, fontSize = 12.sp, color = color)
-//    }
-//}
 

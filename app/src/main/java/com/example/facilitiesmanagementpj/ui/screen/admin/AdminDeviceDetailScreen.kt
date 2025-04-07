@@ -118,6 +118,7 @@ fun AdminDeviceDetailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(16.dp)
                         .then(modifier),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -339,32 +340,39 @@ fun AdminDeviceDetailScreen(
 @Composable
 fun ViTriThietBiCard(viTri: String?) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // ✅ GIỮ NGUYÊN MÀU ICON
             Image(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = null,
                 modifier = Modifier
                     .size(28.dp)
                     .padding(end = 4.dp)
+                // Không tint
             )
+
             Spacer(modifier = Modifier.width(8.dp))
+
             val parts = (viTri ?: "Đang cập nhật...").split(">")
             val annotatedText = buildAnnotatedString {
                 parts.forEachIndexed { index, part ->
                     append(part.trim())
                     if (index != parts.lastIndex) {
-                        withStyle(style = SpanStyle(color = Color.Red, fontWeight = FontWeight.Bold)) {
+                        withStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
                             append(" > ")
                         }
                     }
@@ -373,11 +381,16 @@ fun ViTriThietBiCard(viTri: String?) {
 
             Text(
                 text = annotatedText,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     }
 }
+
+
 
 @Composable
 fun CardThongKeBaoDuong(thietBi: ThietBi) {
@@ -426,41 +439,39 @@ fun CardThongKeBaoDuong(thietBi: ThietBi) {
 }
 
 
-
 @Composable
 fun ThongTinThietBiCard(
     thietBi: ThietBi
 ) {
-    val headerColor = MaterialTheme.colorScheme.primary
-    val iconColor = MaterialTheme.colorScheme.primary
     val statusColor = TrangThaiThietBiColor.getColor(thietBi.trangThai)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline), // Viền dùng outline
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer // Nền tổng thể card
+        )
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
 
-            // 🔷 Header
+            // 🔷 HEADER
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "Thông tin thiết bị",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary, // text trắng cho header
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -468,28 +479,21 @@ fun ThongTinThietBiCard(
                         modifier = Modifier
                             .size(16.dp)
                             .background(statusColor, CircleShape)
-                            .border(1.dp, Color.White, CircleShape) // 💡 Border trắng cho rõ hơn nếu nền header đậm
+                            .border(1.dp, MaterialTheme.colorScheme.onPrimary, CircleShape) // bo viền trắng
                     )
                 }
             }
 
-            // 🔽 Nội dung
+            // 🔽 BODY
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Icon minh hoạ
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Icon đại diện
                     Box(
                         modifier = Modifier
                             .size(100.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(8.dp)
-                            .padding(end = 12.dp)
                     ) {
                         Image(
                             painter = painterResource(id = getDeviceIconRes(thietBi.loaiThietBiId)),
@@ -498,22 +502,20 @@ fun ThongTinThietBiCard(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(Modifier.width(16.dp))
 
                     Column {
                         Text(
                             text = thietBi.tenThietBi,
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = statusColor.copy(alpha = 0.12f),
+                            color = statusColor.copy(alpha = 0.1f),
                             border = BorderStroke(1.dp, statusColor)
                         ) {
                             Text(
@@ -526,8 +528,9 @@ fun ThongTinThietBiCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
+                // 🔻 Mô tả
                 Text(
                     text = "Mô tả thiết bị:",
                     style = MaterialTheme.typography.titleSmall.copy(
@@ -540,159 +543,21 @@ fun ThongTinThietBiCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 80.dp, max = 180.dp)
-                        .background(
-                            MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
                         .padding(8.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
                         text = thietBi.moTa ?: "Không có mô tả",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
                     )
                 }
             }
         }
     }
-
-
-//    Card(
-//        modifier = Modifier.fillMaxWidth(),
-//        shape = RoundedCornerShape(12.dp),
-//        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-//        elevation = CardDefaults.cardElevation(4.dp),
-//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-//    ) {
-//        Column(modifier = Modifier.fillMaxWidth()) {
-//
-//            // 🔷 Header có chấm tròn góc phải
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(headerColor)
-//                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-//                    //.padding(horizontal = 16.dp, vertical = 10.dp)
-//            ) {
-//
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .background(headerColor)
-//                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-//                        .padding(horizontal = 16.dp, vertical = 10.dp)
-//                ) {
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Text(
-//                            text = "Thông tin thiết bị",
-//                            color = Color.White,
-//                            style = MaterialTheme.typography.titleMedium,
-//                            fontWeight = FontWeight.Bold
-//                        )
-//
-//                        // 🟢 Dot trạng thái to và cùng hàng
-//                        Box(
-//                            modifier = Modifier
-//                                .size(16.dp) // tăng size cho rõ
-//                                .background(statusColor, CircleShape)
-//                        )
-//                    }
-//                }
-//
-//            }
-//
-//            // 🔽 Nội dung
-//            Column(modifier = Modifier.padding(16.dp)) {
-//                Row(
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    modifier = Modifier.fillMaxWidth()
-//                ) {
-//                    // 🖼️ Container cho icon
-//                    Box(
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .background(
-//                                color = MaterialTheme.colorScheme.surface,
-//                                shape = RoundedCornerShape(10.dp)
-//                            )
-//                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
-//                            .padding(8.dp)
-//                            .padding(end = 12.dp)
-//                    ) {
-//                        Image(
-//                            painter = painterResource(id = getDeviceIconRes(thietBi.loaiThietBiId)),
-//                            contentDescription = null,
-//                            modifier = Modifier.fillMaxSize()
-//                        )
-//                    }
-//
-//                    Spacer(modifier = Modifier.width(16.dp))
-//
-//                    Column {
-//                        Text(
-//                            text = thietBi.tenThietBi,
-//                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-//                            maxLines = 3,
-//                            overflow = TextOverflow.Ellipsis
-//                        )
-//
-//                        Spacer(modifier = Modifier.height(6.dp))
-//
-//                        // 🟪 Chip trạng thái
-//                        Surface(
-//                            shape = RoundedCornerShape(8.dp),
-//                            color = statusColor.copy(alpha = 0.1f),
-//                            border = BorderStroke(1.dp, statusColor)
-//                        ) {
-//                            Text(
-//                                text = thietBi.trangThai,
-//                                color = statusColor,
-//                                style = MaterialTheme.typography.labelMedium,
-//                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-//                            )
-//                        }
-//                    }
-//                }
-//
-//
-//                // 🔹 Info
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // 🔻 Mô tả thiết bị
-//                Text(
-//                    text = "Mô tả thiết bị:",
-//                    style = MaterialTheme.typography.titleSmall.copy(
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = iconColor
-//                    )
-//                )
-//
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .heightIn(min = 80.dp, max = 180.dp)
-//                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f), RoundedCornerShape(8.dp)) // 💡 nền dịu
-//                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-//                        .padding(8.dp)
-//                        .verticalScroll(rememberScrollState())
-//                ) {
-//                    Text(
-//                        text = thietBi.moTa ?: "Không có mô tả",
-//                        style = MaterialTheme.typography.bodyMedium,
-//                        lineHeight = 20.sp
-//                    )
-//                }
-//
-//            }
-//        }
-//    }
 }
 
 @Composable
@@ -706,10 +571,12 @@ fun GhiChuCard(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        onClick = { isExpanded = !isExpanded } // Toggle mở rộng
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = { isExpanded = !isExpanded }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -724,12 +591,14 @@ fun GhiChuCard(
                 Text(
                     text = ghiChu ?: "Không có ghi chú",
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     lineHeight = 20.sp
                 )
             }
         }
     }
 }
+
 
 
 

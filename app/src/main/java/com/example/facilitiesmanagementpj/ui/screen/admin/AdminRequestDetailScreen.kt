@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
@@ -99,38 +100,64 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .then(innerPadding)
         ) {
             if (yeuCau?.trangThai != TrangThaiYeuCau.CHO_XAC_NHAN) {
-                TabRow(selectedTabIndex = tabIndex.intValue) {
+                val selectedColor = MaterialTheme.colorScheme.primary
+                val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+                TabRow(
+                    selectedTabIndex = tabIndex.intValue,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = selectedColor,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[tabIndex.intValue]),
+                            color = selectedColor,
+                            height = 3.dp
+                        )
+                    }
+                ) {
                     Tab(
                         selected = tabIndex.intValue == 0,
                         onClick = { tabIndex.intValue = 0 },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor,
                         text = {
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Chưa phân công")
                                 Badge(
                                     modifier = Modifier.padding(start = 8.dp),
-                                    content = { Text(chuaPhanCong.size.toString()) }
-                                )
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = Color.White
+                                ) {
+                                    Text(chuaPhanCong.size.toString())
+                                }
                             }
+                        }
+                    )
 
-                        })
                     Tab(
                         selected = tabIndex.intValue == 1,
                         onClick = { tabIndex.intValue = 1 },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor,
                         text = {
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Đã phân công")
                                 Badge(
                                     modifier = Modifier.padding(start = 8.dp),
-                                    content = { Text(daPhanCong.size.toString()) }
-                                )
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = Color.White
+                                ) {
+                                    Text(daPhanCong.size.toString())
+                                }
                             }
-
-                        })
-
+                        }
+                    )
                 }
+
             }
 
             // Filter chips below tab
@@ -325,20 +352,19 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
 }
 
 
-
 @Composable
 fun RequestDeviceItem(
     item: ChiTietYeuCauWithDisplayData,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(12.dp)
-    val headerColor = MaterialTheme.colorScheme.primary
 
     Surface(
         shape = shape,
         tonalElevation = 2.dp,
-        shadowElevation = 4.dp,
-        border = BorderStroke(1.dp, headerColor),
+        shadowElevation = 6.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
+        color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -349,7 +375,7 @@ fun RequestDeviceItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(headerColor)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
@@ -362,19 +388,19 @@ fun RequestDeviceItem(
                         text = item.chiTiet.loaiYeuCau,
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.People,
                             contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
                         )
                         Text(
                             "${item.totalDoingTechnicians}/${item.totalResponsibleTechnicians}",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -394,7 +420,7 @@ fun RequestDeviceItem(
                     modifier = Modifier
                         .size(100.dp)
                         .clip(shape)
-                        .border(1.dp, Color.LightGray, shape)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, shape)
                 ) {
                     if (item.anhDaiDien != null) {
                         Image(
@@ -405,18 +431,16 @@ fun RequestDeviceItem(
                         )
                     } else {
                         Box(
-                            Modifier
+                            modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.LightGray),
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 painter = painterResource(getIconResForDevice(item.chiTiet.tenLoaiThietBi.toString())),
-                                contentDescription = item.chiTiet.tenLoaiThietBi,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .alpha(0.3f),
-                                tint = Color.Unspecified
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp).alpha(0.3f),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -426,45 +450,23 @@ fun RequestDeviceItem(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(4.dp)
-                            .background(
-                                Color.Black.copy(alpha = 0.6f),
-                                shape = RoundedCornerShape(6.dp)
-                            )
+                            .background(Color.Black.copy(alpha = 0.6f), shape = RoundedCornerShape(6.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp),
                         horizontalAlignment = Alignment.End
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Image,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Text(
-                                text = "${item.soAnh}",
-                                color = Color.White,
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                            Icon(Icons.Default.Image, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
+                            Text("${item.soAnh}", color = Color.White, style = MaterialTheme.typography.labelSmall)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.VideoLibrary,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Text(
-                                text = "${item.soVideo}",
-                                color = Color.White,
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                            Icon(Icons.Default.VideoLibrary, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
+                            Text("${item.soVideo}", color = Color.White, style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // 📄 Nội dung + Icon xem chi tiết
                 Box(
                     modifier = Modifier
                         .height(100.dp)
@@ -478,11 +480,11 @@ fun RequestDeviceItem(
                     ) {
                         Text(
                             text = item.chiTiet.tenThietBi ?: "",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
@@ -518,7 +520,6 @@ fun getIconResForDevice(tenLoai: String): Int {
     }
 }
 
-
 @Composable
 fun FilterBarYeuCau(
     selectedDeviceType: String?,
@@ -531,6 +532,7 @@ fun FilterBarYeuCau(
 ) {
     Surface(
         tonalElevation = 2.dp,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -540,9 +542,11 @@ fun FilterBarYeuCau(
                 .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val chipShape = RoundedCornerShape(12.dp)
+
             FilterChip(
-                modifier = Modifier
-                    .width(120.dp),// hoặc Modifier.weight(1f) nếu chia đều
+                modifier = Modifier.width(120.dp),
+                shape = chipShape,
                 selected = selectedDeviceType != null,
                 onClick = {
                     setFilterType("device")
@@ -558,16 +562,15 @@ fun FilterBarYeuCau(
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = Color.White,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
 
             FilterChip(
-                modifier = Modifier
-                    .width(120.dp),
-
+                modifier = Modifier.width(120.dp),
+                shape = chipShape,
                 selected = selectedRequestType != null,
                 onClick = {
                     setFilterType("request")
@@ -583,14 +586,15 @@ fun FilterBarYeuCau(
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = Color.White,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
 
             FilterChip(
                 selected = false,
+                shape = chipShape,
                 onClick = {
                     viewModel.setDeviceTypeFilter(null)
                     viewModel.setRequestTypeFilter(null)
@@ -598,17 +602,15 @@ fun FilterBarYeuCau(
                 label = {
                     Text(
                         "Xoá lọc",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.labelLarge
                     )
                 },
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = false,
-                    borderColor = MaterialTheme.colorScheme.primary
-                ),
+                    borderColor = MaterialTheme.colorScheme.outline),
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     labelColor = MaterialTheme.colorScheme.primary
                 )
             )

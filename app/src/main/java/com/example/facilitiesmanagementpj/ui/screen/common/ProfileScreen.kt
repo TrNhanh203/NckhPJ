@@ -42,6 +42,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
             modifier = Modifier
                 .fillMaxSize()
                 .then(modifier)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
@@ -59,7 +60,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
             Text(
                 "Hồ sơ cá nhân",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primaryContainer
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -92,8 +93,8 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSecondary
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 )
             ) {
                 Text("Đổi mật khẩu")
@@ -162,67 +163,8 @@ fun AvatarWithStatus(
                     color = if (isOnline) Color(0xFF4CAF50) else Color(0xFFF44336),
                     shape = CircleShape
                 )
-                .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.surfaceContainer, CircleShape)
         )
     }
 }
 
-
-//@Composable
-//fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
-//
-//    val taiKhoan by viewModel.taiKhoan.collectAsState()
-//
-//    if (taiKhoan == null) {
-//        Text("Đang tải dữ liệu...", modifier = Modifier.fillMaxSize()) // ✅ Hiển thị loading thay vì điều hướng về Login
-//        return
-//    }
-//
-//    ScaffoldLayout(title = "Profile", navController = navController, showBottomBar = true) { modifier ->
-//        Column(
-//            modifier = Modifier.fillMaxSize().then(modifier),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Text("Hồ sơ cá nhân", style = MaterialTheme.typography.headlineMedium)
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            ProfileInfoItem(label = "Tên tài khoản", value = taiKhoan!!.tenTaiKhoan)
-//            ProfileInfoItem(label = "Họ và Tên", value = taiKhoan!!.hoTen ?: "Chưa cập nhật")
-//            ProfileInfoItem(label = "Email", value = taiKhoan!!.email ?: "Chưa cập nhật")
-//            ProfileInfoItem(label = "Số điện thoại", value = taiKhoan!!.soDienThoai ?: "Chưa cập nhật")
-//            ProfileInfoItem(label = "Trạng thái", value = taiKhoan!!.trangThai)
-//            ProfileInfoItem(label = "Lần đăng nhập cuối", value = taiKhoan!!.lastLogin?.toString() ?: "Chưa đăng nhập")
-//
-//            Spacer(modifier = Modifier.height(24.dp))
-//
-//            Button(
-//                onClick = { },
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Text("Cập nhật thông tin")
-//            }
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Button(
-//                onClick = { navController.navigate(Screen.ChangePassword.route) },
-//                modifier = Modifier.fillMaxWidth(),
-//                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-//            ) {
-//                Text("Đổi mật khẩu")
-//            }
-//        }
-//    }
-//
-//
-//}
-//
-//// Composable hiển thị từng mục thông tin cá nhân
-//@Composable
-//fun ProfileInfoItem(label: String, value: String) {
-//    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-//        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-//        Text(text = value, style = MaterialTheme.typography.bodyLarge)
-//    }
-//}

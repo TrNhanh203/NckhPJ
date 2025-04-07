@@ -89,8 +89,9 @@ fun AdminViewDetailProfileScreen(
                     Text(
                         text = taiKhoan.email ?: "--",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                 }
 
 
@@ -100,7 +101,7 @@ fun AdminViewDetailProfileScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 6.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
                 ) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Thông tin tài khoản", style = MaterialTheme.typography.titleMedium)
@@ -113,14 +114,17 @@ fun AdminViewDetailProfileScreen(
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Trạng thái: ", style = MaterialTheme.typography.bodyMedium)
+                            val trangThaiColor = getColorForTrangThai(taiKhoan.trangThai)
+
                             AssistChip(
                                 onClick = {},
                                 label = { Text(taiKhoan.trangThai) },
                                 colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = getColorForTrangThai(taiKhoan.trangThai),
-                                    labelColor = Color.White
+                                    containerColor = trangThaiColor.background,
+                                    labelColor = trangThaiColor.content
                                 )
                             )
+
                         }
                     }
                 }
@@ -132,7 +136,7 @@ fun AdminViewDetailProfileScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 6.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("Chuyên môn", style = MaterialTheme.typography.titleMedium)
@@ -152,7 +156,7 @@ fun AdminViewDetailProfileScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 6.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("Thông tin kỹ thuật viên", style = MaterialTheme.typography.titleMedium)
@@ -192,8 +196,9 @@ fun AdminViewDetailProfileScreen(
                                         containerColor = MaterialTheme.colorScheme.error,
                                         contentColor = MaterialTheme.colorScheme.onError
                                     )
+
                                 ) {
-                                    Text("Từ chối", style = MaterialTheme.typography.titleMedium)
+                                    Text("Từ chối", style = MaterialTheme.typography.titleMedium, )
                                 }
                             }
 
@@ -227,7 +232,7 @@ fun AdminViewDetailProfileScreen(
                                     .padding(horizontal = 6.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiary, // màu xanh lá tươi trong theme của bạn
+                                    containerColor = MaterialTheme.colorScheme.tertiary,
                                     contentColor = MaterialTheme.colorScheme.onTertiary
                                 )
                             ) {
@@ -262,16 +267,35 @@ fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector?, label: Strin
     }
 }
 
+data class TrangThaiColor(val background: Color, val content: Color)
+
+
 @Composable
-fun getColorForTrangThai(trangThai: String): Color {
+fun getColorForTrangThai(trangThai: String): TrangThaiColor {
     return when (trangThai) {
-        TrangThaiTaiKhoan.TRUC_TUYEN -> Color(0xFF4CAF50)
-        TrangThaiTaiKhoan.NGOAI_TUYEN -> Color(0xFF9E9E9E)
-        TrangThaiTaiKhoan.BI_KHOA -> Color(0xFFF44336)
-        TrangThaiTaiKhoan.CHO_XAC_THUC -> Color(0xFFFFC107)
-        else -> Color.Gray
+        TrangThaiTaiKhoan.TRUC_TUYEN -> TrangThaiColor(
+            background = Color(0xFF4CAF50),
+            content = Color.White
+        )
+        TrangThaiTaiKhoan.NGOAI_TUYEN -> TrangThaiColor(
+            background = Color(0xFF9E9E9E),
+            content = Color.White
+        )
+        TrangThaiTaiKhoan.BI_KHOA -> TrangThaiColor(
+            background = Color(0xFFF44336),
+            content = Color.White
+        )
+        TrangThaiTaiKhoan.CHO_XAC_THUC -> TrangThaiColor(
+            background = Color(0xFFFFC107),
+            content = Color.Black // Vàng nên chữ đen dễ nhìn hơn
+        )
+        else -> TrangThaiColor(
+            background = Color.Gray,
+            content = Color.White
+        )
     }
 }
+
 
 
 

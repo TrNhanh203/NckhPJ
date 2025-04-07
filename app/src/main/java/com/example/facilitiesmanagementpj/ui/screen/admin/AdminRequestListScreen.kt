@@ -74,6 +74,7 @@ fun AdminRequestListScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .then(innerPadding)
 
         ) {
@@ -156,9 +157,9 @@ fun AdminRequestListScreen(navController: NavController) {
 
 fun getTrangThaiColor(trangThai: String): Color {
     return when (trangThai) {
-        TrangThaiYeuCau.CHO_XAC_NHAN -> Color(0xC8FFC107) // Xanh dương nhạt
+        TrangThaiYeuCau.CHO_XAC_NHAN -> Color(0xFFFFC107) // Xanh dương nhạt
         TrangThaiYeuCau.DA_XAC_NHAN -> Color(0xEB1976D2) // Xanh dương đậm
-        TrangThaiYeuCau.DANG_XU_LY -> Color(0xBCFF9800) // Cam
+        TrangThaiYeuCau.DANG_XU_LY -> Color(0xF0FF9800) // Cam
         TrangThaiYeuCau.DA_XU_LY -> Color(0xFF4CAF50)   // Xanh lá
         TrangThaiYeuCau.TU_CHOI -> Color(0xE1F44336)    // Đỏ
         TrangThaiYeuCau.DA_HUY -> Color(0xFF9E9E9E)      // Xám
@@ -198,6 +199,85 @@ fun FilterOptionTrangThai(
 }
 
 
+//@Composable
+//fun RequestCard(
+//    moTa: String,
+//    donVi: String,
+//    ngayYeuCau: String,
+//    trangThai: String,
+//    soDaPhanCong: Int,
+//    tongSoPhanCong: Int,
+//    onClick: () -> Unit
+//) {
+//    val statusColor = getTrangThaiColor(trangThai)
+//
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .border(
+//                width = 1.dp,
+//                color = MaterialTheme.colorScheme.primary, // Màu viền
+//                shape = RoundedCornerShape(12.dp) // Cùng bo góc với Card
+//            )
+//            .clickable { onClick() },
+//        shape = RoundedCornerShape(12.dp),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+//    ) {
+//        Column {
+//
+//            // Header bar với màu trạng thái
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .background(MaterialTheme.colorScheme.primary)
+//                    .padding(horizontal = 16.dp, vertical = 6.dp)
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Row(verticalAlignment = Alignment.CenterVertically) {
+//                        DotLevelBar(
+//                            filled = soDaPhanCong,
+//                            total = tongSoPhanCong,
+//                            filledColor = Color.White,
+//                            emptyColor = Color.White.copy(alpha = 0.4f)
+//                        )
+//                        Spacer(Modifier.width(6.dp))
+//                    }
+//
+//                    Surface(
+//                        shape = RoundedCornerShape(12.dp),
+//                        color = statusColor
+//                    ) {
+//                        Text(
+//                            text = trangThai,
+//                            color = Color.White,
+//                            style = MaterialTheme.typography.labelMedium,
+//                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+//                            fontWeight = FontWeight.Bold
+//                        )
+//                    }
+//                }
+//            }
+//
+//            // Nội dung chính
+//            Column(
+//                modifier = Modifier
+//                    .background(MaterialTheme.colorScheme.surfaceContainer)
+//                    .fillMaxWidth()
+//                    .padding(16.dp)
+//            ) {
+//                InfoRow(Icons.Default.LocationCity, donVi, MaterialTheme.typography.titleMedium)
+//                Spacer(Modifier.height(8.dp))
+//                InfoRow(Icons.Default.CalendarToday, "Ngày yêu cầu: $ngayYeuCau", MaterialTheme.typography.labelSmall, Color.Gray)
+//                Spacer(Modifier.height(8.dp))
+//                InfoRow(Icons.Default.Description, moTa, MaterialTheme.typography.bodySmall)
+//            }
+//        }
+//    }
+//}
 @Composable
 fun RequestCard(
     moTa: String,
@@ -213,23 +293,26 @@ fun RequestCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary, // Màu viền
-                shape = RoundedCornerShape(12.dp) // Cùng bo góc với Card
-            )
-            .clickable { onClick() },
+                color = MaterialTheme.colorScheme.outline, // Viền dịu mắt theo theme
+                shape = RoundedCornerShape(12.dp)
+            ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer // Nền chính của card
+        )
     ) {
         Column {
 
-            // Header bar với màu trạng thái
+            // 🔷 Header bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer) // header dịu hơn
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -240,19 +323,19 @@ fun RequestCard(
                         DotLevelBar(
                             filled = soDaPhanCong,
                             total = tongSoPhanCong,
-                            filledColor = Color.White,
-                            emptyColor = Color.White.copy(alpha = 0.4f)
+                            filledColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            emptyColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
                         )
                         Spacer(Modifier.width(6.dp))
                     }
 
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = statusColor
+                        color = statusColor,
+                        contentColor = Color.White // Đảm bảo text trắng rõ
                     ) {
                         Text(
                             text = trangThai,
-                            color = Color.White,
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             fontWeight = FontWeight.Bold
@@ -261,22 +344,47 @@ fun RequestCard(
                 }
             }
 
-            // Nội dung chính
+            // 🔽 Nội dung chính
             Column(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(16.dp)
             ) {
-                InfoRow(Icons.Default.LocationCity, donVi, MaterialTheme.typography.titleMedium)
+                InfoRow(
+                    icon = Icons.Default.LocationCity,
+                    text = donVi,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+
                 Spacer(Modifier.height(8.dp))
-                InfoRow(Icons.Default.CalendarToday, "Ngày yêu cầu: $ngayYeuCau", MaterialTheme.typography.labelSmall, Color.Gray)
+
+                InfoRow(
+                    icon = Icons.Default.CalendarToday,
+                    text = "Ngày yêu cầu: $ngayYeuCau",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
                 Spacer(Modifier.height(8.dp))
-                InfoRow(Icons.Default.Description, moTa, MaterialTheme.typography.bodySmall)
+
+                InfoRow(
+                    icon = Icons.Default.Description,
+                    text = moTa,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
             }
         }
     }
 }
+
+
 
 // Composable tái sử dụng cho từng dòng
 @Composable
@@ -377,6 +485,88 @@ fun FilterOption(text: String, onClick: () -> Unit) {
 }
 
 
+//@Composable
+//fun AdminRequestFilterBar(
+//    selectedTrangThai: String?,
+//    selectedDonVi: String?,
+//    onChipClicked: (FilterSheetType) -> Unit,
+//    onReset: () -> Unit
+//) {
+//    Surface(
+//        tonalElevation = 2.dp,
+//        modifier = Modifier.fillMaxWidth()
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 12.dp),
+//            horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        ) {
+//            FilterChip(
+//                selected = selectedTrangThai != null,
+//                onClick = { onChipClicked(FilterSheetType.TRANG_THAI) },
+//                label = {
+//                    Text(
+//                        selectedTrangThai ?: "Trạng thái",
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis,
+//                        style = MaterialTheme.typography.labelLarge
+//                    )
+//                },
+//                modifier = Modifier.weight(1f),
+//                colors = FilterChipDefaults.filterChipColors(
+//                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+//                    selectedLabelColor = Color.White,
+//                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//                    labelColor = MaterialTheme.colorScheme.onSurface
+//                )
+//            )
+//
+//            FilterChip(
+//                selected = selectedDonVi != null,
+//                onClick = { onChipClicked(FilterSheetType.DON_VI) },
+//                label = {
+//                    Text(
+//                        selectedDonVi ?: "Đơn vị",
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis,
+//                        style = MaterialTheme.typography.labelLarge
+//                    )
+//                },
+//                modifier = Modifier.weight(1f),
+//                colors = FilterChipDefaults.filterChipColors(
+//                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+//                    selectedLabelColor = Color.White,
+//                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//                    labelColor = MaterialTheme.colorScheme.onSurface
+//                )
+//            )
+//
+//            // Nút reset
+//            FilterChip(
+//                selected = false,
+//                onClick = onReset,
+//                label = {
+//                    Text(
+//                        "Xoá lọc",
+//                        style = MaterialTheme.typography.labelLarge,
+//                        color = MaterialTheme.colorScheme.primary
+//                    )
+//                },
+//                border = FilterChipDefaults.filterChipBorder(
+//                    enabled = true,
+//                    selected = false,
+//                    borderColor = MaterialTheme.colorScheme.primary
+//                ),
+//                colors = FilterChipDefaults.filterChipColors(
+//                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//                    labelColor = MaterialTheme.colorScheme.primary
+//                )
+//            )
+//
+//        }
+//    }
+//}
 @Composable
 fun AdminRequestFilterBar(
     selectedTrangThai: String?,
@@ -391,9 +581,10 @@ fun AdminRequestFilterBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // 🔹 Filter Trạng thái
             FilterChip(
                 selected = selectedTrangThai != null,
                 onClick = { onChipClicked(FilterSheetType.TRANG_THAI) },
@@ -407,13 +598,14 @@ fun AdminRequestFilterBar(
                 },
                 modifier = Modifier.weight(1f),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = Color.White,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
 
+            // 🔹 Filter Đơn vị
             FilterChip(
                 selected = selectedDonVi != null,
                 onClick = { onChipClicked(FilterSheetType.DON_VI) },
@@ -427,14 +619,14 @@ fun AdminRequestFilterBar(
                 },
                 modifier = Modifier.weight(1f),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = Color.White,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
 
-            // Nút reset
+            // 🔹 Nút Xoá lọc
             FilterChip(
                 selected = false,
                 onClick = onReset,
@@ -451,11 +643,10 @@ fun AdminRequestFilterBar(
                     borderColor = MaterialTheme.colorScheme.primary
                 ),
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                     labelColor = MaterialTheme.colorScheme.primary
                 )
             )
-
         }
     }
 }
