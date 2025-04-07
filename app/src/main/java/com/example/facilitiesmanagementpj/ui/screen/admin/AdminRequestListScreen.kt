@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -197,124 +198,6 @@ fun FilterOptionTrangThai(
 }
 
 
-//@Composable
-//fun RequestCard(
-//    moTa: String,
-//    donVi: String,
-//    ngayYeuCau: String,
-//    trangThai: String,
-//    soDaPhanCong: Int,
-//    tongSoPhanCong: Int,
-//    onClick: () -> Unit
-//) {
-//    val statusColor = getTrangThaiColor(trangThai)
-//
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { onClick() },
-//        shape = RoundedCornerShape(12.dp),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//    ) {
-//        Column {
-//
-//            // 🔷 Header Bar mới – cao, có nội dung bên trong
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(statusColor)
-//                    .padding(horizontal = 16.dp, vertical = 10.dp)
-//            ) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    // 🔵 Level bar dạng chấm
-//                    DotLevelBar(
-//                        filled = soDaPhanCong,
-//                        total = tongSoPhanCong,
-//                        filledColor = Color.White,
-//                        emptyColor = Color.White.copy(alpha = 0.4f)
-//                    )
-//
-//                    // 🔖 Chip trạng thái
-//                    Surface(
-//                        shape = RoundedCornerShape(12.dp),
-//                        color = Color.White
-//                    ) {
-//                        Text(
-//                            text = trangThai,
-//                            color = statusColor,
-//                            style = MaterialTheme.typography.labelMedium,
-//                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                    }
-//                }
-//            }
-//
-//            // 🔸 Phần nội dung chính
-//            Column(modifier = Modifier.padding(16.dp)) {
-//
-//                // 🔹 Đơn vị nổi bật
-//                Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Icon(
-//                        imageVector = Icons.Default.LocationCity,
-//                        contentDescription = null,
-//                        modifier = Modifier.size(18.dp),
-//                        tint = MaterialTheme.colorScheme.primary
-//                    )
-//                    Spacer(modifier = Modifier.width(6.dp))
-//                    Text(
-//                        text = donVi,
-//                        style = MaterialTheme.typography.titleMedium,
-//                        fontWeight = FontWeight.Medium
-//                    )
-//                }
-//
-//                Spacer(Modifier.height(4.dp))
-//
-//                // 🔹 Ngày yêu cầu – nhỏ & mờ
-//                Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Icon(
-//                        imageVector = Icons.Default.CalendarToday,
-//                        contentDescription = null,
-//                        modifier = Modifier.size(16.dp),
-//                        tint = Color.Gray
-//                    )
-//                    Spacer(modifier = Modifier.width(6.dp))
-//                    Text(
-//                        text = "Ngày yêu cầu: $ngayYeuCau",
-//                        style = MaterialTheme.typography.labelSmall,
-//                        color = Color.Gray
-//                    )
-//                }
-//
-//                Spacer(Modifier.height(4.dp))
-//
-//                // 🔹 Mô tả – trung bình
-//                Row(verticalAlignment = Alignment.Top) {
-//                    Icon(
-//                        imageVector = Icons.Default.Description,
-//                        contentDescription = null,
-//                        modifier = Modifier.size(18.dp),
-//                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-//                    )
-//                    Spacer(modifier = Modifier.width(6.dp))
-//                    Text(
-//                        text = moTa,
-//                        style = MaterialTheme.typography.bodySmall,
-//                        maxLines = 2,
-//                        overflow = TextOverflow.Ellipsis
-//                    )
-//                }
-//            }
-//
-//        }
-//    }
-//
-//}
 @Composable
 fun RequestCard(
     moTa: String,
@@ -332,7 +215,7 @@ fun RequestCard(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = statusColor, // Màu viền
+                color = MaterialTheme.colorScheme.primary, // Màu viền
                 shape = RoundedCornerShape(12.dp) // Cùng bo góc với Card
             )
             .clickable { onClick() },
@@ -345,7 +228,7 @@ fun RequestCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(statusColor)
+                    .background(MaterialTheme.colorScheme.primary)
                     .padding(horizontal = 16.dp, vertical = 6.dp)
             ) {
                 Row(
@@ -365,11 +248,11 @@ fun RequestCard(
 
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = Color.White
+                        color = statusColor
                     ) {
                         Text(
                             text = trangThai,
-                            color = statusColor,
+                            color = Color.White,
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             fontWeight = FontWeight.Bold
@@ -459,7 +342,7 @@ fun DotLevelBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.CheckCircle,
+                imageVector = Icons.Default.PersonSearch,
                 contentDescription = null,
                 tint = textColor,
                 modifier = Modifier.size(14.dp)

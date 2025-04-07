@@ -1,5 +1,7 @@
 package com.example.facilitiesmanagementpj.data.utils
 
+import androidx.compose.ui.graphics.Color
+
 object TrangThaiThietBi {
     // Nhóm trạng thái hoạt động bình thường
 //    const val MOI_TIEP_NHAN = "Mới Tiếp Nhận"
@@ -42,3 +44,21 @@ object TrangThaiThietBi {
         return trangThai in ALL
     }
 }
+
+object TrangThaiThietBiColor {
+    val DANG_HOAT_DONG = Color(0xFF4CAF50) // Xanh lá - Active
+    val DANG_BAO_TRI = Color(0xFFFF9800)   // Cam - Đang bảo trì
+    val CHO_BAO_TRI = Color(0xFFFFC107)    // Vàng - Chờ bảo trì
+    val DA_NGUNG_SU_DUNG = Color(0xFFF44336) // Đỏ - Đã ngừng
+
+    fun getColor(trangThai: String): Color {
+        return when (trangThai) {
+            TrangThaiThietBi.DANG_HOAT_DONG -> DANG_HOAT_DONG
+            TrangThaiThietBi.DANG_BAO_TRI -> DANG_BAO_TRI
+            TrangThaiThietBi.CHO_BAO_TRI -> CHO_BAO_TRI
+            TrangThaiThietBi.DA_NGUNG_SU_DUNG -> DA_NGUNG_SU_DUNG
+            else -> Color.Gray // fallback
+        }
+    }
+}
+

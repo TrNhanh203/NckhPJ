@@ -1,8 +1,11 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
 import android.net.Uri
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,7 +15,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,14 +31,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.R
+import com.example.facilitiesmanagementpj.data.entity.ThietBi
 import com.example.facilitiesmanagementpj.data.utils.LoaiPhanCong
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBiColor
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.component.TaoPhanCongBottomSheet
@@ -37,6 +54,7 @@ import com.example.facilitiesmanagementpj.ui.component.VideoPreviewAdmin
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminDeviceDetailViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import java.util.Date
 
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
@@ -102,24 +120,16 @@ fun AdminDeviceDetailScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                         .then(modifier),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     thietBi?.let { tb ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Thông tin thiết bị", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.height(8.dp))
-                                Text("Tên thiết bị: ${tb.tenThietBi}")
-                                Text("Loại thiết bị: ${tb.loaiThietBiId}")
-                                Text("Trạng thái: ${tb.trangThai}")
-                                Text("Ghi chú: ${tb.ghiChu ?: "Không có"}")
-                                Text("Vị trí: $viTri")
-                            }
-                        }
+                        ThongTinThietBiCard(thietBi = tb)
+                        GhiChuCard(ghiChu = tb.ghiChu)
+
+                        ViTriThietBiCard(viTri = viTri)
+
+                        CardThongKeBaoDuong(tb)
+
 
                         if (isYeuCau && chiTietYeuCau != null) {
                             Card(
@@ -326,6 +336,426 @@ fun AdminDeviceDetailScreen(
     }
 }
 
+@Composable
+fun ViTriThietBiCard(viTri: String?) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_location),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(end = 4.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            val parts = (viTri ?: "Đang cập nhật...").split(">")
+            val annotatedText = buildAnnotatedString {
+                parts.forEachIndexed { index, part ->
+                    append(part.trim())
+                    if (index != parts.lastIndex) {
+                        withStyle(style = SpanStyle(color = Color.Red, fontWeight = FontWeight.Bold)) {
+                            append(" > ")
+                        }
+                    }
+                }
+            }
+
+            Text(
+                text = annotatedText,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+            )
+        }
+    }
+}
+
+@Composable
+fun CardThongKeBaoDuong(thietBi: ThietBi) {
+    val ganNhat = thietBi.ngayBaoDuongGanNhat?.let { Date(it) }
+    val tiepTheo = thietBi.ngayBaoDuongTiepTheo?.let { Date(it) }
+    val cycle = thietBi.baoDuongDinhKy ?: 0
+
+    val daysSinceLast = ganNhat?.let {
+        ((System.currentTimeMillis() - it.time) / (1000 * 60 * 60 * 24)).toInt()
+    } ?: 0
+
+    val progress = if (cycle > 0) daysSinceLast / cycle.toFloat() else 0f
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("📊 Thống kê bảo dưỡng", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+            Spacer(Modifier.height(8.dp))
+
+            Text("🔁 Chu kỳ: ${cycle} ngày")
+            Text("🕒 Gần nhất: ${ganNhat?.toString() ?: "Không rõ"}")
+            Text("📅 Kế tiếp: ${tiepTheo?.toString() ?: "Không rõ"}")
+
+            Spacer(Modifier.height(12.dp))
+
+            // Tiến độ chu kỳ
+            LinearProgressIndicator(
+                progress = progress.coerceIn(0f, 1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(12.dp)
+                    .clip(RoundedCornerShape(6.dp)),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+            )
+
+            Spacer(Modifier.height(4.dp))
+            Text("${(progress * 100).toInt()}% chu kỳ đã trôi qua", style = MaterialTheme.typography.labelSmall)
+        }
+    }
+}
 
 
 
+@Composable
+fun ThongTinThietBiCard(
+    thietBi: ThietBi
+) {
+    val headerColor = MaterialTheme.colorScheme.primary
+    val iconColor = MaterialTheme.colorScheme.primary
+    val statusColor = TrangThaiThietBiColor.getColor(thietBi.trangThai)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+
+            // 🔷 Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Thông tin thiết bị",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .background(statusColor, CircleShape)
+                            .border(1.dp, Color.White, CircleShape) // 💡 Border trắng cho rõ hơn nếu nền header đậm
+                    )
+                }
+            }
+
+            // 🔽 Nội dung
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Icon minh hoạ
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                            .padding(8.dp)
+                            .padding(end = 12.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = getDeviceIconRes(thietBi.loaiThietBiId)),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = thietBi.tenThietBi,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = statusColor.copy(alpha = 0.12f),
+                            border = BorderStroke(1.dp, statusColor)
+                        ) {
+                            Text(
+                                text = thietBi.trangThai,
+                                color = statusColor,
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Mô tả thiết bị:",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 80.dp, max = 180.dp)
+                        .background(
+                            MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = thietBi.moTa ?: "Không có mô tả",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+        }
+    }
+
+
+//    Card(
+//        modifier = Modifier.fillMaxWidth(),
+//        shape = RoundedCornerShape(12.dp),
+//        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+//        elevation = CardDefaults.cardElevation(4.dp),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//    ) {
+//        Column(modifier = Modifier.fillMaxWidth()) {
+//
+//            // 🔷 Header có chấm tròn góc phải
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .background(headerColor)
+//                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+//                    //.padding(horizontal = 16.dp, vertical = 10.dp)
+//            ) {
+//
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .background(headerColor)
+//                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+//                        .padding(horizontal = 16.dp, vertical = 10.dp)
+//                ) {
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text(
+//                            text = "Thông tin thiết bị",
+//                            color = Color.White,
+//                            style = MaterialTheme.typography.titleMedium,
+//                            fontWeight = FontWeight.Bold
+//                        )
+//
+//                        // 🟢 Dot trạng thái to và cùng hàng
+//                        Box(
+//                            modifier = Modifier
+//                                .size(16.dp) // tăng size cho rõ
+//                                .background(statusColor, CircleShape)
+//                        )
+//                    }
+//                }
+//
+//            }
+//
+//            // 🔽 Nội dung
+//            Column(modifier = Modifier.padding(16.dp)) {
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    // 🖼️ Container cho icon
+//                    Box(
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .background(
+//                                color = MaterialTheme.colorScheme.surface,
+//                                shape = RoundedCornerShape(10.dp)
+//                            )
+//                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+//                            .padding(8.dp)
+//                            .padding(end = 12.dp)
+//                    ) {
+//                        Image(
+//                            painter = painterResource(id = getDeviceIconRes(thietBi.loaiThietBiId)),
+//                            contentDescription = null,
+//                            modifier = Modifier.fillMaxSize()
+//                        )
+//                    }
+//
+//                    Spacer(modifier = Modifier.width(16.dp))
+//
+//                    Column {
+//                        Text(
+//                            text = thietBi.tenThietBi,
+//                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+//                            maxLines = 3,
+//                            overflow = TextOverflow.Ellipsis
+//                        )
+//
+//                        Spacer(modifier = Modifier.height(6.dp))
+//
+//                        // 🟪 Chip trạng thái
+//                        Surface(
+//                            shape = RoundedCornerShape(8.dp),
+//                            color = statusColor.copy(alpha = 0.1f),
+//                            border = BorderStroke(1.dp, statusColor)
+//                        ) {
+//                            Text(
+//                                text = thietBi.trangThai,
+//                                color = statusColor,
+//                                style = MaterialTheme.typography.labelMedium,
+//                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+//                            )
+//                        }
+//                    }
+//                }
+//
+//
+//                // 🔹 Info
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                // 🔻 Mô tả thiết bị
+//                Text(
+//                    text = "Mô tả thiết bị:",
+//                    style = MaterialTheme.typography.titleSmall.copy(
+//                        fontWeight = FontWeight.SemiBold,
+//                        color = iconColor
+//                    )
+//                )
+//
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .heightIn(min = 80.dp, max = 180.dp)
+//                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f), RoundedCornerShape(8.dp)) // 💡 nền dịu
+//                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+//                        .padding(8.dp)
+//                        .verticalScroll(rememberScrollState())
+//                ) {
+//                    Text(
+//                        text = thietBi.moTa ?: "Không có mô tả",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        lineHeight = 20.sp
+//                    )
+//                }
+//
+//            }
+//        }
+//    }
+}
+
+@Composable
+fun GhiChuCard(
+    ghiChu: String?
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        onClick = { isExpanded = !isExpanded } // Toggle mở rộng
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = if (isExpanded) "📋 Ghi chú (đang mở)" else "📋 Ghi chú (nhấn để xem)",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = ghiChu ?: "Không có ghi chú",
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 20.sp
+                )
+            }
+        }
+    }
+}
+
+
+
+@DrawableRes
+fun getDeviceIconRes(loaiThietBiId: Int): Int {
+    return when (loaiThietBiId) {
+        1 -> R.drawable.projector     // Máy chiếu
+        2 -> R.drawable.airconditioner // Điều hoà
+        3 -> R.drawable.computer       // Máy tính
+        4 -> R.drawable.microphone     // Micro không dây
+        5 -> R.drawable.speaker        // Loa
+        6 -> R.drawable.printer        // Máy in
+        7 -> R.drawable.photocopy      // Máy photocopy
+        8 -> R.drawable.question       // Máy quét (scanner) - chưa có icon riêng
+        9 -> R.drawable.smarttv        // Tivi
+        10 -> R.drawable.question      // Bảng điện tử
+        11 -> R.drawable.question      // Bàn ghế giảng đường
+        12 -> R.drawable.question      // Bảng trắng
+        13 -> R.drawable.question      // Đèn chiếu sáng
+        14 -> R.drawable.question      // Camera giám sát
+        15 -> R.drawable.question      // Bộ phát WiFi
+        16 -> R.drawable.question      // Bộ lưu điện (UPS)
+        17 -> R.drawable.question      // Ổ cắm điện đa năng
+        18 -> R.drawable.question      // Máy ảnh kỹ thuật số
+        19 -> R.drawable.question      // Máy đo nhiệt độ
+        20 -> R.drawable.question      // Máy xét nghiệm
+        else -> R.drawable.question    // fallback
+    }
+}
