@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -84,11 +85,11 @@ fun AdminDeviceDetailScreen(
 
     var loaiPhanCong by rememberSaveable { mutableStateOf(LoaiPhanCong.KHAC) }
     var ghiChu by rememberSaveable { mutableStateOf("") }
-    var mucDoUuTien by rememberSaveable { mutableStateOf(1f) }
+    var mucDoUuTien by rememberSaveable { mutableFloatStateOf(1f) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-
+    val selectedTabIndex = rememberSaveable { mutableIntStateOf(1) }
 
 
     val isLoading = thietBi == null
@@ -111,181 +112,223 @@ fun AdminDeviceDetailScreen(
         showBottomBar = false,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { modifier ->
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(top = 16.dp, start = 16.dp, end = 16.dp , bottom = 64.dp)
-
-                        .then(modifier),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+            .then(modifier)) {
+            if (isYeuCau && chiTietYeuCau != null) {
+                val selectedColor = MaterialTheme.colorScheme.primary
+                val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                TabRow(
+                    selectedTabIndex = selectedTabIndex.value,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentColor = selectedColor,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex.intValue]),
+                            color = selectedColor,
+                            height = 3.dp
+                        )
+                    }
                 ) {
-                    thietBi?.let { tb ->
-                        ThongTinThietBiCard(thietBi = tb)
-                        ViTriThietBiCard(viTri = viTri)
-                        CardThongKeBaoDuong(tb)
-                        GhiChuCard(ghiChu = tb.ghiChu)
+                    Tab(
+                        selected = selectedTabIndex.value == 0,
+                        onClick = { selectedTabIndex.value = 0 },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor,
+                        text = { Text("Thông tin yêu cầu") },
+                    )
+                    Tab(
+                        selected = selectedTabIndex.value == 1,
+                        onClick = { selectedTabIndex.value = 1 },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor,
+                        text = { Text("Thông tin thiết bị") },
+                    )
+                }
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
+                if (isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(top = 16.dp, start = 16.dp, end = 16.dp , bottom = 64.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        thietBi?.let { tb ->
 
 
-                        if (isYeuCau && chiTietYeuCau != null) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text("Thông tin yêu cầu", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                    Spacer(Modifier.height(8.dp))
-                                    Text("Đơn vị yêu cầu: $tenDonVi")
-                                    Text("Loại yêu cầu: ${chiTietYeuCau!!.loaiYeuCau}")
-                                    Text("Mô tả: ${chiTietYeuCau!!.moTa}")
-                                }
-                            }
-                        }
-
-                        if (videoUri != null || imageUris.isNotEmpty()) {
-                            Text("Minh chứng yêu cầu:", fontWeight = FontWeight.SemiBold)
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items(imageUris) { uri ->
-                                    Image(
-                                        painter = rememberAsyncImagePainter(uri),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .clickable { showFullImage = uri },
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                                item {
-                                    videoUri?.let { uri ->
-                                        Box(
-                                            modifier = Modifier
-                                                .size(100.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(Color.Black)
-                                                .clickable { showFullVideo = uri },
-                                            contentAlignment = Alignment.Center
+                            when (selectedTabIndex.value) {
+                                0 -> {
+                                    if (isYeuCau && chiTietYeuCau != null) {
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                                            shape = RoundedCornerShape(12.dp)
                                         ) {
-                                            Text("▶", color = Color.White, fontSize = 32.sp)
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Text("Thông tin yêu cầu", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                                Spacer(Modifier.height(8.dp))
+                                                Text("Đơn vị yêu cầu: $tenDonVi")
+                                                Text("Loại yêu cầu: ${chiTietYeuCau!!.loaiYeuCau}")
+                                                Text("Mô tả: ${chiTietYeuCau!!.moTa}")
+                                            }
+                                        }
+                                    }
+
+                                    if (videoUri != null || imageUris.isNotEmpty()) {
+                                        Text("Minh chứng yêu cầu:", fontWeight = FontWeight.SemiBold)
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            items(imageUris) { uri ->
+                                                Image(
+                                                    painter = rememberAsyncImagePainter(uri),
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .size(100.dp)
+                                                        .clip(RoundedCornerShape(8.dp))
+                                                        .clickable { showFullImage = uri },
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            }
+                                            item {
+                                                videoUri?.let { uri ->
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(100.dp)
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(Color.Black)
+                                                            .clickable { showFullVideo = uri },
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Text("▶", color = Color.White, fontSize = 32.sp)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
+                                1 -> {
+                                    ThongTinThietBiCard(thietBi = tb)
+                                    ViTriThietBiCard(viTri = viTri)
+                                    CardThongKeBaoDuong(tb)
+                                    GhiChuCard(ghiChu = tb.ghiChu)
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
                             }
+
+
+
+                            if (showBottomSheet) {
+                                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                                    TaoPhanCongBottomSheet(
+                                        loaiPhanCong = loaiPhanCong,
+                                        onLoaiPhanCongChange = { loaiPhanCong = it },
+
+                                        ghiChu = ghiChu,
+                                        onGhiChuChange = { ghiChu = it },
+
+                                        mucDoUuTien = mucDoUuTien,
+                                        onMucDoUuTienChange = { mucDoUuTien = it },
+
+                                        onCreatePhanCong = { loai, note, mucDo ->
+                                            viewModel.taoPhanCong(
+                                                chiTietYeuCauId = chiTietYeuCau!!.id,
+                                                thietBiId = thietBi!!.id,
+                                                loaiPhanCong = loai,
+                                                ghiChu = note,
+                                                mucDoUuTien = mucDo,
+                                                nguoiTaoId = currentUser?.id ?: -1
+                                            )
+
+                                        },
+                                        onDismiss = { showBottomSheet = false }
+                                    )
+                                }
+                            }
+
                         }
 
-
-                        Spacer(modifier = Modifier.height(16.dp)) // Khoảng trống nếu cần
-
-
-                        if (showBottomSheet) {
-                            ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
-                                TaoPhanCongBottomSheet(
-                                    loaiPhanCong = loaiPhanCong,
-                                    onLoaiPhanCongChange = { loaiPhanCong = it },
-
-                                    ghiChu = ghiChu,
-                                    onGhiChuChange = { ghiChu = it },
-
-                                    mucDoUuTien = mucDoUuTien,
-                                    onMucDoUuTienChange = { mucDoUuTien = it },
-
-                                    onCreatePhanCong = { loai, note, mucDo ->
-                                        viewModel.taoPhanCong(
-                                            chiTietYeuCauId = chiTietYeuCau!!.id,
-                                            thietBiId = thietBi!!.id,
-                                            loaiPhanCong = loai,
-                                            ghiChu = note,
-                                            mucDoUuTien = mucDo,
-                                            nguoiTaoId = currentUser?.id ?: -1
-                                        )
-
-                                    },
-                                    onDismiss = { showBottomSheet = false }
-                                )
-                            }
-                        }
 
                     }
 
-
-                }
-
-                BottomAppBar(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .height(64.dp), // ⬆️ tăng nhẹ cho cân nút
-                    tonalElevation = 8.dp,
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-                    Row(
+                    BottomAppBar(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp), // ⬆️ thêm padding đều hơn
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            .align(Alignment.BottomCenter)
+                            .height(64.dp), // ⬆️ tăng nhẹ cho cân nút
+                        tonalElevation = 8.dp,
+                        containerColor = MaterialTheme.colorScheme.surface
                     ) {
-                        val buttonModifier = Modifier
-                            .weight(1f)
-                            .height(48.dp)
-
-                        OutlinedButton(
-                            onClick = { /* TODO: Xem lịch sử */ },
-                            modifier = buttonModifier,
-                            shape = RoundedCornerShape(12.dp), // 👈 bo góc
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp), // ⬆️ thêm padding đều hơn
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text("Xem lịch sử", style = MaterialTheme.typography.titleSmall)
-                        }
+                            val buttonModifier = Modifier
+                                .weight(1f)
+                                .height(48.dp)
 
-                        val phanCongDaTao by viewModel.phanCongHienTai.collectAsState()
-
-                        if (phanCongDaTao != null) {
-                            LaunchedEffect(phanCongDaTao!!.id) {
-                                navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
-                            }
                             OutlinedButton(
-                                onClick = {
-                                    navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
-                                },
+                                onClick = { /* TODO: Xem lịch sử */ },
                                 modifier = buttonModifier,
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(12.dp), // 👈 bo góc
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = MaterialTheme.colorScheme.primary
                                 )
                             ) {
-                                Text("Xem phân công", style = MaterialTheme.typography.titleSmall)
+                                Text("Xem lịch sử", style = MaterialTheme.typography.titleSmall)
                             }
-                        } else if (isYeuCau) {
-                            val trangThaiYeuCau = yeuCau?.trangThai ?: ""
-                            OutlinedButton(
-                                onClick = { showBottomSheet = true },
-                                enabled = (thietBi!!.trangThai == TrangThaiThietBi.DANG_HOAT_DONG &&
-                                        (trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN || trangThaiYeuCau == TrangThaiYeuCau.DANG_XU_LY)),
-                                modifier = buttonModifier,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    disabledContentColor = MaterialTheme.colorScheme.outline
-                                )
-                            ) {
-                                Text("Tạo phân công", style = MaterialTheme.typography.titleSmall)
+
+                            val phanCongDaTao by viewModel.phanCongHienTai.collectAsState()
+
+                            if (phanCongDaTao != null) {
+                                LaunchedEffect(phanCongDaTao!!.id) {
+                                    navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
+                                }
+                                OutlinedButton(
+                                    onClick = {
+                                        navController.navigate(Screen.PhanCongDetail.createRoute(phanCongDaTao!!.id))
+                                    },
+                                    modifier = buttonModifier,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    Text("Xem phân công", style = MaterialTheme.typography.titleSmall)
+                                }
+                            } else if (isYeuCau) {
+                                val trangThaiYeuCau = yeuCau?.trangThai ?: ""
+                                OutlinedButton(
+                                    onClick = { showBottomSheet = true },
+                                    enabled = (thietBi!!.trangThai == TrangThaiThietBi.CHO_BAO_TRI &&
+                                            (trangThaiYeuCau == TrangThaiYeuCau.DA_XAC_NHAN || trangThaiYeuCau == TrangThaiYeuCau.DANG_XU_LY)),
+                                    modifier = buttonModifier,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.primary,
+                                        disabledContentColor = MaterialTheme.colorScheme.outline
+                                    )
+                                ) {
+                                    Text("Tạo phân công", style = MaterialTheme.typography.titleSmall)
+                                }
                             }
                         }
                     }
+
                 }
-
             }
-
         }
+
+
+
     }
 
     showFullImage?.let { uri ->
@@ -376,7 +419,7 @@ fun ViTriThietBiCard(viTri: String?) {
                     painter = painterResource(id = R.drawable.ic_location),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(32.dp)
                         .padding(end = 4.dp)
                     // Không tint
                 )
@@ -480,8 +523,8 @@ fun CardThongKeBaoDuong(thietBi: ThietBi) {
                         CircularProgressIndicator(
                             progress = progress.coerceIn(0f, 1f),
                             strokeWidth = 12.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            color = Color(0xFFFFC107), // vàng chính
+                            trackColor = Color(0xFFF3DAB7),
                             modifier = Modifier.size(100.dp)
                         )
                         Text(
@@ -666,8 +709,7 @@ fun GhiChuCard(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
@@ -685,12 +727,25 @@ fun GhiChuCard(
             )
 
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = if (isExpanded) "📋 Ghi chú (đang mở)" else "📋 Ghi chú (nhấn để xem)",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.note), // 👈 icon PNG bạn có sẵn
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(end = 8.dp)
+                    )
+
+                    Text(
+                        text = if (isExpanded) "Ghi chú (đang mở)" else "Ghi chú (nhấn để xem)",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
 
                 if (isExpanded) {
                     Spacer(modifier = Modifier.height(8.dp))

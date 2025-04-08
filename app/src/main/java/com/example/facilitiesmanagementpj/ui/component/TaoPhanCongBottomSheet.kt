@@ -18,6 +18,115 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.facilitiesmanagementpj.data.utils.LoaiYeuCau
 
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun TaoPhanCongBottomSheet(
+//    loaiPhanCong: String,
+//    onLoaiPhanCongChange: (String) -> Unit,
+//    ghiChu: String,
+//    onGhiChuChange: (String) -> Unit,
+//    mucDoUuTien: Float,
+//    onMucDoUuTienChange: (Float) -> Unit,
+//    onCreatePhanCong: (String, String, Int) -> Unit,
+//    onDismiss: () -> Unit
+//) {
+//    var expanded by remember { mutableStateOf(false) }
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//            .navigationBarsPadding()
+//    ) {
+//        Text("Tạo phân công", style = MaterialTheme.typography.titleLarge)
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Dropdown chọn loại phân công
+//        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+//            TextField(
+//                value = loaiPhanCong,
+//                onValueChange = {},
+//                readOnly = true,
+//                label = { Text("Loại phân công") },
+//                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+//                modifier = Modifier.menuAnchor().fillMaxWidth()
+//            )
+//            ExposedDropdownMenu(
+//                expanded = expanded,
+//                onDismissRequest = { expanded = false }
+//            ) {
+//                LoaiYeuCau.ALL.forEach { item ->
+//                    DropdownMenuItem(
+//                        text = { Text(item) },
+//                        onClick = {
+//                            onLoaiPhanCongChange(item)
+//                            expanded = false
+//                        }
+//                    )
+//                }
+//            }
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        val isHintVisible = ghiChu.isBlank()
+//
+//        Text("Ghi chú", style = MaterialTheme.typography.labelLarge)
+//
+//        Box(
+//            modifier = Modifier
+//                .height(120.dp)
+//                .fillMaxWidth()
+//                .background(
+//                    color = MaterialTheme.colorScheme.surfaceVariant,
+//                    shape = RoundedCornerShape(8.dp)
+//                )
+//                .padding(12.dp)
+//        ) {
+//            BasicTextField(
+//                value = ghiChu,
+//                onValueChange = onGhiChuChange,
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .verticalScroll(rememberScrollState()),
+//                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+//                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+//            )
+//
+//            if (isHintVisible) {
+//                Text(
+//                    text = "Nhập nội dung ghi chú...",
+//                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
+//                    modifier = Modifier.align(Alignment.TopStart)
+//                )
+//            }
+//        }
+//
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // Mức độ ưu tiên (1–5)
+//        Text("Mức độ ưu tiên: ${mucDoUuTien.toInt()}")
+//        Slider(
+//            value = mucDoUuTien,
+//            onValueChange = onMucDoUuTienChange,
+//            steps = 3,
+//            valueRange = 1f..5f
+//        )
+//
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        Button(
+//            onClick = {
+//                onCreatePhanCong(loaiPhanCong, ghiChu, mucDoUuTien.toInt())
+//                onDismiss()
+//            },
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text("Tạo phân công")
+//        }
+//    }
+//}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaoPhanCongBottomSheet(
@@ -31,6 +140,8 @@ fun TaoPhanCongBottomSheet(
     onDismiss: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    val colorScheme = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier
@@ -49,7 +160,19 @@ fun TaoPhanCongBottomSheet(
                 readOnly = true,
                 label = { Text("Loại phân công") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = colorScheme.primary,
+                    unfocusedIndicatorColor = colorScheme.outline,
+                    focusedContainerColor = colorScheme.surfaceVariant,
+                    unfocusedContainerColor = colorScheme.surfaceVariant,
+                    disabledContainerColor = colorScheme.surfaceVariant,
+                    focusedLabelColor = colorScheme.primary,
+                    unfocusedLabelColor = colorScheme.onSurfaceVariant,
+                    cursorColor = colorScheme.primary
+                )
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -70,7 +193,6 @@ fun TaoPhanCongBottomSheet(
         Spacer(modifier = Modifier.height(16.dp))
 
         val isHintVisible = ghiChu.isBlank()
-
         Text("Ghi chú", style = MaterialTheme.typography.labelLarge)
 
         Box(
@@ -78,7 +200,7 @@ fun TaoPhanCongBottomSheet(
                 .height(120.dp)
                 .fillMaxWidth()
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(12.dp)
@@ -89,29 +211,32 @@ fun TaoPhanCongBottomSheet(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurfaceVariant),
+                cursorBrush = SolidColor(colorScheme.primary),
             )
 
             if (isHintVisible) {
                 Text(
                     text = "Nhập nội dung ghi chú...",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
+                    style = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.outline),
                     modifier = Modifier.align(Alignment.TopStart)
                 )
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mức độ ưu tiên (1–5)
-        Text("Mức độ ưu tiên: ${mucDoUuTien.toInt()}")
+        Text("Mức độ ưu tiên: ${mucDoUuTien.toInt()}", style = MaterialTheme.typography.labelLarge)
         Slider(
             value = mucDoUuTien,
             onValueChange = onMucDoUuTienChange,
             steps = 3,
-            valueRange = 1f..5f
+            valueRange = 1f..5f,
+            colors = SliderDefaults.colors(
+                thumbColor = colorScheme.primary,
+                activeTrackColor = colorScheme.primary,
+                inactiveTrackColor = colorScheme.outlineVariant
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -121,7 +246,11 @@ fun TaoPhanCongBottomSheet(
                 onCreatePhanCong(loaiPhanCong, ghiChu, mucDoUuTien.toInt())
                 onDismiss()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            )
         ) {
             Text("Tạo phân công")
         }
