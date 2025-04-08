@@ -26,6 +26,10 @@ class YeuCauRepository @Inject constructor(
 ) {
 
 
+    suspend fun getById(id: Int): YeuCau? {
+        return yeuCauDao.getById(id)
+    }
+
     suspend fun capNhatTrangThaiYeuCau(yeuCauId: Int) {
         val dsChiTiet = chiTietYeuCauDao.getAllByYeuCauId(yeuCauId)
 

@@ -16,7 +16,9 @@ import javax.inject.Singleton
 class TaiKhoanRepository @Inject constructor(private val taiKhoanDao: TaiKhoanDao) {
 
 
-
+    suspend fun getTkById(id: Int): TaiKhoan? {
+        return taiKhoanDao.getById(id).firstOrNull()
+    }
 
     fun getTaiKhoanById(id: Int): Flow<TaiKhoan?> = taiKhoanDao.getById(id)
 

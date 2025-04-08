@@ -33,6 +33,8 @@ class ThietBiRepository @Inject constructor(private val thietBiDao: ThietBiDao) 
         return thietBiDao.getAllThietBiWithDetails()
     }
 
+    suspend fun getById(id: Int?): ThietBi? = thietBiDao.getThietBiById(id)
+
     fun getAllThietBi(): Flow<List<ThietBi>> = thietBiDao.getAll()
     fun getThietBiCanBaoDuong(ngayHienTai: Long): Flow<List<ThietBi>> =
         thietBiDao.getThietBiCanBaoDuong(ngayHienTai)

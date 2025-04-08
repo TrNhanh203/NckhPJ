@@ -89,6 +89,11 @@ class PhanCongKtvRepository @Inject constructor(private val phanCongKtvDao: Phan
         return phanCongKtvDao.getTechnicianCountByStatus(phanCongId, trangThai)
     }
 
+    suspend fun getAllByPhanCongId(phanCongId: Int): List<PhanCongKtv> {
+        return phanCongKtvDao.getAllByPhanCongId(phanCongId)
+    }
+
+
 
     fun getAllPhanCongKtv(): Flow<List<PhanCongKtv>> = phanCongKtvDao.getAll()
     suspend fun insert(phanCongKtv: PhanCongKtv) = phanCongKtvDao.insert(phanCongKtv)

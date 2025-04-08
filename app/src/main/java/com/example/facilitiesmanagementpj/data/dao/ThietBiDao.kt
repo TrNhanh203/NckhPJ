@@ -44,7 +44,7 @@ interface ThietBiDao {
     fun getThietBiByPhong(phongId: Int): Flow<List<ThietBiWithDetails>>
 
     @Query("SELECT * FROM thiet_bi WHERE id = :id")
-    suspend fun getThietBiById(id: Int): ThietBi?
+    suspend fun getThietBiById(id: Int?): ThietBi?
 
     @Query("UPDATE thiet_bi SET trangThai = :status WHERE id = :yeuCauId")
     suspend fun updateYeuCauStatus(yeuCauId: Int, status: String)
@@ -74,6 +74,9 @@ INNER JOIN tang ON phong.tangId = tang.id
 
     @Query("SELECT * FROM thiet_bi")
     fun getAll(): Flow<List<ThietBi>>
+
+    @Query("SELECT * FROM thiet_bi WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): ThietBi?
 
     @Query("SELECT * FROM thiet_bi WHERE ngayBaoDuongTiepTheo <= :ngayHienTai")
     fun getThietBiCanBaoDuong(ngayHienTai: Long): Flow<List<ThietBi>>

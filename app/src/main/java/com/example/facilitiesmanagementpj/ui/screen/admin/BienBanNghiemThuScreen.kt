@@ -1,4 +1,5 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfDocument
@@ -29,40 +30,247 @@ import java.util.Date
 
 import android.graphics.Paint
 import android.os.Environment
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 
 import java.io.File
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel
 
 
 // Composable màn hình nghiệm thu có chữ ký điện tử (dữ liệu fake để test preview)
 // Composable màn hình nghiệm thu có chữ ký điện tử – 3 tab: preview, ký A, ký B
+//@Composable
+//fun BienBanNghiemThuScreen(
+//    onHoanTat: (Bitmap, Bitmap) -> Unit
+//) {
+//    val tabTitles = listOf("Xem trước", "Ký bên A", "Ký bên B")
+//    var selectedTabIndex by remember { mutableStateOf(0) }
+//
+//    var kyBenA by remember { mutableStateOf<Bitmap?>(null) }
+//    var kyBenB by remember { mutableStateOf<Bitmap?>(null) }
+//
+//    val context = LocalContext.current
+//
+//    val thongTinPhanCong = PhanCongThongTin(
+//        tenBenA = "Trần Thị Admin",
+//        donViBenA = "Phòng Hành chính",
+//        tenBenB = "Nguyễn Văn Kỹ",
+//        viTri = "P.203 – Khoa CNTT",
+//        danhSachThietBi = listOf(
+//            ThietBiDaSua("Máy in HP 1020", "P.203", "Thay hộp mực, vệ sinh"),
+//            ThietBiDaSua("Máy chiếu Epson X500", "P.205", "Kiểm tra nguồn và ống kính")
+//        )
+//    )
+//
+//    Box(modifier = Modifier.fillMaxSize()) {
+//
+//        Column(modifier = Modifier.fillMaxSize().padding(bottom = 72.dp)) {
+//            TabRow(selectedTabIndex = selectedTabIndex) {
+//                tabTitles.forEachIndexed { index, title ->
+//                    Tab(
+//                        selected = selectedTabIndex == index,
+//                        onClick = { selectedTabIndex = index },
+//                        text = { Text(title) }
+//                    )
+//                }
+//            }
+//
+//            when (selectedTabIndex) {
+//                0 -> {
+//                    // Tab Preview
+//                    Column(
+//                        modifier = Modifier
+//                            .verticalScroll(rememberScrollState())
+//                            .padding(16.dp)
+//                    ) {
+//                        Text("BIÊN BẢN NGHIỆM THU SỬA CHỮA, BẢO DƯỠNG THIẾT BỊ", style = MaterialTheme.typography.titleLarge)
+//                        Spacer(Modifier.height(8.dp))
+//                        Text("Ngày: ${SimpleDateFormat("dd/MM/yyyy").format(Date())}")
+//                        Text("Địa điểm: ${thongTinPhanCong.viTri}")
+//
+//                        Spacer(Modifier.height(16.dp))
+//                        Text("BÊN A – Đơn vị sở hữu thiết bị:", fontWeight = FontWeight.Bold)
+//                        Text("Họ tên: ${thongTinPhanCong.tenBenA}")
+//                        Text("Đơn vị: ${thongTinPhanCong.donViBenA}")
+//
+//                        Spacer(Modifier.height(12.dp))
+//                        Text("BÊN B – Kỹ thuật viên thực hiện:", fontWeight = FontWeight.Bold)
+//                        Text("Họ tên: ${thongTinPhanCong.tenBenB}")
+//                        Text("Đơn vị: Phòng Kỹ thuật")
+//
+//                        Spacer(Modifier.height(16.dp))
+//                        Text("Danh sách thiết bị đã xử lý:", fontWeight = FontWeight.SemiBold)
+//                        thongTinPhanCong.danhSachThietBi.forEachIndexed { index, item ->
+//                            Text("${index + 1}. ${item.tenThietBi} – ${item.viTri}: ${item.noiDung}")
+//                        }
+//
+//                        Spacer(Modifier.height(16.dp))
+//                        Text("KẾT LUẬN: Thiết bị đã hoạt động bình thường sau bảo trì.")
+//                        Spacer(Modifier.height(16.dp))
+//
+//                        if (kyBenA != null || kyBenB != null) {
+//                            Spacer(Modifier.height(24.dp))
+//                            Text("Chữ ký xác nhận:", fontWeight = FontWeight.SemiBold)
+//
+//                            Row(
+//                                Modifier
+//                                    .fillMaxWidth()
+//                                    .padding(top = 12.dp),
+//                                horizontalArrangement = Arrangement.SpaceEvenly
+//                            ) {
+//                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                                    Text("Bên A", fontWeight = FontWeight.Medium)
+//                                    kyBenA?.let {
+//                                        Image(
+//                                            bitmap = it.asImageBitmap(),
+//                                            contentDescription = "Chữ ký bên A",
+//                                            modifier = Modifier
+//                                                .size(150.dp)
+//                                                .border(1.dp, Color.Gray)
+//                                        )
+//                                    }
+//                                }
+//                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                                    Text("Bên B", fontWeight = FontWeight.Medium)
+//                                    kyBenB?.let {
+//                                        Image(
+//                                            bitmap = it.asImageBitmap(),
+//                                            contentDescription = "Chữ ký bên B",
+//                                            modifier = Modifier
+//                                                .size(150.dp)
+//                                                .border(1.dp, Color.Gray)
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//                }
+//
+//                1 -> {
+//                    Column(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(16.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally
+//                    ) {
+//                        Text("BÊN A ký xác nhận", fontWeight = FontWeight.Medium)
+//                        Spacer(Modifier.height(12.dp))
+//                        SignaturePad(
+//                            modifier = Modifier
+//                                .width(300.dp)
+//                                .height(180.dp),
+//                            onSigned = { kyBenA = it }
+//                        )
+//                    }
+//                }
+//
+//                2 -> {
+//                    Column(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(16.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally
+//                    ) {
+//                        Text("BÊN B ký xác nhận", fontWeight = FontWeight.Medium)
+//                        Spacer(Modifier.height(12.dp))
+//                        SignaturePad(
+//                            modifier = Modifier
+//                                .width(300.dp)
+//                                .height(180.dp),
+//                            onSigned = { kyBenB = it }
+//                        )
+//                    }
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//        }
+//
+//        Button(
+//            onClick = {
+//                if (kyBenA != null && kyBenB != null) {
+//                    exportBienBanToPdf(context, thongTinPhanCong, kyBenA!!, kyBenB!!)
+//                } else {
+//                    Toast.makeText(context, "Vui lòng ký đầy đủ cả hai bên", Toast.LENGTH_SHORT).show()
+//                }
+//            },
+//            modifier = Modifier
+//                .padding(16.dp)
+//        ) {
+//            Icon(Icons.Default.Done, contentDescription = null)
+//            Spacer(Modifier.width(8.dp))
+//            Text("Tạo bản hoàn chỉnh")
+//        }
+//    }
+//
+//
+//
+//
+//
+//}
 @Composable
 fun BienBanNghiemThuScreen(
+    viewModel: BienBanViewModel = hiltViewModel(),
+    yeuCauId: Int,
+    nguoiXacNhanId: Int,
+    navController: NavController,
     onHoanTat: (Bitmap, Bitmap) -> Unit
 ) {
     val tabTitles = listOf("Xem trước", "Ký bên A", "Ký bên B")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     var kyBenA by remember { mutableStateOf<Bitmap?>(null) }
     var kyBenB by remember { mutableStateOf<Bitmap?>(null) }
 
     val context = LocalContext.current
 
-    val thongTinPhanCong = PhanCongThongTin(
-        tenBenA = "Trần Thị Admin",
-        donViBenA = "Phòng Hành chính",
-        tenBenB = "Nguyễn Văn Kỹ",
-        viTri = "P.203 – Khoa CNTT",
-        danhSachThietBi = listOf(
-            ThietBiDaSua("Máy in HP 1020", "P.203", "Thay hộp mực, vệ sinh"),
-            ThietBiDaSua("Máy chiếu Epson X500", "P.205", "Kiểm tra nguồn và ống kính")
+    val thongTin = viewModel.thongTinNghiemThu
+
+    LaunchedEffect(Unit) {
+        viewModel.loadBienBan(yeuCauId, nguoiXacNhanId)
+    }
+
+    ScaffoldLayout(
+        title = "Xem trước biên bản",
+        navController = navController,
+        showTopBar = true,
+        showBottomBar = false,
+        showDrawer = false,
+        isHomeScreen = false
+    ) { innerPadding ->
+        if (thongTin == null) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return@ScaffoldLayout
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(innerPadding)
+                .padding(bottom = 80.dp)
         )
-    )
-
-    Box(modifier = Modifier.fillMaxSize()) {
-
-        Column(modifier = Modifier.fillMaxSize().padding(bottom = 72.dp)) {
+        {
             TabRow(selectedTabIndex = selectedTabIndex) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
@@ -75,39 +283,187 @@ fun BienBanNghiemThuScreen(
 
             when (selectedTabIndex) {
                 0 -> {
-                    // Tab Preview
                     Column(
                         modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .padding(16.dp)
                     ) {
-                        Text("BIÊN BẢN NGHIỆM THU SỬA CHỮA, BẢO DƯỠNG THIẾT BỊ", style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            "BIÊN BẢN NGHIỆM THU SỬA CHỮA, BẢO DƯỠNG THIẾT BỊ",
+                            style = MaterialTheme.typography.titleLarge
+                        )
                         Spacer(Modifier.height(8.dp))
                         Text("Ngày: ${SimpleDateFormat("dd/MM/yyyy").format(Date())}")
-                        Text("Địa điểm: ${thongTinPhanCong.viTri}")
+                        Text("Địa điểm: Trường Đại Học Thủ Dầu Một") // nếu cần bạn có thể bổ sung vị trí ở đây
 
                         Spacer(Modifier.height(16.dp))
-                        Text("BÊN A – Đơn vị sở hữu thiết bị:", fontWeight = FontWeight.Bold)
-                        Text("Họ tên: ${thongTinPhanCong.tenBenA}")
-                        Text("Đơn vị: ${thongTinPhanCong.donViBenA}")
+                        Text(
+                            "BÊN A – Đơn vị chịu trách nhiệm thiết bị:",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text("Họ tên: ${thongTin.tenBenA}")
+                        Text("Đơn vị: ${thongTin.donViBenA}")
 
                         Spacer(Modifier.height(12.dp))
-                        Text("BÊN B – Kỹ thuật viên thực hiện:", fontWeight = FontWeight.Bold)
-                        Text("Họ tên: ${thongTinPhanCong.tenBenB}")
+                        Text(
+                            "BÊN B – Thực hiện xử lý yêu cầu:",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text("Họ tên: ${thongTin.tenBenB}")
                         Text("Đơn vị: Phòng Kỹ thuật")
 
                         Spacer(Modifier.height(16.dp))
-                        Text("Danh sách thiết bị đã xử lý:", fontWeight = FontWeight.SemiBold)
-                        thongTinPhanCong.danhSachThietBi.forEachIndexed { index, item ->
-                            Text("${index + 1}. ${item.tenThietBi} – ${item.viTri}: ${item.noiDung}")
+                        Text(
+                            "Danh sách thiết bị đã xử lý:",
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                        ) {
+                            // 🔷 HEADER
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = 8.dp)
+                            ) {
+                                Text(
+                                    "#",
+                                    Modifier
+                                        .weight(0.2f)
+                                        .align(Alignment.CenterVertically)
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                VerticalDivider()
+                                Text(
+                                    "Tên thiết bị",
+                                    Modifier
+                                        .weight(1f)
+                                        .align(Alignment.CenterVertically)
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                VerticalDivider()
+                                Text(
+                                    "Vị trí",
+                                    Modifier
+                                        .weight(1f)
+                                        .align(Alignment.CenterVertically)
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                VerticalDivider()
+                                Text(
+                                    "Nội dung",
+                                    Modifier
+                                        .weight(1.2f)
+                                        .align(Alignment.CenterVertically)
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.outline)
+
+                            // 🔽 DÒNG DỮ LIỆU
+                            thongTin.danhSachThietBi.forEachIndexed { index, item ->
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(IntrinsicSize.Min)
+                                        .padding(horizontal = 8.dp)
+                                ) {
+                                    Text(
+                                        "${index + 1}",
+                                        Modifier
+                                            .weight(0.2f)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                    VerticalDivider()
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .align(Alignment.CenterVertically)
+                                    ) {
+                                        val annotatedText = buildAnnotatedString {
+                                            append(item.tenThietBi)
+                                            appendInlineContent("iconXemAnh", "[icon]")
+                                        }
+
+                                        val inlineContent = mapOf(
+                                            "iconXemAnh" to InlineTextContent(
+                                                Placeholder(
+                                                    width = 20.sp,
+                                                    height = 20.sp,
+                                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                                )
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Image,
+                                                    contentDescription = "Xem ảnh",
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier
+                                                        .clickable {
+                                                            //viewModel.loadAnhTheoChiTiet(item.chiTietYeuCauId)
+                                                            // chuyển tab nếu có tab đối chiếu ảnh
+                                                        }
+                                                )
+                                            }
+                                        )
+
+                                        Text(
+                                            text = annotatedText,
+                                            inlineContent = inlineContent,
+                                            //maxLines = 4,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+
+
+                                    }
+
+                                    VerticalDivider()
+                                    Text(
+                                        item.viTri,
+                                        Modifier
+                                            .weight(1f)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                    VerticalDivider()
+                                    Text(
+                                        item.noiDung,
+                                        Modifier
+                                            .weight(1.2f)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                }
+
+                                Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                            }
                         }
+
+
 
                         Spacer(Modifier.height(16.dp))
                         Text("KẾT LUẬN: Thiết bị đã hoạt động bình thường sau bảo trì.")
-                        Spacer(Modifier.height(16.dp))
 
                         if (kyBenA != null || kyBenB != null) {
-                            Spacer(Modifier.height(24.dp))
+                            Spacer(Modifier.height(16.dp))
                             Text("Chữ ký xác nhận:", fontWeight = FontWeight.SemiBold)
 
                             Row(
@@ -155,12 +511,23 @@ fun BienBanNghiemThuScreen(
                     ) {
                         Text("BÊN A ký xác nhận", fontWeight = FontWeight.Medium)
                         Spacer(Modifier.height(12.dp))
-                        SignaturePad(
+                        Surface(
+                            tonalElevation = 4.dp,
+                            shadowElevation = 8.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                             modifier = Modifier
-                                .width(300.dp)
-                                .height(180.dp),
-                            onSigned = { kyBenA = it }
-                        )
+                                .width(320.dp)
+                                .height(540.dp)
+                        ) {
+                            SignaturePad(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(4.dp), // đệm nhẹ để nét không dính viền
+                                onSigned = { kyBenA = it }
+                            )
+                        }
+
                     }
                 }
 
@@ -173,43 +540,67 @@ fun BienBanNghiemThuScreen(
                     ) {
                         Text("BÊN B ký xác nhận", fontWeight = FontWeight.Medium)
                         Spacer(Modifier.height(12.dp))
-                        SignaturePad(
+                        Surface(
+                            tonalElevation = 4.dp,
+                            shadowElevation = 8.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                             modifier = Modifier
-                                .width(300.dp)
-                                .height(180.dp),
-                            onSigned = { kyBenB = it }
-                        )
+                                .width(320.dp)
+                                .height(540.dp)
+                        ) {
+                            SignaturePad(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(4.dp), // đệm nhẹ để nét không dính viền
+                                onSigned = { kyBenB = it }
+                            )
+                        }
+
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
         }
 
-        Button(
-            onClick = {
-                if (kyBenA != null && kyBenB != null) {
-                    exportBienBanToPdf(context, thongTinPhanCong, kyBenA!!, kyBenB!!)
-                } else {
-                    Toast.makeText(context, "Vui lòng ký đầy đủ cả hai bên", Toast.LENGTH_SHORT).show()
-                }
-            },
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Default.Done, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Tạo bản hoàn chỉnh")
+        if(selectedTabIndex == 0){
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(innerPadding),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        if (kyBenA != null && kyBenB != null) {
+                            // exportBienBanToPdf(context, thongTin, kyBenA!!, kyBenB!!)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Vui lòng ký đầy đủ cả hai bên",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    icon = { Icon(Icons.Default.Done, contentDescription = null) },
+                    text = { Text("Tạo bản hoàn chỉnh") },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(0.9f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(6.dp)
+                )
+            }
         }
+
+
+
     }
-
-
-
-
-
 }
-
 
 fun exportBienBanToPdf(
     context: Context,
@@ -256,7 +647,6 @@ fun exportBienBanToPdf(
         paint.isFakeBoldText = bold
         drawWrappedText(text, marginX, maxTextWidth, lineSpacing = 22f)
     }
-
 
 
     // ===== Header =====
@@ -307,9 +697,25 @@ fun exportBienBanToPdf(
     pdf.writeTo(FileOutputStream(file))
     pdf.close()
 
-    Toast.makeText(context, "✅ Đã tạo PDF mẫu đẹp tại:\n${file.absolutePath}", Toast.LENGTH_LONG).show()
+    Toast.makeText(
+        context,
+        "✅ Đã tạo PDF mẫu đẹp tại:\n${file.absolutePath}",
+        Toast.LENGTH_LONG
+    ).show()
 }
 
+@Composable
+fun VerticalDivider(
+    color: Color = MaterialTheme.colorScheme.outline,
+    thickness: Dp = 1.dp
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(thickness)
+            .background(color)
+    )
+}
 
 
 

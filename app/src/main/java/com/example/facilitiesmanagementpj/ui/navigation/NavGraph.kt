@@ -24,6 +24,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestDetailScre
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewTienTrinhLamViecScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.PhanCongDetailScreen
@@ -147,6 +148,23 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         ) { backStackEntry ->
             val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
             AdminViewTienTrinhLamViecScreen(navController, phanCongKtvId)
+        }
+
+        composable(
+            route = Screen.BienBanNghiemThu.route,
+            arguments = listOf(
+                navArgument("yeuCauId") { type = NavType.IntType },
+                navArgument("nguoiXacNhanId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+            val nguoiXacNhanId = backStackEntry.arguments?.getInt("nguoiXacNhanId") ?: 0
+            BienBanNghiemThuScreen(
+                yeuCauId = yeuCauId,
+                nguoiXacNhanId = nguoiXacNhanId,
+                navController = navController,
+                onHoanTat = { kyA, kyB -> /* Handle completion */ }
+            )
         }
 
         // Màn hình Quản lý đơn vị

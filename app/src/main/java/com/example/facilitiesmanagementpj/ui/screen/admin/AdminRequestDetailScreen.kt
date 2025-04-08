@@ -55,13 +55,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.zIndex
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel.ChiTietYeuCauWithDisplayData
+import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val currentUser by sessionViewModel.currentUser.collectAsState()
     val viewModel: AdminRequestDetailViewModel = hiltViewModel()
-    val tabIndex = remember { mutableIntStateOf(0) }
     val daPhanCong by viewModel.filteredDaPhanCongList.collectAsState()
     val chuaPhanCong by viewModel.filteredChuaPhanCongList.collectAsState()
     val selectedDeviceType by viewModel.selectedDeviceType.collectAsState()
@@ -70,6 +72,9 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
     var filterSheetVisible by remember { mutableStateOf(false) }
     var filterType by remember { mutableStateOf("") }
     val yeuCau = viewModel.yeuCau.collectAsState().value
+    val tabIndex = remember(yeuCau?.trangThai) {
+        mutableIntStateOf(if (yeuCau?.trangThai == TrangThaiYeuCau.DA_XU_LY) 1 else 0)
+    }
     var showRejectDialog by remember { mutableStateOf(false) }
     var rejectReason by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -103,7 +108,7 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                 .background(MaterialTheme.colorScheme.background)
                 .then(innerPadding)
         ) {
-            if (yeuCau?.trangThai != TrangThaiYeuCau.CHO_XAC_NHAN) {
+            if (yeuCau?.trangThai != TrangThaiYeuCau.CHO_XAC_NHAN && yeuCau?.trangThai != TrangThaiYeuCau.DA_XU_LY) {
                 val selectedColor = MaterialTheme.colorScheme.primary
                 val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -348,6 +353,43 @@ fun AdminRequestDetailScreen(navController: NavController, yeuCauId: Int) {
                 )
             }
         }
+
+        if (yeuCau?.trangThai == TrangThaiYeuCau.DA_XU_LY) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Button(
+                    onClick = {
+                        currentUser?.id?.let { nguoiXacNhanId ->
+                            navController.navigate(
+                                Screen.BienBanNghiemThu.createRoute(
+                                    yeuCauId = yeuCau.id,
+                                    nguoiXacNhanId = nguoiXacNhanId
+                                )
+                            )
+                        }
+
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .shadow(8.dp, RoundedCornerShape(18.dp))
+                ) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Xem và nghiệm thu")
+                }
+            }
+        }
+
     }
 }
 

@@ -22,6 +22,10 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         return phanCongDao.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
     }
 
+    suspend fun getById(phanCongId: Int): PhanCong? {
+        return phanCongDao.getById(phanCongId)
+    }
+
     suspend fun capNhatTrangThaiPhanCong(phanCongId: Int) {
         val dsKtv = phanCongKtvDao.getAllByPhanCongId(phanCongId) // lấy tất cả PhanCongKtv liên quan
 

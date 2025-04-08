@@ -92,6 +92,9 @@ interface TaiKhoanDao {
     @Query("SELECT * FROM tai_khoan WHERE tenTaiKhoan = :username AND matKhau = :password LIMIT 1")
     suspend fun getTaiKhoan(username: String, password: String): TaiKhoan?
 
+    @Query("SELECT * FROM tai_khoan WHERE id = :id LIMIT 1")
+    suspend fun getTkById(id: Int): TaiKhoan?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(taiKhoan: TaiKhoan)
 

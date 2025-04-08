@@ -6,14 +6,17 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.Icon
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +38,7 @@ import androidx.core.graphics.createBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 
 
@@ -78,11 +82,53 @@ fun SignaturePad(
     }
 
     // Nút Xoá và Xác nhận
+//    Box(modifier = Modifier.fillMaxSize()) {
+//        IconButton(
+//            onClick = {
+//                paths.clear()
+//                currentPath.value = Path()
+//            },
+//            modifier = Modifier
+//                .align(Alignment.TopEnd)
+//                .padding(8.dp)
+//                .background(Color.White.copy(alpha = 0.9f), CircleShape)
+//        ) {
+//            Icon(Icons.Default.Clear, contentDescription = "Xoá chữ ký", tint = Color.Black)
+//        }
+//
+//        Button(
+//            onClick = {
+//                val widthPx = with(density) { canvasSize.width }
+//                val heightPx = with(density) { canvasSize.height }
+//                val bitmap = createBitmap(widthPx, heightPx)
+//                val canvas = android.graphics.Canvas(bitmap)
+//                val paint = android.graphics.Paint().apply {
+//                    color = android.graphics.Color.BLACK
+//                    strokeWidth = 6f
+//                    style = android.graphics.Paint.Style.STROKE
+//                    isAntiAlias = true
+//                }
+//                paths.forEach { canvas.drawPath(it.asAndroidPath(), paint) }
+//                onSigned(bitmap)
+//            },
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .padding(16.dp)
+//        ) {
+//            Text("Xác nhận chữ ký")
+//        }
+//    }
+    var isConfirmed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     Box(modifier = Modifier.fillMaxSize()) {
+
+        // ❌ Nút Xoá
         IconButton(
             onClick = {
                 paths.clear()
                 currentPath.value = Path()
+                isConfirmed = false
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -92,6 +138,7 @@ fun SignaturePad(
             Icon(Icons.Default.Clear, contentDescription = "Xoá chữ ký", tint = Color.Black)
         }
 
+        // ✅ Nút Xác nhận
         Button(
             onClick = {
                 val widthPx = with(density) { canvasSize.width }
@@ -105,15 +152,28 @@ fun SignaturePad(
                     isAntiAlias = true
                 }
                 paths.forEach { canvas.drawPath(it.asAndroidPath(), paint) }
+
                 onSigned(bitmap)
+                isConfirmed = true
+                Toast.makeText(context, "Đã lưu chữ ký", Toast.LENGTH_SHORT).show()
             },
+            enabled = !isConfirmed,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
+                .fillMaxWidth(0.8f)
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 8.dp,
+                disabledElevation = 0.dp
+            )
         ) {
-            Text("Xác nhận chữ ký")
+            Text("Xác nhận chữ ký", style = MaterialTheme.typography.titleMedium)
         }
     }
+
 }
 
 
