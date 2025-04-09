@@ -55,7 +55,7 @@ class BienBanViewModel @Inject constructor(
     var thongTinNghiemThu by mutableStateOf<ThongTinNghiemThu?>(null)
         private set
 
-    val anhTheoChiTietMap = mutableStateMapOf<Int, Pair<List<String>, List<String>>>()
+    val anhTheoChiTietMap = mutableStateMapOf<Int, Pair<List<AnhMinhChungBaoCao>, List<AnhMinhChungLamViec>>>()
 
     fun loadBienBan(yeuCauId: Int, nguoiXacNhanId: Int) {
         viewModelScope.launch {
@@ -98,17 +98,18 @@ class BienBanViewModel @Inject constructor(
             if (anhTheoChiTietMap.containsKey(chiTietId)) return@launch
 
             val anhBaoCao = anhBaoCaoRepo.getByChiTietId(chiTietId)
-                .map { anh: AnhMinhChungBaoCao -> anh.urlAnh }
-
 
             val phanCong = phanCongRepo.getPhanCongByChiTietYeuCau(chiTietId) ?: return@launch
             val phanCongKtvs = phanCongKtvRepo.getAllByPhanCongId(phanCong.id)
 
             val anhLamViec = phanCongKtvs.flatMap { ktv ->
                 anhLamViecRepo.getByPhanCongKtvId(ktv.id)
-            }.map { it.urlAnh }
+            }.filter {
+                it.loaiAnh in listOf("CHECKIN", "MINH_CHUNG", "CHECKOUT")
+            }.sortedBy { it.thoiGianTaiLen }
 
             anhTheoChiTietMap[chiTietId] = Pair(anhBaoCao, anhLamViec)
+
         }
     }
 }

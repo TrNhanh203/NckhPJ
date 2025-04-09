@@ -25,6 +25,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewTienTrinhLamViecScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.ChiTietAnhMinhChungScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.PhanCongDetailScreen
@@ -164,6 +165,18 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
                 nguoiXacNhanId = nguoiXacNhanId,
                 navController = navController,
                 onHoanTat = { kyA, kyB -> /* Handle completion */ }
+            )
+        }
+
+        composable(
+            route = Screen.XemAnhKhiNghiemThu.route,
+            arguments = listOf(navArgument("chiTietId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val chiTietId = backStackEntry.arguments?.getInt("chiTietId") ?: 0
+            ChiTietAnhMinhChungScreen(
+                viewModel = hiltViewModel(),
+                chiTietId = chiTietId,
+                onBack = { navController.popBackStack() }
             )
         }
 

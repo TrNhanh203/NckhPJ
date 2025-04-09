@@ -52,6 +52,7 @@ import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
+import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel.ThongTinNghiemThu
 import java.text.Normalizer
@@ -424,8 +425,7 @@ fun BienBanNghiemThuScreen(
                                                     tint = MaterialTheme.colorScheme.primary,
                                                     modifier = Modifier
                                                         .clickable {
-                                                            //viewModel.loadAnhTheoChiTiet(item.chiTietYeuCauId)
-                                                            // chuyển tab nếu có tab đối chiếu ảnh
+                                                            navController.navigate(Screen.XemAnhKhiNghiemThu.createRoute(item.chiTietYeuCauId))
                                                         }
                                                 )
                                             }
