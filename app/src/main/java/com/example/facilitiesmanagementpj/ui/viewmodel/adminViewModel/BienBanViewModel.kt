@@ -93,6 +93,31 @@ class BienBanViewModel @Inject constructor(
         }
     }
 
+//    fun loadAnhTheoChiTiet(chiTietId: Int) {
+//        viewModelScope.launch {
+//            if (anhTheoChiTietMap.containsKey(chiTietId)) return@launch
+//
+//            val anhBaoCao = anhBaoCaoRepo.getByChiTietId(chiTietId)
+//
+//            val phanCong = phanCongRepo.getPhanCongByChiTietYeuCau(chiTietId) ?: return@launch
+//            val phanCongKtvs = phanCongKtvRepo.getAllByPhanCongId(phanCong.id)
+//
+//            val anhLamViec = phanCongKtvs.flatMap { ktv ->
+//                anhLamViecRepo.getByPhanCongKtvId(ktv.id)
+//            }.filter {
+//                it.loaiAnh in listOf("CHECKIN", "MINH_CHUNG", "CHECKOUT")
+//            }.sortedBy { it.thoiGianTaiLen }
+//
+//            anhTheoChiTietMap[chiTietId] = Pair(anhBaoCao, anhLamViec)
+//
+//        }
+//    }
+    // giữ nguyên các phần khác trong ViewModel
+
+    // Lưu map ktvId -> tên và mô tả phân công
+    val tenKtvMap = mutableStateMapOf<Int, String>()
+    val moTaKtvMap = mutableStateMapOf<Int, String>()
+
     fun loadAnhTheoChiTiet(chiTietId: Int) {
         viewModelScope.launch {
             if (anhTheoChiTietMap.containsKey(chiTietId)) return@launch
@@ -102,6 +127,13 @@ class BienBanViewModel @Inject constructor(
             val phanCong = phanCongRepo.getPhanCongByChiTietYeuCau(chiTietId) ?: return@launch
             val phanCongKtvs = phanCongKtvRepo.getAllByPhanCongId(phanCong.id)
 
+            // Cập nhật map tên và mô tả phân công kỹ thuật viên
+            for (pc in phanCongKtvs) {
+                val taiKhoan = taiKhoanRepo.getTkById(pc.id)
+                tenKtvMap[pc.id] = taiKhoan?.hoTen ?: "Ẩn danh"
+                moTaKtvMap[pc.id] = pc.moTaCongViec ?: "Không có mô tả"
+            }
+
             val anhLamViec = phanCongKtvs.flatMap { ktv ->
                 anhLamViecRepo.getByPhanCongKtvId(ktv.id)
             }.filter {
@@ -109,7 +141,15 @@ class BienBanViewModel @Inject constructor(
             }.sortedBy { it.thoiGianTaiLen }
 
             anhTheoChiTietMap[chiTietId] = Pair(anhBaoCao, anhLamViec)
-
         }
     }
+
+    fun getKtvNameByPhanCongKtvId(id: Int): String {
+        return tenKtvMap[id] ?: "Ẩn danh"
+    }
+
+    fun getMoTaByPhanCongKtvId(id: Int): String {
+        return moTaKtvMap[id] ?: "Không có mô tả"
+    }
+
 }
