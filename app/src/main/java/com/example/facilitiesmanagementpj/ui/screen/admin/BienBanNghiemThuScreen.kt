@@ -52,6 +52,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel.ThongTinNghiemThu
+import java.text.Normalizer
+import java.util.Locale
 
 
 // Composable màn hình nghiệm thu có chữ ký điện tử (dữ liệu fake để test preview)
@@ -380,7 +383,7 @@ fun BienBanNghiemThuScreen(
 
                             Divider(color = MaterialTheme.colorScheme.outline)
 
-                            // 🔽 DÒNG DỮ LIỆU
+                            // DÒNG DỮ LIỆU
                             thongTin.danhSachThietBi.forEachIndexed { index, item ->
                                 Row(
                                     Modifier
@@ -574,7 +577,7 @@ fun BienBanNghiemThuScreen(
                 ExtendedFloatingActionButton(
                     onClick = {
                         if (kyBenA != null && kyBenB != null) {
-                            // exportBienBanToPdf(context, thongTin, kyBenA!!, kyBenB!!)
+                            exportBienBanToPdf(context, thongTin, kyBenA!!, kyBenB!!)
                         } else {
                             Toast.makeText(
                                 context,
@@ -602,9 +605,110 @@ fun BienBanNghiemThuScreen(
     }
 }
 
+//fun exportBienBanToPdf(
+//    context: Context,
+//    thongTin: PhanCongThongTin,
+//    kyA: Bitmap,
+//    kyB: Bitmap
+//) {
+//    val pdf = PdfDocument()
+//    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+//    val page = pdf.startPage(pageInfo)
+//    val canvas = page.canvas
+//
+//    val paint = Paint().apply {
+//        color = android.graphics.Color.BLACK
+//        isAntiAlias = true
+//    }
+//
+//    var y = 50f
+//    val centerX = canvas.width / 2f
+//    val marginX = 40f
+//    val maxTextWidth = canvas.width - 2 * marginX
+//
+//    fun drawCenter(text: String, textSize: Float = 14f, bold: Boolean = false) {
+//        paint.textSize = textSize
+//        paint.isFakeBoldText = bold
+//        val x = (canvas.width - paint.measureText(text)) / 2f
+//        canvas.drawText(text, x, y, paint)
+//        y += 26f
+//    }
+//
+//    fun drawWrappedText(text: String, startX: Float, maxWidth: Float, lineSpacing: Float) {
+//        var remainingText = text
+//        while (remainingText.isNotEmpty()) {
+//            val count = paint.breakText(remainingText, true, maxWidth, null)
+//            val line = remainingText.substring(0, count)
+//            canvas.drawText(line, startX, y, paint)
+//            remainingText = remainingText.substring(count)
+//            y += lineSpacing
+//        }
+//    }
+//
+//    fun drawLeft(text: String, textSize: Float = 12f, bold: Boolean = false) {
+//        paint.textSize = textSize
+//        paint.isFakeBoldText = bold
+//        drawWrappedText(text, marginX, maxTextWidth, lineSpacing = 22f)
+//    }
+//
+//
+//    // ===== Header =====
+//    drawCenter("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM", textSize = 14f, bold = true)
+//    drawCenter("Độc lập – Tự do – Hạnh phúc", textSize = 14f, bold = true)
+//    y += 12f
+//    drawCenter("BIÊN BẢN NGHIỆM THU", textSize = 16f, bold = true)
+//    drawCenter("v/v: bảo trì, sửa chữa thiết bị", textSize = 14f)
+//    y += 12f
+//
+//    // ===== Nội dung =====
+//    drawLeft("Căn cứ Giấy đề xuất ngày ... tháng ... năm ... của PHÒNG HÀNH CHÍNH về việc sửa chữa máy móc thiết bị.")
+//    y += 8f
+//    drawLeft("Hôm nay, ngày ... tháng ... năm ..., chúng tôi gồm có:")
+//    drawLeft("Ông/Bà: TRẦN THỊ ADMIN    Chức vụ: Quản trị viên – Phòng Hành chính")
+//    drawLeft("Ông/Bà: NGUYỄN VĂN KỸ     Chức vụ: Kỹ thuật viên – Phòng Kỹ thuật")
+//    y += 8f
+//    drawLeft("Chúng tôi thống nhất nghiệm thu các thiết bị đã sửa chữa như sau:")
+//    drawLeft("1. Máy in HP 1020 – P.203: Thay hộp mực, vệ sinh")
+//    drawLeft("2. Máy chiếu Epson X500 – P.205: Kiểm tra nguồn và ống kính")
+//    y += 8f
+//    drawLeft("Chúng tôi xác nhận các thiết bị trên đã hoạt động tốt sau khi sửa chữa, bảo trì.")
+//    y += 8f
+//    drawLeft("Biên bản gồm 01 trang, lập thành 02 bản, mỗi bên giữ một bản và có giá trị pháp lý như nhau.")
+//    y += 40f
+//
+//    // ===== Chữ ký =====
+//    paint.textSize = 12f
+//    paint.isFakeBoldText = true
+//    canvas.drawText("ĐD Đơn vị sử dụng thiết bị", marginX, y, paint)
+//    canvas.drawText("ĐD Phòng Kỹ thuật", marginX + 320f, y, paint)
+//
+//    paint.isFakeBoldText = false
+//    canvas.drawText("(Ký, ghi rõ họ tên)", marginX + 5f, y + 18f, paint)
+//    canvas.drawText("(Ký, ghi rõ họ tên)", marginX + 325f, y + 18f, paint)
+//
+//    // ===== Ảnh chữ ký =====
+//    val sigSize = 100
+//    canvas.drawBitmap(kyA.scale(sigSize, sigSize, false), marginX + 10f, y + 40f, null)
+//    canvas.drawBitmap(kyB.scale(sigSize, sigSize, false), marginX + 330f, y + 40f, null)
+//
+//    pdf.finishPage(page)
+//
+//    val file = File(
+//        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+//        "bien_ban_nghiem_thu_mau_chuan_fix.pdf"
+//    )
+//    pdf.writeTo(FileOutputStream(file))
+//    pdf.close()
+//
+//    Toast.makeText(
+//        context,
+//        "✅ Đã tạo PDF mẫu đẹp tại:\n${file.absolutePath}",
+//        Toast.LENGTH_LONG
+//    ).show()
+//}
 fun exportBienBanToPdf(
     context: Context,
-    thongTin: PhanCongThongTin,
+    thongTin: ThongTinNghiemThu,
     kyA: Bitmap,
     kyB: Bitmap
 ) {
@@ -648,7 +752,6 @@ fun exportBienBanToPdf(
         drawWrappedText(text, marginX, maxTextWidth, lineSpacing = 22f)
     }
 
-
     // ===== Header =====
     drawCenter("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM", textSize = 14f, bold = true)
     drawCenter("Độc lập – Tự do – Hạnh phúc", textSize = 14f, bold = true)
@@ -658,17 +761,85 @@ fun exportBienBanToPdf(
     y += 12f
 
     // ===== Nội dung =====
-    drawLeft("Căn cứ Giấy đề xuất ngày ... tháng ... năm ... của PHÒNG HÀNH CHÍNH về việc sửa chữa máy móc thiết bị.")
+    drawLeft("Căn cứ theo yêu cầu đã được phê duyệt và phân công xử lý.")
     y += 8f
-    drawLeft("Hôm nay, ngày ... tháng ... năm ..., chúng tôi gồm có:")
-    drawLeft("Ông/Bà: TRẦN THỊ ADMIN    Chức vụ: Quản trị viên – Phòng Hành chính")
-    drawLeft("Ông/Bà: NGUYỄN VĂN KỸ     Chức vụ: Kỹ thuật viên – Phòng Kỹ thuật")
+    val currentDate = SimpleDateFormat("dd 'tháng' MM 'năm' yyyy", Locale("vi")).format(Date())
+    drawLeft("Hôm nay, ngày $currentDate, chúng tôi gồm có:")
+    drawLeft("BÊN A: ${thongTin.tenBenA} – Đơn vị: ${thongTin.donViBenA}")
+    drawLeft("BÊN B: ${thongTin.tenBenB} – Đơn vị: Phòng Kỹ thuật")
     y += 8f
-    drawLeft("Chúng tôi thống nhất nghiệm thu các thiết bị đã sửa chữa như sau:")
-    drawLeft("1. Máy in HP 1020 – P.203: Thay hộp mực, vệ sinh")
-    drawLeft("2. Máy chiếu Epson X500 – P.205: Kiểm tra nguồn và ống kính")
+    drawLeft("Chúng tôi thống nhất nghiệm thu các thiết bị đã xử lý như sau:")
+
+    // ===== Danh sách thiết bị (bảng) =====
+    y += 10f
+    paint.textSize = 12f
+    paint.isFakeBoldText = true
+    canvas.drawText("STT", marginX, y, paint)
+    canvas.drawText("Tên thiết bị", marginX + 40f, y, paint)
+    canvas.drawText("Vị trí", marginX + 200f, y, paint)
+    canvas.drawText("Nội dung xử lý", marginX + 320f, y, paint)
+    y += 18f
+
+    paint.isFakeBoldText = false
+    val maxTenThietBiWidth = 140f
+    val maxViTriWidth = 100f
+    val maxNoiDungWidth = 220f
+    val lineHeight = 18f
+
+    thongTin.danhSachThietBi.forEachIndexed { index, item ->
+        val tenLines = mutableListOf<String>()
+        var remainingTen = item.tenThietBi
+        while (remainingTen.isNotEmpty()) {
+            val count = paint.breakText(remainingTen, true, maxTenThietBiWidth, null)
+            tenLines += remainingTen.substring(0, count)
+            remainingTen = remainingTen.substring(count)
+        }
+
+        val viTriLines = mutableListOf<String>()
+        var remainingViTri = item.viTri
+        while (remainingViTri.isNotEmpty()) {
+            val count = paint.breakText(remainingViTri, true, maxViTriWidth, null)
+            viTriLines += remainingViTri.substring(0, count)
+            remainingViTri = remainingViTri.substring(count)
+        }
+
+        val noiDungLines = mutableListOf<String>()
+        var remainingNoiDung = item.noiDung
+        while (remainingNoiDung.isNotEmpty()) {
+            val count = paint.breakText(remainingNoiDung, true, maxNoiDungWidth, null)
+            noiDungLines += remainingNoiDung.substring(0, count)
+            remainingNoiDung = remainingNoiDung.substring(count)
+        }
+
+        // Số dòng lớn nhất trong 3 cột (trừ STT)
+        val maxLineCount = listOf(tenLines.size, viTriLines.size, noiDungLines.size).maxOrNull() ?: 1
+
+        for (i in 0 until maxLineCount) {
+            if (i == 0) {
+                canvas.drawText("${index + 1}", marginX, y, paint)
+            }
+
+            tenLines.getOrNull(i)?.let {
+                canvas.drawText(it, marginX + 40f, y, paint)
+            }
+
+            viTriLines.getOrNull(i)?.let {
+                canvas.drawText(it, marginX + 200f, y, paint)
+            }
+
+            noiDungLines.getOrNull(i)?.let {
+                canvas.drawText(it, marginX + 320f, y, paint)
+            }
+
+            y += lineHeight
+        }
+
+        y += 8f // thêm khoảng cách giữa các thiết bị
+    }
+
+
     y += 8f
-    drawLeft("Chúng tôi xác nhận các thiết bị trên đã hoạt động tốt sau khi sửa chữa, bảo trì.")
+    drawLeft("Tất cả các thiết bị trên đã hoạt động bình thường sau bảo trì, sửa chữa.")
     y += 8f
     drawLeft("Biên bản gồm 01 trang, lập thành 02 bản, mỗi bên giữ một bản và có giá trị pháp lý như nhau.")
     y += 40f
@@ -690,19 +861,26 @@ fun exportBienBanToPdf(
 
     pdf.finishPage(page)
 
+    val donViName = normalizeFileName(thongTin.donViBenA)
+    val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
+    val fileName = "bien_ban_${donViName}_$timestamp.pdf"
+
+
     val file = File(
+
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        "bien_ban_nghiem_thu_mau_chuan_fix.pdf"
+        fileName
     )
     pdf.writeTo(FileOutputStream(file))
     pdf.close()
 
     Toast.makeText(
         context,
-        "✅ Đã tạo PDF mẫu đẹp tại:\n${file.absolutePath}",
+        "✅ Đã tạo PDF tại:\n${file.absolutePath}",
         Toast.LENGTH_LONG
     ).show()
 }
+
 
 @Composable
 fun VerticalDivider(
@@ -718,4 +896,10 @@ fun VerticalDivider(
 }
 
 
+fun normalizeFileName(name: String): String {
+    val temp = Normalizer.normalize(name, Normalizer.Form.NFD)
+    return temp.replace(Regex("[^\\p{ASCII}]"), "") // Bỏ dấu
+        .replace(" ", "_")                          // Đổi khoảng trắng thành _
+        .lowercase(Locale.getDefault())             // Chuyển thành chữ thường
+}
 
