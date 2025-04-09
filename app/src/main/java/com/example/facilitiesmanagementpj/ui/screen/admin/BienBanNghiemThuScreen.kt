@@ -33,6 +33,7 @@ import android.os.Environment
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -55,6 +56,7 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanVie
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BienBanViewModel.ThongTinNghiemThu
 import java.text.Normalizer
 import java.util.Locale
+import kotlin.text.compareTo
 
 
 // Composable màn hình nghiệm thu có chữ ký điện tử (dữ liệu fake để test preview)
@@ -714,8 +716,8 @@ fun exportBienBanToPdf(
 ) {
     val pdf = PdfDocument()
     val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-    val page = pdf.startPage(pageInfo)
-    val canvas = page.canvas
+    var page = pdf.startPage(pageInfo)
+    var canvas = page.canvas
 
     val paint = Paint().apply {
         color = android.graphics.Color.BLACK
@@ -750,6 +752,18 @@ fun exportBienBanToPdf(
         paint.textSize = textSize
         paint.isFakeBoldText = bold
         drawWrappedText(text, marginX, maxTextWidth, lineSpacing = 22f)
+    }
+
+    var pageCount = 1
+
+    fun newPageIfNeeded(extraHeight: Float = 30f) {
+        if (y + extraHeight > canvas.height - 40f) {
+            pdf.finishPage(page)
+            page = pdf.startPage(pageInfo)
+            canvas = page.canvas
+            y = 50f
+            pageCount++
+        }
     }
 
     // ===== Header =====
@@ -787,6 +801,7 @@ fun exportBienBanToPdf(
     val lineHeight = 18f
 
     thongTin.danhSachThietBi.forEachIndexed { index, item ->
+
         val tenLines = mutableListOf<String>()
         var remainingTen = item.tenThietBi
         while (remainingTen.isNotEmpty()) {
@@ -811,10 +826,14 @@ fun exportBienBanToPdf(
             remainingNoiDung = remainingNoiDung.substring(count)
         }
 
-        // Số dòng lớn nhất trong 3 cột (trừ STT)
         val maxLineCount = listOf(tenLines.size, viTriLines.size, noiDungLines.size).maxOrNull() ?: 1
+        val requiredHeight = maxLineCount * lineHeight + 8f
+
+        newPageIfNeeded(requiredHeight) // ✅ Trước khi vẽ thiết bị này
 
         for (i in 0 until maxLineCount) {
+            newPageIfNeeded(lineHeight) // ✅ Check từng dòng nếu cần
+
             if (i == 0) {
                 canvas.drawText("${index + 1}", marginX, y, paint)
             }
@@ -834,14 +853,15 @@ fun exportBienBanToPdf(
             y += lineHeight
         }
 
-        y += 8f // thêm khoảng cách giữa các thiết bị
+        y += 8f
     }
+
 
 
     y += 8f
     drawLeft("Tất cả các thiết bị trên đã hoạt động bình thường sau bảo trì, sửa chữa.")
     y += 8f
-    drawLeft("Biên bản gồm 01 trang, lập thành 02 bản, mỗi bên giữ một bản và có giá trị pháp lý như nhau.")
+    drawLeft("Biên bản gồm $pageCount trang, lập thành 02 bản, mỗi bên giữ một bản và có giá trị pháp lý như nhau.")
     y += 40f
 
     // ===== Chữ ký =====
@@ -879,6 +899,8 @@ fun exportBienBanToPdf(
         "✅ Đã tạo PDF tại:\n${file.absolutePath}",
         Toast.LENGTH_LONG
     ).show()
+
+
 }
 
 
@@ -902,4 +924,5 @@ fun normalizeFileName(name: String): String {
         .replace(" ", "_")                          // Đổi khoảng trắng thành _
         .lowercase(Locale.getDefault())             // Chuyển thành chữ thường
 }
+
 
