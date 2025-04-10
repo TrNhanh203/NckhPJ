@@ -10,6 +10,8 @@ import javax.inject.Singleton
 class DonViRepository @Inject constructor(private val donViDao: DonViDao) {
     fun getAllDonVi(): Flow<List<DonVi>> = donViDao.getAll()
 
+    fun getAllDonViSorted(): Flow<List<DonVi>> = donViDao.getAllDonVi()
+
     suspend fun getById(id: Int): DonVi? {
         return donViDao.getById(id)
     }

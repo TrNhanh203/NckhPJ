@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -35,7 +36,23 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import com.example.facilitiesmanagementpj.data.entity.DonVi
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBiColor
 
 
@@ -45,9 +62,10 @@ fun AdminDeviceListScreen(
     viewModel: AdminDeviceListViewModel = hiltViewModel()
 ) {
     val thietBiList by viewModel.filteredThietBiList.collectAsState()
+    val donViList by viewModel.donViList.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadThietBiList()
+        viewModel.setSelectedDonViId(null)
     }
 
     BackHandler {
@@ -63,6 +81,13 @@ fun AdminDeviceListScreen(
     ) { innerPadding ->
 
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).then(innerPadding)) {
+            val selectedDonViId by viewModel.selectedDonViId.collectAsState()
+            DonViFilterBar(
+                selectedDonViId = selectedDonViId,
+                donViList = donViList,
+                onDonViSelected = { viewModel.setSelectedDonViId(it) }
+            )
+
             FilterSection(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,29 +95,6 @@ fun AdminDeviceListScreen(
                 viewModel = viewModel,
                 thietBiList = thietBiList
             )
-//            LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 0.dp)) {
-//                items(thietBiList) { thietBi ->
-//                    Card(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(0.dp)
-//                            .clickable {
-//                                navController.navigate(Screen.AdminDeviceDetail.createRoute(thietBi.id, 0))
-//                            },
-//                        colors = CardDefaults.cardColors(
-//                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-//                            contentColor = MaterialTheme.colorScheme.onSurface
-//                        )
-//                    ) {
-//                        Column(modifier = Modifier.padding(16.dp)) {
-//                            Text("Tên: ${thietBi.tenThietBi}")
-//                            Text("Loại: ${thietBi.tenLoai}")
-//                            Text("Phòng: ${thietBi.tenPhong} - Tầng: ${thietBi.tenTang} - Dãy: ${thietBi.tenDay}")
-//                            Text("Trạng thái: ${thietBi.trangThai}")
-//                        }
-//                    }
-//                }
-//            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
@@ -118,7 +120,7 @@ fun AdminDeviceListScreen(
                         ),
                         border = BorderStroke(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant
+                            color = MaterialTheme.colorScheme.primary
                         ),
                         elevation = CardDefaults.cardElevation(6.dp)
                     ) {
@@ -172,9 +174,6 @@ fun AdminDeviceListScreen(
                                     )
                                 }
 
-
-
-
                                 Text(
                                     text = thietBi.tenThietBi,
                                     style = MaterialTheme.typography.bodySmall,
@@ -198,167 +197,144 @@ fun AdminDeviceListScreen(
                 }
             }
 
+
+
         }
     }
 }
 
-//@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
-//@Composable
-//fun FilterSection(
-//    modifier: Modifier = Modifier,
-//    viewModel: AdminDeviceListViewModel,
-//    thietBiList: List<ThietBiWithDetails>
-//) {
-//    val scope = rememberCoroutineScope()
-//    val bottomSheetState = rememberModalBottomSheetState()
-//    var currentFilterKey by remember { mutableStateOf<String?>(null) }
-//
-//    val filterMap = mapOf(
-//        "Dãy" to thietBiList.map { it.tenDay }.distinct(),
-//        "Tầng" to thietBiList.map { it.tenTang }.distinct(),
-//        "Phòng" to thietBiList.map { it.tenPhong }.distinct(),
-//        "Trạng thái" to TrangThaiThietBi.ALL,
-//        "Loại Thiết Bị" to thietBiList.map { it.tenLoai }.distinct()
-//    )
-//
-//    val selectedMap = mapOf(
-//        "Dãy" to viewModel.selectedDay.collectAsState().value,
-//        "Tầng" to viewModel.selectedTang.collectAsState().value,
-//        "Phòng" to viewModel.selectedPhong.collectAsState().value,
-//        "Trạng thái" to viewModel.selectedTrangThai.collectAsState().value,
-//        "Loại Thiết Bị" to viewModel.selectedLoaiThietBi.collectAsState().value
-//    )
-//
-//    Column(modifier = Modifier.fillMaxWidth()) {
-//        Surface(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(bottom = 8.dp, ),
-//            tonalElevation = 2.dp,
-//            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-//        ) {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(end = 16.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                // Chip filters
-//                FlowRow(
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .padding(horizontal = 16.dp , vertical = 4.dp),
-//                    mainAxisSpacing = 8.dp,
-//                    crossAxisSpacing = 0.dp
-//                ) {
-//                    filterMap.forEach { (key, _) ->
-//                        val selected = selectedMap[key]
-//                        AssistChip(
-//                            onClick = {
-//                                currentFilterKey = key
-//                                scope.launch { bottomSheetState.show() }
-//                            },
-//                            label = {
-//                                Text(
-//                                    text = if (!selected.isNullOrBlank()) "$key: $selected" else key,
-//                                    style = MaterialTheme.typography.labelMedium,
-//                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                                    maxLines = 1,
-//                                    overflow = TextOverflow.Ellipsis // <-- dấu ba chấm nếu text dài
-//                                )
-//                            },
-//                            colors = AssistChipDefaults.assistChipColors(
-//                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-//                            ),
-//                            modifier = Modifier.widthIn(min = 80.dp, max = 160.dp) // giới hạn width tránh bể layout
-//                        )
-//
-//                    }
-//                }
-//
-//                // Spacer nhỏ
-//                Spacer(modifier = Modifier.width(4.dp))
-//
-//                // Divider dọc để ngăn cách
-//                Box(
-//                    modifier = Modifier
-//                        .height(48.dp)
-//                        .width(1.dp)
-//                        .background(MaterialTheme.colorScheme.outlineVariant)
-//                )
-//
-//                // Spacer giữa divider và icon
-//                Spacer(modifier = Modifier.width(8.dp))
-//
-//                // Icon xóa lọc
-//                Surface(
-//                    shape = MaterialTheme.shapes.small,
-//                    color = MaterialTheme.colorScheme.surfaceVariant,
-//                    tonalElevation = 2.dp,
-//                    shadowElevation = 4.dp,
-//                    modifier = Modifier
-//                        .height(48.dp)
-//                        .width(56.dp) // tăng ngang
-//                ) {
-//                    IconButton(
-//                        onClick = { viewModel.resetFilters() },
-//                        modifier = Modifier.fillMaxSize() // chiếm toàn bộ vùng Surface
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.clear_filter),
-//                            contentDescription = "Xóa lọc",
-//                            tint = MaterialTheme.colorScheme.primary,
-//                            modifier = Modifier.size(20.dp)
-//                        )
-//                    }
-//                }
-//
-//            }
-//
-//        }
-//
-//
-//
-//
-//
-//
-//        // BottomSheet như cũ
-//        currentFilterKey?.let { key ->
-//            val items = filterMap[key] ?: emptyList()
-//            ModalBottomSheet(
-//                onDismissRequest = { currentFilterKey = null },
-//                sheetState = bottomSheetState,
-//                containerColor = MaterialTheme.colorScheme.surface
-//            ) {
-//                Column(modifier = Modifier.padding(16.dp)) {
-//                    Text(
-//                        "Chọn $key",
-//                        style = MaterialTheme.typography.titleMedium,
-//                        color = MaterialTheme.colorScheme.onSurface
-//                    )
-//
-//                    items.forEach { item ->
-//                        ListItem(
-//                            headlineContent = { Text(item, color = MaterialTheme.colorScheme.onSurfaceVariant)
-//                            },
-//                            modifier = Modifier.clickable {
-//                                when (key) {
-//                                    "Dãy" -> viewModel.setDayFilter(item)
-//                                    "Tầng" -> viewModel.setTangFilter(item)
-//                                    "Phòng" -> viewModel.setPhongFilter(item)
-//                                    "Trạng thái" -> viewModel.setTrangThaiFilter(item)
-//                                    "Loại Thiết Bị" -> viewModel.setLoaiThietBiFilter(item)
-//                                }
-//                                currentFilterKey = null
-//                            }
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DonViFilterBar(
+    selectedDonViId: Int?,
+    donViList: List<DonVi>,
+    onDonViSelected: (Int?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    val selectedDonViName = remember(selectedDonViId) {
+        donViList.firstOrNull { it.id == selectedDonViId }?.tenDonVi ?: "Tất cả"
+    }
+
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow, // nhẹ hơn trắng
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            // Text giới hạn chiều ngang
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Đơn vị:",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Text(
+                        text = selectedDonViName,
+                        modifier = Modifier
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .widthIn(max = 200.dp), // 👈 chống tràn
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Nút mở sheet với chiều rộng vừa phải
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                tonalElevation = 1.dp,
+                shadowElevation = 2.dp,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable { showBottomSheet = true }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.dropdown),
+                        contentDescription = "Dropdown",
+                        modifier = Modifier.size(18.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                    )
+                }
+            }
+        }
+
+        Divider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        )
+        // BottomSheet chọn đơn vị
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = rememberModalBottomSheetState(),
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()) // ⚠️ scroll tại đây
+                ) {
+                    Text("Chọn đơn vị", style = MaterialTheme.typography.titleMedium)
+
+                    ListItem(
+                        headlineContent = { Text("Tất cả đơn vị") },
+                        modifier = Modifier.clickable {
+                            onDonViSelected(null)
+                            showBottomSheet = false
+                        }
+                    )
+
+                    donViList.forEach { donVi ->
+                        ListItem(
+                            headlineContent = { Text(donVi.tenDonVi) },
+                            modifier = Modifier.clickable {
+                                onDonViSelected(donVi.id)
+                                showBottomSheet = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterSection(
@@ -387,6 +363,10 @@ fun FilterSection(
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        Divider(
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f),
+            thickness = 1.dp
+        )
         Surface(
             modifier = Modifier.fillMaxWidth(),
             tonalElevation = 2.dp,
@@ -396,7 +376,7 @@ fun FilterSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 2.dp)
                     .padding(start = 16.dp),
 
                 verticalAlignment = Alignment.CenterVertically
@@ -434,10 +414,19 @@ fun FilterSection(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                                 labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = if (isSelected)
+                                    Color.Transparent
+                                else
+                                    MaterialTheme.colorScheme.primary,
+                                borderWidth = 2.dp
+                            ),
                             modifier = Modifier
                                 .padding(end = 8.dp)
                                 .widthIn(min = 80.dp, max = 160.dp)
-                                .height(40.dp)
+                                .height(32.dp)
                         )
                     }
                 }
@@ -470,10 +459,13 @@ fun FilterSection(
                 }
             }
         }
+        Divider(
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f),
+            thickness = 1.dp
+        )
 
 
 
-        // Bottom Sheet như cũ
         currentFilterKey?.let { key ->
             val items = filterMap[key] ?: emptyList()
             ModalBottomSheet(
@@ -481,7 +473,12 @@ fun FilterSection(
                 sheetState = bottomSheetState,
                 containerColor = MaterialTheme.colorScheme.surface
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()) // ⚠️ scroll tại đây
+                ) {
                     Text(
                         "Chọn $key",
                         style = MaterialTheme.typography.titleMedium,

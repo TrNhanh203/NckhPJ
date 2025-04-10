@@ -8,6 +8,9 @@ interface DonViDao {
     @Query("SELECT * FROM don_vi")
     fun getAll(): Flow<List<DonVi>>
 
+    @Query("SELECT * FROM don_vi ORDER BY tenDonVi ASC")
+    fun getAllDonVi(): Flow<List<DonVi>>
+
     @Query("SELECT * FROM don_vi WHERE id = :id")
     suspend fun getById(id: Int): DonVi?
 

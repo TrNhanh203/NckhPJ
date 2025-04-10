@@ -3,23 +3,28 @@ package com.example.facilitiesmanagementpj.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.dao.ThietBiWithDetails
+import com.example.facilitiesmanagementpj.data.entity.DonVi
+import com.example.facilitiesmanagementpj.data.repository.DonViRepository
 import com.example.facilitiesmanagementpj.data.repository.ThietBiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminDeviceListViewModel @Inject constructor(
-    private val thietBiRepository: ThietBiRepository
+    private val thietBiRepository: ThietBiRepository,
+    private val donViRepository: DonViRepository
 ) : ViewModel() {
 
-    private val _thietBiList = MutableStateFlow<List<ThietBiWithDetails>>(emptyList())
-    val thietBiList: StateFlow<List<ThietBiWithDetails>> = _thietBiList
+    val donViList: StateFlow<List<DonVi>> = donViRepository.getAllDonVi()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _selectedDay = MutableStateFlow<String?>(null)
     val selectedDay: StateFlow<String?> = _selectedDay
@@ -36,16 +41,24 @@ class AdminDeviceListViewModel @Inject constructor(
     private val _selectedLoaiThietBi = MutableStateFlow<String?>(null)
     val selectedLoaiThietBi: StateFlow<String?> = _selectedLoaiThietBi
 
-    fun loadThietBiList() {
-        viewModelScope.launch {
-            thietBiRepository.getAllThietBiWithDetails().collect {
-                _thietBiList.value = it
-            }
-        }
+    private val _selectedDonViId = MutableStateFlow<Int?>(null)
+    val selectedDonViId: StateFlow<Int?> = _selectedDonViId
+
+    fun setSelectedDonViId(id: Int?) {
+        _selectedDonViId.value = id
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val baseThietBiList: StateFlow<List<ThietBiWithDetails>> = selectedDonViId.flatMapLatest { id ->
+        if (id == null)
+            thietBiRepository.getAllThietBiWithDetails()
+        else
+            thietBiRepository.getThietBiByDonVi(id)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+
     val filteredThietBiList: StateFlow<List<ThietBiWithDetails>> = combine(
-        thietBiList,
+        baseThietBiList,
         combine(selectedDay, selectedPhong, selectedTang, selectedTrangThai, selectedLoaiThietBi) { day, phong, tang, trangThai, loaiThietBi ->
             FilterCriteria(day, phong, tang, trangThai, loaiThietBi)
         }
