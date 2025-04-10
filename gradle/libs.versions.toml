@@ -1,5 +1,6 @@
 [versions]
 accompanistFlowlayout = "0.24.13-rc"
+accompanistFlowlayoutVersion = "1.0.0"
 accompanistIconsVersion = "0.24.0-alpha"
 accompanistPermissions = "0.31.1-alpha"
 activityComposeVersion = "1.8.2"
@@ -40,6 +41,7 @@ firebaseStorage = "21.0.1"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
+accompanist-flowlayout-v100 = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayoutVersion" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 amazonaws-aws-android-sdk-s3 = { module = "com.amazonaws:aws-android-sdk-s3", version.ref = "awsAndroidSdkS3Version" }
 androidx-activity-compose-v161 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }

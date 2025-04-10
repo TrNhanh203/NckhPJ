@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,11 +15,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.R
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 
@@ -57,7 +62,7 @@ fun CustomBottomBar(
             ) {
                 // Dashboard
                 BottomBarItem(
-                    icon = Icons.Default.DateRange,
+                    painter = painterResource(id = R.drawable.dashboard),
                     label = "Dashboard",
                     isSelected = currentRoute in listOf(Screen.AdminDashboard.route, Screen.KtvDashboard.route, Screen.DonViDashboard.route) == true,
                     onClick = {
@@ -78,7 +83,7 @@ fun CustomBottomBar(
 
                 // Hồ sơ
                 BottomBarItem(
-                    icon = Icons.Default.Person,
+                    painter = painterResource(id = R.drawable.profile),
                     label = "Hồ sơ",
                     isSelected = currentRoute == Screen.Profile.route,
                     onClick = {
@@ -134,18 +139,27 @@ fun CustomBottomBar(
 
 @Composable
 fun BottomBarItem(
-    icon: ImageVector,
+    painter: Painter,
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(8.dp)
     ) {
-        Icon(icon, contentDescription = label, tint = color)
+        Image(
+            painter = painter,
+            contentDescription = label,
+            modifier = Modifier.size(24.dp),
+            colorFilter = ColorFilter.tint(color) // Áp màu nếu cần
+        )
         Text(label, fontSize = 12.sp, color = color)
     }
 }
+
 
