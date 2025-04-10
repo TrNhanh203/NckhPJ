@@ -1,15 +1,27 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import android.graphics.Color
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -18,7 +30,128 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiTaiKhoan
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.DanhSachKyThuatVienViewModel
+import com.example.facilitiesmanagementpj.R
 
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun DanhSachKyThuatVienScreen(
+//    navController: NavController,
+//    viewModel: DanhSachKyThuatVienViewModel = hiltViewModel()
+//) {
+//    val ktvList = viewModel.danhSachKTV
+//    val chuyenMonList = viewModel.allChuyenMon
+//    var showSheet by remember { mutableStateOf(false) }
+//    val trangThaiOptions = listOf("Tất cả") + TrangThaiKtv.ALL
+//
+//
+//    ScaffoldLayout(title = "Danh sách KTV", navController = navController, showDrawer = false) { modifier ->
+//        Column(modifier = modifier.padding(16.dp)) {
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                trangThaiOptions.forEach { tt ->
+//                    FilterChip(
+//                        selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
+//                        onClick = {
+//                            viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
+//                        },
+//                        label = { Text(tt) }
+//                    )
+//                    Spacer(Modifier.width(8.dp))
+//                }
+//
+//                Spacer(modifier = Modifier.weight(1f))
+//
+//                Button(onClick = { showSheet = true }) {
+//                    Icon(Icons.Default.MoreVert, contentDescription = null)
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                }
+//            }
+//            Spacer(Modifier.height(12.dp))
+//
+//            OutlinedTextField(
+//                value = viewModel.searchText,
+//                onValueChange = {
+//                    viewModel.searchText = it
+//                    viewModel.applyFilters()
+//                },
+//                label = { Text("Tìm theo tên") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//
+//            Spacer(Modifier.height(16.dp))
+//
+//            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+//                items(ktvList) { ktv ->
+//                    Card(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .clickable {
+//                                navController.navigate("admin_view_detail_profile/${ktv.taiKhoan.id}")
+//                            },
+//                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//                    ) {
+//                        Column(modifier = Modifier.padding(16.dp)) {
+//                            Text("👷 ${ktv.taiKhoan.hoTen}", style = MaterialTheme.typography.titleMedium)
+//                            Text("Trạng thái: ${ktv.kyThuatVien.trangThaiHienTai}")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (showSheet) {
+//            ModalBottomSheet(onDismissRequest = { showSheet = false }) {
+//                Column(Modifier.padding(16.dp)) {
+//                    Text("Lọc theo chuyên môn", style = MaterialTheme.typography.titleMedium)
+//
+//                    Row(
+//                        Modifier.fillMaxWidth(),
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//
+//                        Row {
+//                            TextButton(onClick = {
+//                                viewModel.resetFilters()
+//                                showSheet = false
+//                            }) {
+//                                Text("Xóa lọc")
+//                            }
+//                            Button(onClick = {
+//                                viewModel.applyFilters()
+//                                showSheet = false
+//                            }) {
+//                                Text("Áp dụng")
+//                            }
+//                        }
+//                    }
+//
+//                    Spacer(Modifier.height(8.dp))
+//
+//
+//
+//
+//                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+//                        items(chuyenMonList) { cm ->
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .padding(vertical = 4.dp)
+//                            ) {
+//                                Checkbox(
+//                                    checked = viewModel.selectedChuyenMonIds.contains(cm.id),
+//                                    onCheckedChange = { viewModel.toggleChuyenMon(cm.id, it) }
+//                                )
+//                                Text(cm.tenChuyenMon)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DanhSachKyThuatVienScreen(
@@ -30,112 +163,251 @@ fun DanhSachKyThuatVienScreen(
     var showSheet by remember { mutableStateOf(false) }
     val trangThaiOptions = listOf("Tất cả") + TrangThaiKtv.ALL
 
+    ScaffoldLayout(
+        title = "Danh sách KTV",
+        navController = navController,
+        showDrawer = false,
+        showBottomBar = false,
+    ) { innerPadding  ->
+        Column(modifier = Modifier.fillMaxSize().then(innerPadding).background(MaterialTheme.colorScheme.background)) {
+            // Filter chip theo trạng thái
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                tonalElevation = 1.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Vùng chip scroll được
+                    LazyRow(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(trangThaiOptions) { tt ->
+                            val isSelected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null)
 
-    ScaffoldLayout(title = "Danh sách KTV", navController = navController, showDrawer = false) { modifier ->
-        Column(modifier = modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                trangThaiOptions.forEach { tt ->
-                    FilterChip(
-                        selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
-                        onClick = {
-                            viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
-                        },
-                        label = { Text(tt) }
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
+                                },
+                                label = {
+                                    Text(
+                                        text = tt,
+                                        color = if (isSelected)
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                )
+                            )
+                        }
+                    }
 
-                Spacer(modifier = Modifier.weight(1f))
+                    // Nút mở BottomSheet cố định bên phải
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                Button(onClick = { showSheet = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = viewModel.searchText,
-                onValueChange = {
-                    viewModel.searchText = it
-                    viewModel.applyFilters()
-                },
-                label = { Text("Tìm theo tên") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-
-            Spacer(Modifier.height(16.dp))
-
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(ktvList) { ktv ->
-                    Card(
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        shadowElevation = 2.dp,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate("admin_view_detail_profile/${ktv.taiKhoan.id}")
-                            },
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            .height(40.dp)
+                            .wrapContentWidth()
+                            .clickable { showSheet = true }
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("👷 ${ktv.taiKhoan.hoTen}", style = MaterialTheme.typography.titleMedium)
-                            Text("Trạng thái: ${ktv.kyThuatVien.trangThaiHienTai}")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     }
                 }
             }
-        }
 
-        if (showSheet) {
-            ModalBottomSheet(onDismissRequest = { showSheet = false }) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("Lọc theo chuyên môn", style = MaterialTheme.typography.titleMedium)
+            Column(modifier = Modifier.padding(horizontal = 16.dp).weight(1f)) {
 
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                // Tìm kiếm
+                OutlinedTextField(
+                    value = viewModel.searchText,
+                    onValueChange = {
+                        viewModel.searchText = it
+                        viewModel.applyFilters()
+                    },
+                    label = { Text("Tìm theo tên") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
 
-                        Row {
-                            TextButton(onClick = {
-                                viewModel.resetFilters()
-                                showSheet = false
-                            }) {
-                                Text("Xóa lọc")
-                            }
-                            Button(onClick = {
-                                viewModel.applyFilters()
-                                showSheet = false
-                            }) {
-                                Text("Áp dụng")
-                            }
+                Spacer(Modifier.height(16.dp))
+
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(ktvList) { ktv ->
+                        val avatarIndex = (1..6).random()
+                        val avatarResId = when (avatarIndex) {
+                            1 -> R.drawable.engineer01
+                            2 -> R.drawable.engineer02
+                            3 -> R.drawable.engineer03
+                            4 -> R.drawable.engineer04
+                            5 -> R.drawable.engineer05
+                            else -> R.drawable.engineer06
                         }
-                    }
 
-                    Spacer(Modifier.height(8.dp))
-
-
-
-
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        items(chuyenMonList) { cm ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(2.dp, RoundedCornerShape(10.dp))
+                                .clickable {
+                                    navController.navigate("admin_view_detail_profile/${ktv.taiKhoan.id}")
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            border = BorderStroke(1.2.dp, MaterialTheme.colorScheme.outline)
+                        ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Checkbox(
-                                    checked = viewModel.selectedChuyenMonIds.contains(cm.id),
-                                    onCheckedChange = { viewModel.toggleChuyenMon(cm.id, it) }
+
+                                // Avatar hình tròn
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = avatarResId),
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                // Họ tên + SĐT
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = ktv.taiKhoan.hoTen.toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "SĐT: ${ktv.taiKhoan.soDienThoai}",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                // Chip trạng thái
+                                AssistChip(
+                                    onClick = { },
+                                    label = {
+                                        Text(
+                                            text = ktv.kyThuatVien.trangThaiHienTai,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                    colors = AssistChipDefaults.assistChipColors(
+                                        containerColor = TrangThaiKtv.getColor(ktv.kyThuatVien.trangThaiHienTai),
+                                        labelColor = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                                    modifier = Modifier.height(32.dp)
                                 )
-                                Text(cm.tenChuyenMon)
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            // BottomSheet lọc chuyên môn
+            if (showSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showSheet = false },
+                    containerColor = MaterialTheme.colorScheme.surface
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Lọc theo chuyên môn", style = MaterialTheme.typography.titleMedium)
+
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row {
+                                TextButton(onClick = {
+                                    viewModel.resetFilters()
+                                    showSheet = false
+                                }) {
+                                    Text("Xóa lọc")
+                                }
+                                Button(onClick = {
+                                    viewModel.applyFilters()
+                                    showSheet = false
+                                }) {
+                                    Text("Áp dụng")
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            items(chuyenMonList) { cm ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Checkbox(
+                                        checked = viewModel.selectedChuyenMonIds.contains(cm.id),
+                                        onCheckedChange = { viewModel.toggleChuyenMon(cm.id, it) }
+                                    )
+                                    Text(
+                                        cm.tenChuyenMon,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
     }
+
 }
+
