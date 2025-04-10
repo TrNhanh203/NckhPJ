@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -57,34 +58,79 @@ fun ChonKyThuatVienScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
                 .then(padding)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(8.dp)
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                tonalElevation = 1.dp,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                trangThaiOptions.forEach { tt ->
-                    FilterChip(
-                        selected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null),
-                        onClick = {
-                            viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
-                        },
-                        label = { Text(tt) }
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LazyRow(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(trangThaiOptions) { tt ->
+                            val isSelected = viewModel.selectedTrangThai == tt || (tt == "Tất cả" && viewModel.selectedTrangThai == null)
 
-                Spacer(Modifier.weight(1f))
-                Button(onClick = { showFilterSheet = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = null)
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    viewModel.filterByTrangThai(if (tt == "Tất cả") null else tt)
+                                },
+                                label = {
+                                    Text(
+                                        text = tt,
+                                        color = if (isSelected)
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        shadowElevation = 2.dp,
+                        modifier = Modifier
+                            .height(40.dp)
+                            .wrapContentWidth()
+                            .clickable { showFilterSheet = true }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            )
 
+            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = viewModel.searchText,
                 onValueChange = {
@@ -92,10 +138,17 @@ fun ChonKyThuatVienScreen(
                     viewModel.applyFilters()
                 },
                 label = { Text("Tìm theo tên") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
-
-            Spacer(Modifier.height(16.dp))
 
             if (list.isEmpty()) {
                 Box(
@@ -114,7 +167,7 @@ fun ChonKyThuatVienScreen(
                     }
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                     items(list) { item ->
                         val stateColor = getColorForTrangThaiPhanCong(item.trangThaiPhanCong)
                         val circleColor = getColorForTrangThaiHoatDong(item.ktv.kyThuatVien.trangThaiHienTai)
