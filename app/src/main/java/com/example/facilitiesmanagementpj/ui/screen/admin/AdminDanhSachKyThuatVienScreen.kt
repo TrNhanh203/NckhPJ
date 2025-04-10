@@ -176,12 +176,11 @@ fun DanhSachKyThuatVienScreen(
                 tonalElevation = 1.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Vùng chip scroll được
@@ -239,6 +238,10 @@ fun DanhSachKyThuatVienScreen(
                     }
                 }
             }
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            )
 
             Column(modifier = Modifier.padding(horizontal = 16.dp).weight(1f)) {
 
@@ -263,6 +266,7 @@ fun DanhSachKyThuatVienScreen(
                 Spacer(Modifier.height(16.dp))
 
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
                     items(ktvList) { ktv ->
                         val avatarIndex = (1..6).random()
                         val avatarResId = when (avatarIndex) {
@@ -273,7 +277,6 @@ fun DanhSachKyThuatVienScreen(
                             5 -> R.drawable.engineer05
                             else -> R.drawable.engineer06
                         }
-
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()

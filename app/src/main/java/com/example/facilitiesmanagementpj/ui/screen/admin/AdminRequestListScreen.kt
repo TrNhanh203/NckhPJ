@@ -87,6 +87,10 @@ fun AdminRequestListScreen(navController: NavController) {
                     viewModel.setDonViFilter(null)
                 }
             )
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            )
 
             LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(requestList) { request ->
@@ -420,7 +424,7 @@ fun AdminRequestFilterBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // 🔹 Filter Trạng thái

@@ -62,6 +62,12 @@ class AdminAccountViewModel @Inject constructor(private val repository: TaiKhoan
         _selectedTrangThai.value = trangThai
     }
 
+    fun resetFilters() {
+        _selectedVaiTro.value = null
+        _selectedTrangThai.value = null
+    }
+
+
     // Lọc danh sách tài khoản
     val filteredTaiKhoanList: StateFlow<List<TaiKhoanWithRole>> = combine(
         taiKhoanList, selectedVaiTro, selectedTrangThai
