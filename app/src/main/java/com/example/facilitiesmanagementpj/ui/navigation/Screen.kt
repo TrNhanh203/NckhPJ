@@ -1,5 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.navigation
 
+import android.net.Uri
+
 sealed class Screen(val route: String) {
     object SplashScreen : Screen("splash_screen")
     object Home : Screen("home")
@@ -54,7 +56,11 @@ sealed class Screen(val route: String) {
     object XemAnhKhiNghiemThu : Screen("xem_anh_khi_nghiem_thu/{chiTietId}") {
         fun createRoute(chiTietId: Int) = "xem_anh_khi_nghiem_thu/$chiTietId"
     }
-
+    object KtvCongViecHienTai : Screen("ktv_cong_viec_hien_tai/{tkKtvId}/{hoTen}/{soDienThoai}/{phanCongId}") {
+        fun createRoute(tkKtvId: Int, hoTen: String, soDienThoai: String, phanCongId: Int): String {
+            return "ktv_cong_viec_hien_tai/$tkKtvId/${Uri.encode(hoTen)}/${Uri.encode(soDienThoai)}/$phanCongId"
+        }
+    }
 
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")

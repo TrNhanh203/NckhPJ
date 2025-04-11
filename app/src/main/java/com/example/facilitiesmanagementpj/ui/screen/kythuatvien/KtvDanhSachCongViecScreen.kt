@@ -27,7 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
-import com.example.facilitiesmanagementpj.ui.component.getTrangThaiColor
+import com.example.facilitiesmanagementpj.ui.component.getTrangThaiPcKtvColor
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvDanhSachCongViecViewModel
 import com.google.gson.internal.bind.util.ISO8601Utils.format
@@ -231,7 +231,7 @@ fun KtvDanhSachCongViecScreen(
                                         onClick = {},
                                         label = { Text(trangThai) },
                                         colors = AssistChipDefaults.assistChipColors(
-                                            containerColor = getTrangThaiColor(item.pc.phanCongKtv.trangThai),
+                                            containerColor = getTrangThaiPcKtvColor(item.pc.phanCongKtv.trangThai),
                                             labelColor = Color.White
                                         )
                                     )

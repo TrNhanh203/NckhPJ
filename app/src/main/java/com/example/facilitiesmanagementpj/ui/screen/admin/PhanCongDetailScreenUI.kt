@@ -280,12 +280,11 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
             Spacer(Modifier.height(8.dp))
 
             val baseOptions = when (item.phanCongKtv.trangThai) {
-                //hủy bỏ là hủy luôn người đó
-                TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
-                TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
-                TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Xem thông tin cá nhân", "Gọi điện")
+                TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
+                TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
+                TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Xem thông tin cá nhân", "Gọi điện")
                 TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện","Hủy bỏ")
-                TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
+                TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện", "Hủy bỏ")
                 TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                 TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
                 else -> emptyList()
@@ -297,7 +296,7 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                 item.phanCongKtv.trangThai == TrangThaiPhanCong.DANG_THUC_HIEN &&
                 item.phanCongKtv.dangXinGiaHan
             ) {
-                options.add(0, "Xem yêu cầu gia hạn") // hoặc thêm ở cuối tùy bạn
+                options.add(0, "Xem yêu cầu gia hạn")
             }
 
 

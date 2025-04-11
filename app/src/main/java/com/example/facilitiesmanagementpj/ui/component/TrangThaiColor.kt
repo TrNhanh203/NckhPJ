@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 
 @Composable
-fun getTrangThaiColor(trangThai: String): Color {
+fun getTrangThaiPcKtvColor(trangThai: String): Color {
     return when (trangThai) {
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107) // vàng
         TrangThaiPhanCong.DA_CHAP_NHAN -> Color(0xFF4CAF50) // xanh lá

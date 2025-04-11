@@ -28,6 +28,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChiTietAnhMinhChungScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DanhSachKyThuatVienScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.KtvCongViecHienTaiScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.PhanCongDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.XacNhanDeCuKtvScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.XemYeuCauGiaHanScreen
@@ -177,6 +178,28 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
                 viewModel = hiltViewModel(),
                 chiTietId = chiTietId,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.KtvCongViecHienTai.route,
+            arguments = listOf(
+                navArgument("tkKtvId") { type = NavType.IntType },
+                navArgument("hoTen") { type = NavType.StringType },
+                navArgument("soDienThoai") { type = NavType.StringType },
+                navArgument("phanCongId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+            val hoTen = backStackEntry.arguments?.getString("hoTen") ?: ""
+            val soDienThoai = backStackEntry.arguments?.getString("soDienThoai") ?: ""
+            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+
+            KtvCongViecHienTaiScreen(
+                tkKtvId = tkKtvId,
+                hoTen = hoTen,
+                soDienThoai = soDienThoai,
+                phanCongId = phanCongId,
+                navController = navController
             )
         }
 
