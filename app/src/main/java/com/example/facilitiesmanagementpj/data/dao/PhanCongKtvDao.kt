@@ -100,6 +100,19 @@ interface PhanCongKtvDao {
     """)
     suspend fun countSoTaskDangLam(taiKhoanId: Int): Int
 
+    @Query("""
+    SELECT * FROM phan_cong_ktv
+    WHERE taiKhoanKTVId = :taiKhoanId
+    AND trangThai IN (
+        'Đã Chấp Nhận',
+        'Đang Thực Hiện',
+        'Tạm Nghỉ',
+        'Chờ Phản Hồi'
+    )
+""")
+    suspend fun getPhanCongDangLamByKtv(taiKhoanId: Int): List<PhanCongKtv>
+
+
     @Transaction
     @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")
     suspend fun getByPhanCongIdWithTaiKhoan(phanCongId: Int): List<PhanCongKtvWithTaiKhoan>

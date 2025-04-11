@@ -15,10 +15,12 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.data.dao.PhanCongKtvDao
 import com.example.facilitiesmanagementpj.data.relation.PhanCongKtvWithFullInfo
+import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 
 @HiltViewModel
 class KtvDanhSachCongViecViewModel @Inject constructor(
-    private val phanCongKtvDao: PhanCongKtvDao
+    private val phanCongKtvDao: PhanCongKtvDao,
+    private val anhRepo: AnhMinhChungLamViecRepository
 ) : ViewModel() {
 
     private val _allTasks = MutableStateFlow<List<PhanCongKtvWithFullInfo>>(emptyList())
@@ -28,6 +30,52 @@ class KtvDanhSachCongViecViewModel @Inject constructor(
         viewModelScope.launch {
             _allTasks.value = phanCongKtvDao.getWithFullInfo(ktvId)
         }
+    }
+
+    suspend fun tinhThoiGianConLaiThucTeThamKhao(
+        phanCongKtvId: Int,
+        pcKtvRepo: PhanCongKtvRepository,
+        anhRepo: AnhMinhChungLamViecRepository
+    ): Int {
+        val pc = pcKtvRepo.getById(phanCongKtvId)
+        val thoiGianDuKienPhut = pc?.thoiGianDuKien ?: 0
+
+        val listAnh = anhRepo.getByPhanCongKtvId(phanCongKtvId)
+            .filter {
+                it.loaiAnh == LoaiAnhMinhChungLamViec.CHECK_IN ||
+                        it.loaiAnh == LoaiAnhMinhChungLamViec.TAM_NGHI
+            }
+            .sortedBy { it.thoiGianTaiLen }
+
+        val pairs = mutableListOf<Pair<Long, Long>>()
+        var currentCheckInTime: Long? = null
+
+        for (anh in listAnh) {
+            when (anh.loaiAnh) {
+                LoaiAnhMinhChungLamViec.CHECK_IN -> {
+                    if (currentCheckInTime == null) {
+                        currentCheckInTime = anh.thoiGianTaiLen
+                    }
+                }
+
+                LoaiAnhMinhChungLamViec.TAM_NGHI -> {
+                    if (currentCheckInTime != null) {
+                        pairs.add(currentCheckInTime to anh.thoiGianTaiLen)
+                        currentCheckInTime = null
+                    }
+                }
+            }
+        }
+
+        currentCheckInTime?.let {
+            pairs.add(it to System.currentTimeMillis())
+        }
+
+        val tongMillis = pairs.sumOf { (start, end) -> end - start }
+        val soPhutDaLam = (tongMillis / 60_000L).toInt()
+
+        val soPhutConLai = (thoiGianDuKienPhut - soPhutDaLam).coerceAtLeast(0)
+        return soPhutConLai
     }
 
 

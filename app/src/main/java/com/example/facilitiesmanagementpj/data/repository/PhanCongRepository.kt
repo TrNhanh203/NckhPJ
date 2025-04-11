@@ -85,6 +85,10 @@ class PhanCongRepository @Inject constructor(private val phanCongDao: PhanCongDa
         return phanCongKtvDao.countSoTaskDangLam(taiKhoanId)
     }
 
+    suspend fun getPhanCongDangLamByKtv(taiKhoanId: Int): List<PhanCongKtv> {
+        return phanCongKtvDao.getPhanCongDangLamByKtv(taiKhoanId)
+    }
+
     suspend fun getDsKtvByPhanCongId(phanCongId: Int): List<PhanCongKtvWithTaiKhoan> {
         return phanCongKtvDao.getByPhanCongIdWithTaiKhoan(phanCongId)
     }

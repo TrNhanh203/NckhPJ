@@ -85,7 +85,9 @@ class ChonKyThuatVienViewModel @Inject constructor(
             }
 
             val enrichedList = danhSach.map {
-                val soTask = phanCongRepo.getSoTaskDangLam(it.taiKhoan.id)
+                val dsPhanCongKtv = phanCongRepo.getPhanCongDangLamByKtv(it.taiKhoan.id)
+                val soTask = dsPhanCongKtv.size
+                //val soTask = phanCongRepo.getSoTaskDangLam(it.taiKhoan.id)
                 val trangThaiPhanCong = danhSachPhanCong_Ktv.find { pc -> pc.taiKhoan.id == it.taiKhoan.id }?.phanCongKtv?.trangThai
                 KyThuatVienWithSoTaskWithTrangThaiPhanCong(it, soTask, trangThaiPhanCong)
             }

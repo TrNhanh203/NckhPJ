@@ -176,7 +176,7 @@ fun ChonKyThuatVienScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    if (item.trangThaiPhanCong != null) {
+                                    if (item.trangThaiPhanCong != null || item.soTaskDangLam > 0) {
                                         selectedKtvWithTrangThai = item
                                     } else {
                                         navController.navigate(Screen.XacNhanDeCuKtv.createRoute(phanCongId, item.ktv.taiKhoan.id))
@@ -250,23 +250,41 @@ fun ChonKyThuatVienScreen(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                val options = when (selected.trangThaiPhanCong) {
-                    TrangThaiPhanCong.CHO_PHAN_HOI -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.DA_CHAP_NHAN -> listOf("Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.DA_TU_CHOI -> listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.DANG_THUC_HIEN -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.TAM_NGHI -> listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.HOAN_THANH -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                    TrangThaiPhanCong.BI_HUY -> listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện")
-                    else -> emptyList()
+                val options = mutableListOf<String>()
+
+                if (selected.trangThaiPhanCong == null) {
+                    options.add("Đề cử")
+                    options.add("Xem tất cả công việc")
+                } else {
+                    when (selected.trangThaiPhanCong) {
+                        TrangThaiPhanCong.CHO_PHAN_HOI -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DA_CHAP_NHAN -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DA_TU_CHOI -> options.addAll(listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DANG_THUC_HIEN -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.TAM_NGHI -> options.addAll(listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.HOAN_THANH, TrangThaiPhanCong.BI_HUY -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
+                    }
+
+                    // Thêm lựa chọn xem toàn bộ công việc
+                    options.add("Xem tất cả công việc") // tận dụng lại mh ktv xem ds công việc
                 }
+
 
                 options.forEach { option ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ListItem(
                             headlineContent = { Text(option) },
                             modifier = Modifier.clickable {
-                                // TODO: Xử lý tương ứng từng option ở đây
+                                when (option) {
+                                    "Đề cử" -> {
+                                        navController.navigate(Screen.XacNhanDeCuKtv.createRoute(phanCongId, selected.ktv.taiKhoan.id))
+                                    }
+                                    "Xem tất cả công việc" -> {
+                                        // TODO: chuyển sang màn danh sách công việc của KTV này
+                                    }
+                                    // Các case còn lại bạn giữ nguyên xử lý như cũ
+                                }
+
                                 selectedKtvWithTrangThai = null
                             }
                         )
