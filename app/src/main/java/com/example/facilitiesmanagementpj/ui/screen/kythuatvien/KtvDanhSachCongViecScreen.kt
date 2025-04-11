@@ -50,21 +50,21 @@ fun KtvDanhSachCongViecScreen(
     var sortOption by remember { mutableStateOf("Ưu tiên") }
 
     LaunchedEffect(Unit) {
-        viewModel.loadTasks(tkKtvId)
+        viewModel.loadTasksWithTime(tkKtvId)
     }
 
-    val allTasks by viewModel.allTasks.collectAsState()
+    val allTasks by viewModel.tasksWithTime.collectAsState()
     val viecMoi = allTasks.filter {
-        it.phanCongKtv.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI ||
-                it.phanCongKtv.trangThai == TrangThaiPhanCong.DA_TU_CHOI
+        it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI ||
+                it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DA_TU_CHOI
     }
     val dangLam = allTasks.filter {
-        it.phanCongKtv.trangThai == TrangThaiPhanCong.DA_CHAP_NHAN ||
-                it.phanCongKtv.trangThai == TrangThaiPhanCong.DANG_THUC_HIEN ||
-                it.phanCongKtv.trangThai == TrangThaiPhanCong.TAM_NGHI
+        it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DA_CHAP_NHAN ||
+                it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DANG_THUC_HIEN ||
+                it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.TAM_NGHI
     }
-    val hoanThanh = allTasks.filter { it.phanCongKtv.trangThai == TrangThaiPhanCong.HOAN_THANH }
-    val biHuy = allTasks.filter { it.phanCongKtv.trangThai == TrangThaiPhanCong.BI_HUY }
+    val hoanThanh = allTasks.filter { it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.HOAN_THANH }
+    val biHuy = allTasks.filter { it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.BI_HUY }
 
     val tabData = listOf(
         viecMoi to "Việc mới",
@@ -81,10 +81,10 @@ fun KtvDanhSachCongViecScreen(
         else -> emptyList()
     }.sortedWith(
         when (sortOption) {
-            "Mức Độ" -> compareByDescending { it.phanCong.phanCong.mucDoUuTien }
-            "Thời Lượng" -> compareBy { it.phanCongKtv.thoiGianDuKien }
-            "Mới Nhất" -> compareByDescending { it.phanCong.phanCong.thoiGianTaoPhanCong }
-            else -> compareBy { it.phanCongKtv.id }
+            "Mức Độ" -> compareByDescending { it.pc.phanCong.phanCong.mucDoUuTien }
+            "Thời Lượng" -> compareBy { it.pc.phanCongKtv.thoiGianDuKien }
+            "Mới Nhất" -> compareByDescending { it.pc.phanCong.phanCong.thoiGianTaoPhanCong }
+            else -> compareBy { it.pc.phanCongKtv.id }
         }
     )
 
@@ -183,10 +183,10 @@ fun KtvDanhSachCongViecScreen(
 
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(tasks) { item ->
-                        val phanCong = item.phanCong.phanCong
-                        val thietBi = item.phanCong.thietBi.thietBi
-                        val loaiThietBi = item.phanCong.thietBi.loaiThietBi
-                        val trangThai = item.phanCongKtv.trangThai
+                        val phanCong = item.pc.phanCong.phanCong
+                        val thietBi = item.pc.phanCong.thietBi.thietBi
+                        val loaiThietBi = item.pc.phanCong.thietBi.loaiThietBi
+                        val trangThai = item.pc.phanCongKtv.trangThai
 
                         val iconPrefix = when (phanCong.loaiPhanCong) {
                             "Sửa Chữa" -> "🛠"
@@ -231,7 +231,7 @@ fun KtvDanhSachCongViecScreen(
                                         onClick = {},
                                         label = { Text(trangThai) },
                                         colors = AssistChipDefaults.assistChipColors(
-                                            containerColor = getTrangThaiColor(item.phanCongKtv.trangThai),
+                                            containerColor = getTrangThaiColor(item.pc.phanCongKtv.trangThai),
                                             labelColor = Color.White
                                         )
                                     )
@@ -259,8 +259,8 @@ fun KtvDanhSachCongViecScreen(
                                 ) {
                                     val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                                     val ngayTaoFormatted = formatter.format(Date(phanCong.thoiGianTaoPhanCong))
-                                    val hours = item.phanCongKtv.thoiGianDuKien / 60
-                                    val minutes = item.phanCongKtv.thoiGianDuKien % 60
+                                    val hours = item.pc.phanCongKtv.thoiGianDuKien / 60
+                                    val minutes = item.pc.phanCongKtv.thoiGianDuKien % 60
                                     val thoiGianDuKienFormatted = if (hours > 0)
                                         "${hours}h ${minutes}p"
                                     else
@@ -281,20 +281,40 @@ fun KtvDanhSachCongViecScreen(
                                         )
                                     }
 
+                                    val conLai = item.thoiGianConLaiThamKhao
+                                    val isTre = conLai != null && conLai <= 0
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
                                             imageVector = Icons.Default.Timer,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = if (conLai != null && conLai <= 0)
+                                                MaterialTheme.colorScheme.error
+                                            else
+                                                MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(16.dp)
                                         )
+
                                         Spacer(Modifier.width(4.dp))
+
+                                        val textColor = if (conLai != null && conLai <= 0)
+                                            MaterialTheme.colorScheme.error
+                                        else
+                                            MaterialTheme.colorScheme.primary
+
+                                        val timeText = when {
+                                            conLai != null && conLai <= 0 -> "Đã trễ"
+                                            conLai != null -> "Còn lại: ${conLai}p"
+                                            else -> "Hạn: $thoiGianDuKienFormatted"
+                                        }
+
                                         Text(
-                                            text = "Hạn: $thoiGianDuKienFormatted",
+                                            text = timeText,
                                             style = MaterialTheme.typography.labelMedium,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = textColor
                                         )
                                     }
+
                                 }
 
 
@@ -303,8 +323,8 @@ fun KtvDanhSachCongViecScreen(
                     }
                 }
                 if (showSheet && selectedPhanCongId != null) {
-                    val selectedItem = tasks.find { it.phanCong.phanCong.id == selectedPhanCongId }
-                    val trangThai = selectedItem?.phanCongKtv?.trangThai
+                    val selectedItem = tasks.find { it.pc.phanCong.phanCong.id == selectedPhanCongId }
+                    val trangThai = selectedItem?.pc?.phanCongKtv?.trangThai
 
                     ModalBottomSheet(
                         onDismissRequest = { showSheet = false },

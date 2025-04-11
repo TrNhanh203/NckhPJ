@@ -20,7 +20,8 @@ import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
 @HiltViewModel
 class KtvDanhSachCongViecViewModel @Inject constructor(
     private val phanCongKtvDao: PhanCongKtvDao,
-    private val anhRepo: AnhMinhChungLamViecRepository
+    private val anhRepo: AnhMinhChungLamViecRepository,
+    private val phanCongKtvRepo: PhanCongKtvRepository
 ) : ViewModel() {
 
     private val _allTasks = MutableStateFlow<List<PhanCongKtvWithFullInfo>>(emptyList())
@@ -31,6 +32,33 @@ class KtvDanhSachCongViecViewModel @Inject constructor(
             _allTasks.value = phanCongKtvDao.getWithFullInfo(ktvId)
         }
     }
+
+    private val _tasksWithTime = MutableStateFlow<List<PhanCongKtvWithConLai>>(emptyList())
+    val tasksWithTime: StateFlow<List<PhanCongKtvWithConLai>> = _tasksWithTime
+
+    fun loadTasksWithTime(ktvId: Int, pcKtvRepo: PhanCongKtvRepository = phanCongKtvRepo) {
+        viewModelScope.launch {
+            val rawTasks = phanCongKtvDao.getWithFullInfo(ktvId)
+
+            val mapped = rawTasks.map { task ->
+                val isDangLam = task.phanCongKtv.trangThai == "Đang Thực Hiện" ||
+                        task.phanCongKtv.trangThai == "Tạm Nghỉ"
+
+                val conLai = if (isDangLam) {
+                    tinhThoiGianConLaiThucTeThamKhao(
+                        phanCongKtvId = task.phanCongKtv.id,
+                        pcKtvRepo = pcKtvRepo,
+                        anhRepo = anhRepo
+                    )
+                } else null
+
+                PhanCongKtvWithConLai(task, conLai)
+            }
+
+            _tasksWithTime.value = mapped
+        }
+    }
+
 
     suspend fun tinhThoiGianConLaiThucTeThamKhao(
         phanCongKtvId: Int,
@@ -80,3 +108,8 @@ class KtvDanhSachCongViecViewModel @Inject constructor(
 
 
 }
+
+data class PhanCongKtvWithConLai(
+    val pc: PhanCongKtvWithFullInfo,
+    val thoiGianConLaiThamKhao: Int? = null
+)
