@@ -47,6 +47,7 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import java.io.File
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Add
@@ -66,6 +67,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -81,6 +84,7 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.TienTrinhLam
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.facilitiesmanagementpj.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,7 +147,7 @@ fun KtvLamViecScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) {
                 NavigationBarItem(
@@ -237,100 +241,38 @@ fun KtvLamViecScreen(
 
 @Composable
 fun TabChiTietPhanCong(viewModel: PhanCongDetailViewModel, navController: NavController) {
-    var isThongTinExpanded by remember { mutableStateOf(true) }
-    var isThietBiExpanded by remember { mutableStateOf(false) }
-    var isMinhChungExpanded by remember { mutableStateOf(false) }
-    var isKtvExpanded by remember { mutableStateOf(false) }
+    val tabTitles = listOf("Thông tin", "Thiết bị", "Minh chứng", "KTV tham gia")
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        // Card: Thông tin yêu cầu
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            onClick = { isThongTinExpanded = !isThongTinExpanded }
+    val selectedTabColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val unselectedTabColor = MaterialTheme.colorScheme.surfaceVariant
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        val tabTitles = listOf("Thông tin", "Thiết bị", "Minh chứng", "KTV tham gia")
+        var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+        CustomTabBar(
+            tabs = tabTitles,
+            selectedIndex = selectedTabIndex,
+            onTabSelected = { selectedTabIndex = it }
+        )
+
+        // ⬇️ Vùng nội dung theo tab
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(selectedTabColor) // màu nền cùng màu tab đang chọn
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    "🔽 Thông tin yêu cầu",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (isThongTinExpanded) {
-                    Spacer(Modifier.height(8.dp))
-                    TabThongTin(viewModel)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // Card: Thiết bị liên quan
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            onClick = { isThietBiExpanded = !isThietBiExpanded }
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    "🔽 Thiết bị liên quan",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (isThietBiExpanded) {
-                    Spacer(Modifier.height(8.dp))
-                    TabThietBi(viewModel)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // Card: Minh chứng yêu cầu
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            onClick = { isMinhChungExpanded = !isMinhChungExpanded }
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    "🔽 Minh chứng yêu cầu",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (isMinhChungExpanded) {
-                    Spacer(Modifier.height(8.dp))
-                    TabMinhChung(viewModel)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // Card: KTV tham gia
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            onClick = { isKtvExpanded = !isKtvExpanded }
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    "🔽 KTV tham gia",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (isKtvExpanded) {
-                    Spacer(Modifier.height(8.dp))
-                    TabKtvThamGia(viewModel, navController)
-                }
+            when (selectedTabIndex) {
+                0 -> TabThongTin(viewModel)
+                1 -> TabThietBi(viewModel)
+                2 -> TabMinhChung(viewModel)
+                3 -> TabKtvThamGia(viewModel, navController)
             }
         }
     }
-
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -371,7 +313,7 @@ fun TabCongViec(
     val thongTin by viewModel.thongTinHoanThanh.collectAsState()
     val isGuiMinhChungLoading by viewModel.isGuiMinhChungLoading.collectAsState()
     BackHandler(enabled = isGuiMinhChungLoading) {
-        // ❌ Không làm gì cả => chặn thoát
+        // Không làm gì cả => chặn thoát
     }
 
     LaunchedEffect(Unit) {
@@ -455,7 +397,10 @@ fun TabCongViec(
                         .fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 ) {
                     Column(
                         modifier = Modifier
@@ -517,33 +462,7 @@ fun TabCongViec(
                 )
 
 
-//                Text(
-//                    text = "Bạn cần xác minh để bắt đầu làm việc",
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = Color.Gray
-//                )
-//                Spacer(modifier = Modifier.height(16.dp))
-//                Button(
-//                    onClick = {
-//                        viewModel.kiemTraTruocCheckIn(
-//                            phanCongKtvId = phanCongKtvId,
-//                            onKhongDuoc = {
-//                                scope.launch {
-//                                    showCheckInBlockedDialog = true
-//                                }
-//                            },
-//                            onDuoc = {
-//                                tacVuDangChon.value = LoaiTacVu.CHECK_IN
-//                                showTacVuSheet.value = true
-//                            }
-//                        )
-//                    },
-//                    modifier = Modifier.size(96.dp),
-//                    shape = MaterialTheme.shapes.extraLarge,
-//                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-//                ) {
-//                    Icon(Icons.Default.CameraAlt, contentDescription = null)
-//                }
+
             }
         }
         if (trangThai == TrangThaiPhanCong.DANG_THUC_HIEN && thoiGianConLai != null && thoiGianDuKien != null) {
@@ -1157,7 +1076,7 @@ fun TabTienTrinhLamViec(
         viewModel.loadTienTrinh(phanCongKtvId)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
 
         Row(
             modifier = Modifier
@@ -1204,60 +1123,65 @@ fun TabTienTrinhLamViec(
         } else {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)) {
+                .padding(0.dp)) {
                 items(danhSachNhom) { nhom ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clickable { nhomDuocChon = nhom },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant // hoặc Color.White
-                        )
-
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(modifier = Modifier.size(56.dp)) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
-                                    contentDescription = null,
-                                    modifier = Modifier.matchParentSize()
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .padding(2.dp)
-                                        .size(18.dp)
-                                        .background(
-                                            Color.Black.copy(alpha = 0.7f),
-                                            shape = MaterialTheme.shapes.small
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = nhom.danhSachAnh.size.toString(),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = loaiAnhToLabel(nhom.loaiAnh),
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = formatTime(nhom.thoiGian),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
-                        }
-                    }
+                    AnhNhomCard(
+                        nhom = nhom,
+                        onClick = { nhomDuocChon = nhom },
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+//                    Card(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(vertical = 4.dp)
+//                            .clickable { nhomDuocChon = nhom },
+//                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+//                        colors = CardDefaults.cardColors(
+//                            containerColor = MaterialTheme.colorScheme.surfaceVariant // hoặc Color.White
+//                        )
+//
+//                    ) {
+//                        Row(
+//                            modifier = Modifier.padding(12.dp),
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            Box(modifier = Modifier.size(56.dp)) {
+//                                Image(
+//                                    painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
+//                                    contentDescription = null,
+//                                    modifier = Modifier.matchParentSize()
+//                                )
+//                                Box(
+//                                    modifier = Modifier
+//                                        .align(Alignment.BottomEnd)
+//                                        .padding(2.dp)
+//                                        .size(18.dp)
+//                                        .background(
+//                                            Color.Black.copy(alpha = 0.7f),
+//                                            shape = MaterialTheme.shapes.small
+//                                        ),
+//                                    contentAlignment = Alignment.Center
+//                                ) {
+//                                    Text(
+//                                        text = nhom.danhSachAnh.size.toString(),
+//                                        color = Color.White,
+//                                        style = MaterialTheme.typography.labelSmall
+//                                    )
+//                                }
+//                            }
+//                            Spacer(modifier = Modifier.width(12.dp))
+//                            Column {
+//                                Text(
+//                                    text = loaiAnhToLabel(nhom.loaiAnh),
+//                                    fontWeight = FontWeight.Bold
+//                                )
+//                                Text(
+//                                    text = formatTime(nhom.thoiGian),
+//                                    style = MaterialTheme.typography.labelSmall
+//                                )
+//                            }
+//                        }
+//                    }
                 }
             }
         }
@@ -1325,56 +1249,176 @@ fun TabTienTrinhLamViec(
     }
 }
 
+@Composable
+fun AnhNhomCard(
+    nhom: TienTrinhLamViecViewModel.NhomAnhLamViec,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val iconResId = when (nhom.loaiAnh) {
+        LoaiAnhMinhChungLamViec.CHECK_IN -> R.drawable.checkin
+        LoaiAnhMinhChungLamViec.TAM_NGHI -> R.drawable.pause
+        LoaiAnhMinhChungLamViec.CHECK_OUT -> R.drawable.checkout
+        LoaiAnhMinhChungLamViec.MINH_CHUNG -> R.drawable.evidence
+        LoaiAnhMinhChungLamViec.XIN_GIA_HAN -> R.drawable.prolong
+        else -> R.drawable.question // fallback
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable { onClick() }
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(12.dp)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 🔹 Ảnh đại diện nhóm
+            Box(modifier = Modifier.size(56.dp)) {
+                Image(
+                    painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop
+                )
+                // 🔢 Số lượng ảnh
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(2.dp)
+                        .size(18.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.7f),
+                            shape = MaterialTheme.shapes.small
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = nhom.danhSachAnh.size.toString(),
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // 🔸 Thông tin loại ảnh + thời gian
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = loaiAnhToLabel(nhom.loaiAnh),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = formatTime(nhom.thoiGian),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // 🔸 Icon minh họa loại ảnh
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = "Loại ảnh",
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(start = 8.dp)
+            )
+        }
+    }
+}
+
 
 @Composable
-fun RowItem(label: String, value: String) {
+fun RowItem(label: String, value: String, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
+
 @Composable
-fun BaoCaoHoanThanhCard(info: ThongTinHoanThanh, modifier: Modifier) {
+fun BaoCaoHoanThanhCard(info: ThongTinHoanThanh, modifier: Modifier = Modifier) {
     Card(
-        modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface // hoặc Color.White
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("📋 Báo cáo công việc", style = MaterialTheme.typography.titleMedium)
+
+            // 🔹 Tiêu đề
+            Text(
+                "📋 Báo cáo công việc",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // 🔸 Divider phân cách tiêu đề
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             Spacer(Modifier.height(12.dp))
 
+            // 🔹 Thông tin thời gian
             RowItem("🔹 Thời gian bắt đầu:", formatTime(info.thoiGianBatDau))
             RowItem("✅ Thời gian hoàn thành:", formatTime(info.thoiGianHoanThien))
             RowItem("⏱️ Thời gian làm việc:", "${info.thoiGianLamViec} phút")
             RowItem("🕒 Thời gian phát sinh:", "${info.thoiGianPhatSinh} phút")
 
             Spacer(Modifier.height(16.dp))
+
+            // 🔹 Progress Bar
             LinearProgressIndicator(
                 progress = (info.thoiGianLamViec / (info.thoiGianLamViec + info.thoiGianPhatSinh).toFloat())
                     .coerceIn(0f, 1f),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
-            Spacer(Modifier.height(4.dp))
+
+            Spacer(Modifier.height(6.dp))
+
             Text(
                 "Tỷ lệ thời gian làm việc",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
+
 
 
 private fun formatTime(millis: Long?): String {
@@ -1630,6 +1674,62 @@ fun TimeProgressBarWithGiaHanHint(
     }
 }
 
+
+@Composable
+fun CustomTabBar(
+    tabs: List<String>,
+    selectedIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        LazyRow(
+            contentPadding = PaddingValues(start = 8.dp,
+                top = 12.dp,
+                end = 8.dp,
+                bottom = 0.dp ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            itemsIndexed(tabs) { index, title ->
+                val isSelected = index == selectedIndex
+                val backgroundColor = if (isSelected)
+                    MaterialTheme.colorScheme.background
+                else
+                    MaterialTheme.colorScheme.primaryContainer
+
+                val contentColor = if (isSelected)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onPrimaryContainer
+
+                Surface(
+                    color = backgroundColor,
+                    shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+                    tonalElevation =  0.dp,
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = 36.dp)
+                        .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                        .clickable { onTabSelected(index) }
+                ) {
+                    Box(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = title,
+                            color = contentColor,
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 
