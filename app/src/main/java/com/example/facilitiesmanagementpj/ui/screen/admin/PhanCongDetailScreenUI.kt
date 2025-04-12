@@ -23,6 +23,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.facilitiesmanagementpj.ui.viewmodel.PhanCongDetailViewModel
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 
@@ -32,11 +33,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtv
 import com.example.facilitiesmanagementpj.data.entity.PhanCongKtvWithTaiKhoan
@@ -51,6 +60,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiChungCuaPhanCong
 import com.example.facilitiesmanagementpj.ui.viewmodel.ktvViewModel.KtvLamViecViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -82,6 +94,7 @@ fun PhanCongDetailScreen(
 
             ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 edgePadding = 0.dp
             ) {
                 tabTitles.forEachIndexed { index, title ->
@@ -129,7 +142,7 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
             onDismiss = { selectedKtv = null })
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
         if (sortedList.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -140,10 +153,14 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
                     imageVector = Icons.Default.PersonAdd,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    tint = Color.LightGray
+                    tint = MaterialTheme.colorScheme.outlineVariant
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Chưa có kỹ thuật viên tham gia", color = Color.Gray)
+                Text(
+                    "Chưa có kỹ thuật viên tham gia",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -164,9 +181,14 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Thêm KTV", tint = Color.White, modifier = Modifier.size(24.dp))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Thêm KTV",
+                    modifier = Modifier.size(40.dp)
+                )
             }
         } else {
             Text(
@@ -174,13 +196,94 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 24.dp),
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
     }
 }
 
+//@Composable
+//fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
+//    val borderColor = when (item.phanCongKtv.trangThai) {
+//        TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
+//        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
+//        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
+//        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
+//        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
+//        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
+//        else -> Color.LightGray
+//    }
+//
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { onClick() },
+//        shape = RoundedCornerShape(12.dp),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+//    ) {
+//        Column {
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(6.dp)
+//                    .background(borderColor)
+//            )
+//
+//            Row(
+//                modifier = Modifier.padding(16.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .size(48.dp)
+//                        .clip(CircleShape)
+//                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = item.taiKhoan.hoTen?.first().toString(),
+//                        color = MaterialTheme.colorScheme.primary,
+//                        style = MaterialTheme.typography.titleMedium
+//                    )
+//                }
+//
+//                Spacer(modifier = Modifier.width(16.dp))
+//
+//                Column {
+//                    Row(verticalAlignment = Alignment.CenterVertically) {
+//                        Text(
+//                            text = item.taiKhoan.hoTen.toString(),
+//                            style = MaterialTheme.typography.titleMedium
+//                        )
+//
+//                        if (item.phanCongKtv.dangXinGiaHan) {
+//                            Spacer(Modifier.width(8.dp))
+//                            Box(
+//                                modifier = Modifier
+//                                    .background(Color(0xFFFFF3E0), shape = RoundedCornerShape(6.dp))
+//                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+//                            ) {
+//                                Text(
+//                                    "Đang xin gia hạn",
+//                                    color = Color(0xFFFF9800),
+//                                    style = MaterialTheme.typography.labelSmall
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                    Text(
+//                        text = item.phanCongKtv.trangThai,
+//                        style = MaterialTheme.typography.bodySmall,
+//                        color = borderColor
+//                    )
+//                }
+//
+//            }
+//        }
+//    }
+//}
 @Composable
 fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
     val borderColor = when (item.phanCongKtv.trangThai) {
@@ -190,17 +293,27 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
         TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
-        else -> Color.LightGray
+        else -> MaterialTheme.colorScheme.outlineVariant
     }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline, // ✅ dùng đúng theme
+                shape = RoundedCornerShape(12.dp)
+            )
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(6.dp) // ✅ nổi khối lên rõ hơn
     ) {
         Column {
+            // 🔹 Viền trạng thái trên cùng
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -208,30 +321,41 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
                     .background(borderColor)
             )
 
+            // 🔸 Nội dung chính
             Row(
                 modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Avatar chữ cái
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        .shadow(4.dp, CircleShape) // 🔸 độ nổi khối
+                        .border(
+                            width = 2.dp,
+                            color = borderColor, // 🔸 màu theo trạng thái
+                            shape = CircleShape
+                        )
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = CircleShape
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = item.taiKhoan.hoTen?.first().toString(),
-                        color = MaterialTheme.colorScheme.primary,
+                        text = item.taiKhoan.hoTen?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                        color = borderColor, // hoặc dùng MaterialTheme.colorScheme.primary nếu bạn muốn giữ màu cố định
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
+
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = item.taiKhoan.hoTen.toString(),
+                            text = item.taiKhoan.hoTen.orEmpty(),
                             style = MaterialTheme.typography.titleMedium
                         )
 
@@ -239,29 +363,45 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
                             Spacer(Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
-                                    .background(Color(0xFFFFF3E0), shape = RoundedCornerShape(6.dp))
+                                    .background(
+                                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     "Đang xin gia hạn",
-                                    color = Color(0xFFFF9800),
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
                         }
                     }
 
-                    Text(
-                        text = item.phanCongKtv.trangThai,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = borderColor
-                    )
-                }
+                    Box {
+                        // Viền chữ (lớp dưới, mờ, dịch nhẹ)
+                        Text(
+                            text = item.phanCongKtv.trangThai,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.ExtraBold),
+                            color = MaterialTheme.colorScheme.primary, // viền là màu nền đối lập
+                            modifier = Modifier
+                                //.offset(x = 0.5.dp, y = 0.5.dp)
+                        )
 
+                        // Chữ thật (lớp trên)
+                        Text(
+                            text = item.phanCongKtv.trangThai,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = borderColor // giữ màu theo trạng thái
+                        )
+                    }
+
+                }
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -386,6 +526,74 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
 }
 
 
+//@Composable
+//fun TabThongTin(viewModel: PhanCongDetailViewModel) {
+//    val sessionViewModel: SessionViewModel = hiltViewModel()
+//    val currentUser by sessionViewModel.currentUser.collectAsState()
+//
+//    val phanCong = viewModel.phanCong.collectAsState().value
+//    val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
+//    val tenDonVi = viewModel.tenDonVi.collectAsState().value
+//    val taiKhoanYeuCau = viewModel.taiKhoanYeuCau.collectAsState().value
+//    val taiKhoanTaoPhanCong = viewModel.taiKhoanTaoPhanCong.collectAsState().value
+//
+//    val currentUserId = currentUser?.id
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .verticalScroll(rememberScrollState())
+//            .padding(16.dp).background(color = MaterialTheme.colorScheme.background),
+//        verticalArrangement = Arrangement.spacedBy(16.dp)
+//    ) {
+//        // Thông tin người yêu cầu
+//        Card(modifier = Modifier.fillMaxWidth()) {
+//            Column(modifier = Modifier.padding(16.dp)) {
+//                Text("Người yêu cầu", style = MaterialTheme.typography.titleMedium)
+//                Text("Loại yêu cầu: ${chiTiet?.loaiYeuCau}")
+//                Text("Mô tả: ${chiTiet?.moTa}")
+//                Text("Họ tên: ${taiKhoanYeuCau?.hoTen ?: "Không rõ"}")
+//                Text("SĐT: ${taiKhoanYeuCau?.soDienThoai ?: "Không rõ"}")
+//                Text("Đơn vị: $tenDonVi")
+//            }
+//        }
+//
+//
+//        // Thông tin phân công chung
+//        Card(modifier = Modifier.fillMaxWidth()) {
+//            Column(modifier = Modifier.padding(16.dp)) {
+//                Text("Thông tin phân công", style = MaterialTheme.typography.titleMedium)
+//                phanCong?.let {
+//                    Text("Loại phân công: ${it.loaiPhanCong}")
+//                    Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
+//                    Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
+//                    Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
+//                    Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
+//                    Text("Người tạo: ${taiKhoanTaoPhanCong?.hoTen ?: "Không rõ"}")
+//                    Text("SĐT: ${taiKhoanTaoPhanCong?.soDienThoai ?: "Không rõ"}")
+//                }
+//            }
+//        }
+//
+//        // Thông tin phân công riêng (chỉ hiển thị nếu đúng là KTV đó)
+//        if (phanCong != null && currentUserId != null) {
+//            val ktvPhanCong = viewModel.dsKtv.collectAsState().value.firstOrNull {
+//                it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCong.id
+//            }
+//            ktvPhanCong?.let {
+//                Card(modifier = Modifier.fillMaxWidth()) {
+//                    Column(modifier = Modifier.padding(16.dp)) {
+//                        Text("Phân công dành riêng cho bạn", style = MaterialTheme.typography.titleMedium)
+//                        Text("Mô tả công việc: ${it.phanCongKtv.moTaCongViec ?: "Không có"}")
+//                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien} phút")
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//    }
+//}
 @Composable
 fun TabThongTin(viewModel: PhanCongDetailViewModel) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
@@ -396,65 +604,263 @@ fun TabThongTin(viewModel: PhanCongDetailViewModel) {
     val tenDonVi = viewModel.tenDonVi.collectAsState().value
     val taiKhoanYeuCau = viewModel.taiKhoanYeuCau.collectAsState().value
     val taiKhoanTaoPhanCong = viewModel.taiKhoanTaoPhanCong.collectAsState().value
-
+    val context = LocalContext.current
     val currentUserId = currentUser?.id
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Thông tin người yêu cầu
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Người yêu cầu", style = MaterialTheme.typography.titleMedium)
-                Text("Loại yêu cầu: ${chiTiet?.loaiYeuCau}")
-                Text("Mô tả: ${chiTiet?.moTa}")
-                Text("Họ tên: ${taiKhoanYeuCau?.hoTen ?: "Không rõ"}")
-                Text("SĐT: ${taiKhoanYeuCau?.soDienThoai ?: "Không rõ"}")
-                Text("Đơn vị: $tenDonVi")
-            }
-        }
 
 
-        // Thông tin phân công chung
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Thông tin phân công", style = MaterialTheme.typography.titleMedium)
-                phanCong?.let {
-                    Text("Loại phân công: ${it.loaiPhanCong}")
-                    Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
-                    Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
-                    Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
-                    Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
-                    Text("Người tạo: ${taiKhoanTaoPhanCong?.hoTen ?: "Không rõ"}")
-                    Text("SĐT: ${taiKhoanTaoPhanCong?.soDienThoai ?: "Không rõ"}")
+        InfoCard(title = "Người yêu cầu", icon = Icons.Default.Person) {
+            // 🟢 Dòng đầu: Đơn vị
+            InfoMini(label = "Đơn vị", value = tenDonVi, modifier = Modifier.fillMaxWidth())
+
+            Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+            // 🟢 Dòng 2: Họ tên & SĐT
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                InfoMini(
+                    label = "Họ tên",
+                    value = taiKhoanYeuCau?.hoTen ?: "Không rõ",
+                    modifier = Modifier.weight(1f)
+                )
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "SĐT",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = taiKhoanYeuCau?.soDienThoai ?: "Không rõ",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(Modifier.width(4.dp))
+
+                        if (!taiKhoanYeuCau?.soDienThoai.isNullOrBlank()) {
+                            Icon(
+                                imageVector = Icons.Default.Call,
+                                contentDescription = "Gọi",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { goiDien(context, taiKhoanYeuCau!!.soDienThoai!!) }
+                                    .padding(2.dp) // optional
+                            )
+                        }
+                    }
                 }
             }
+
+            Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+            // 🟢 Mô tả (giống Ghi chú)
+            Text(
+                "Mô tả",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(4.dp))
+            ExpandableTextBox(text = chiTiet?.moTa ?: "Không rõ")
         }
 
-        // Thông tin phân công riêng (chỉ hiển thị nếu đúng là KTV đó)
+        // 🔹 Thông tin phân công chung
+        InfoCard(title = "Thông tin phân công", icon = Icons.Default.Info) {
+            phanCong?.let {
+                // 🟩 Hàng 1: Loại phân công + Thời gian tạo
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    InfoMini(label = "Loại phân công", value = it.loaiPhanCong, modifier = Modifier.weight(1f))
+                    InfoMini(label = "Thời gian tạo", value = it.thoiGianTaoPhanCong.toDateTimeString(), modifier = Modifier.weight(1f))
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                // 🟩 Hàng 2: Mức độ ưu tiên (có thanh) + Số lượng KTV
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Mức độ ưu tiên", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.height(4.dp))
+                        PriorityLevelBarGameStyle(
+                            level = it.mucDoUuTien.toInt(),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(16.dp),
+                            iconSize = 20.dp
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    InfoMini(label = "Số lượng KTV", value = it.soLuongKTVThamGia?.toString() ?: "Không rõ", modifier = Modifier.weight(1f))
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                // 🟩 Ghi chú: chiếm toàn hàng
+                Text("Ghi chú", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(4.dp))
+                ExpandableTextBox(text = it.ghiChu ?: "Không có")
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                // 🟩 Hàng 3: Người tạo + SĐT (có nút gọi)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    InfoMini(
+                        label = "Người tạo",
+                        value = taiKhoanTaoPhanCong?.hoTen ?: "Không rõ",
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "SĐT",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = taiKhoanTaoPhanCong?.soDienThoai ?: "Không rõ",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            if (!taiKhoanTaoPhanCong?.soDienThoai.isNullOrBlank()) {
+                                Icon(
+                                    imageVector = Icons.Default.Call,
+                                    contentDescription = "Gọi",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(18.dp)
+                                        .clickable { goiDien(context, taiKhoanTaoPhanCong!!.soDienThoai!!) }
+                                        .padding(2.dp) // optional
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // 🔹 Thông tin phân công riêng của KTV
         if (phanCong != null && currentUserId != null) {
             val ktvPhanCong = viewModel.dsKtv.collectAsState().value.firstOrNull {
                 it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCong.id
             }
             ktvPhanCong?.let {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Phân công dành riêng cho bạn", style = MaterialTheme.typography.titleMedium)
-                        Text("Mô tả công việc: ${it.phanCongKtv.moTaCongViec ?: "Không có"}")
-                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien} phút")
+                InfoCard(title = "Phân công dành riêng cho bạn", icon = Icons.Default.Star) {
+                    // Thời gian dự kiến
+                    InfoRow("Thời gian dự kiến", "${it.phanCongKtv.thoiGianDuKien} phút")
+
+                    // Mô tả công việc với vùng mở rộng
+                    Column {
+                        Text(
+                            "Mô tả công việc",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        ExpandableTextBox(text = it.phanCongKtv.moTaCongViec ?: "Không có")
                     }
                 }
             }
+
         }
-
-
     }
 }
 
+@Composable
+fun InfoCard(
+    title: String,
+    icon: ImageVector,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // nổi khối rõ hơn
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
+        Column {
+            // 🔷 Header có màu chủ đạo
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            // 🔸 Body phần nội dung
+            Column(modifier = Modifier.padding(16.dp)) {
+                content()
+            }
+        }
+    }
+}
+
+
+@Composable
+fun InfoMini(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(end = 8.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+    }
+}
 
 
 @Composable
@@ -584,5 +990,44 @@ fun goiDien(context: Context, soDienThoai: String?) {
         context.startActivity(intent)
     } else {
         Toast.makeText(context, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show()
+    }
+}
+fun Long.toDateTimeString(): String {
+    val date = Date(this)
+    val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    return format.format(date)
+}
+@Composable
+fun ExpandableTextBox(
+    text: String,
+    collapsedLines: Int = 3
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+            .padding(12.dp)
+    ) {
+        Text(
+            text = text,
+            maxLines = if (expanded) Int.MAX_VALUE else collapsedLines,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        if (text.length > 60) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = if (expanded) "Thu gọn" else "Xem thêm",
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { expanded = !expanded }
+            )
+        }
     }
 }

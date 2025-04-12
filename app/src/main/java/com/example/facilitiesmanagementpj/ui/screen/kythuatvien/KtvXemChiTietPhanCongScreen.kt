@@ -31,6 +31,8 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.PhanCongDetailViewModel
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
@@ -105,34 +107,42 @@ fun KtvXemChiTietPhanCongScreen(
             }
 
             if (isChoPhanHoi) {
-                BottomAppBar(
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .height(bottomBarHeight),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 4.dp
+                        .fillMaxWidth()
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RectangleShape)
                 ) {
-                    OutlinedButton(onClick = {
-                        showRejectDialog = true
-                    }) {
-                        Icon(Icons.Default.Close, contentDescription = null)
-                        Spacer(Modifier.width(4.dp))
-                        Text("Từ chối")
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Button(onClick = {
-                        currentPhanCongKtv.let {
-                            viewModel.chapNhanPhanCongChoKtv(it.phanCongKtv.id)
-                            Toast.makeText(context, "Đã chấp nhận", Toast.LENGTH_SHORT).show()
+                    BottomAppBar(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .height(bottomBarHeight),
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 4.dp
+                    ) {
+                        OutlinedButton(onClick = {
+                            showRejectDialog = true
+                        }) {
+                            Icon(Icons.Default.Close, contentDescription = null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Từ chối")
                         }
-                    }) {
-                        Icon(Icons.Default.Check, contentDescription = null)
-                        Spacer(Modifier.width(4.dp))
-                        Text("Chấp nhận")
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Button(onClick = {
+                            currentPhanCongKtv.let {
+                                viewModel.chapNhanPhanCongChoKtv(it.phanCongKtv.id)
+                                Toast.makeText(context, "Đã chấp nhận", Toast.LENGTH_SHORT).show()
+                            }
+                        }) {
+                            Icon(Icons.Default.Check, contentDescription = null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Chấp nhận")
+                        }
                     }
                 }
+
             }
 
 

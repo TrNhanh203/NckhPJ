@@ -337,7 +337,7 @@ fun InfoRow(icon: ImageVector, text: String, style: TextStyle, textColor: Color 
 @Composable
 fun DotLevelBar(
     filled: Int,
-    total: Int,
+    total: Int = 5,
     modifier: Modifier = Modifier,
     dotSize: Dp = 10.dp,
     spacing: Dp = 4.dp,
