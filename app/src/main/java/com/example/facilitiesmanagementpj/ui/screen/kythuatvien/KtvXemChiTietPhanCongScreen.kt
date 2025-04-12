@@ -32,8 +32,10 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.net.toUri
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
@@ -58,9 +60,9 @@ fun KtvXemChiTietPhanCongScreen(
         .firstOrNull { it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCongId }
 
 
-    val isCurrentUserAllowed = currentPhanCongKtv != null && currentPhanCongKtv.phanCongKtv.phanCongId == phanCongId
+    val isCurrentUserAllowed =
+        currentPhanCongKtv != null && currentPhanCongKtv.phanCongKtv.phanCongId == phanCongId
     val isChoPhanHoi = currentPhanCongKtv?.phanCongKtv?.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI
-
 
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -70,7 +72,10 @@ fun KtvXemChiTietPhanCongScreen(
         viewModel.loadDsKtv(phanCongId)
     }
 
-    val bottomBarHeight = 72.dp
+    var bottomBarHeight = 0.dp
+    if(isChoPhanHoi){
+        bottomBarHeight = 72.dp
+    }
 
     if (isCurrentUserAllowed) {
         // Toàn bộ nội dung chính
@@ -103,6 +108,8 @@ fun KtvXemChiTietPhanCongScreen(
                         2 -> TabMinhChung(viewModel)
                         3 -> TabKtvThamGia(viewModel, navController)
                     }
+
+
                 }
             }
 
@@ -203,7 +210,9 @@ fun TabKtvThamGia(viewModel: PhanCongDetailViewModel, navController: NavControll
 
     if (list.isEmpty()) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -217,7 +226,13 @@ fun TabKtvThamGia(viewModel: PhanCongDetailViewModel, navController: NavControll
             Text("Chưa có kỹ thuật viên tham gia", color = Color.Gray)
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+
+        ) {
             items(list) { item ->
                 KtvThamGiaCard(item, currentUserId, navController = navController)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -227,7 +242,11 @@ fun TabKtvThamGia(viewModel: PhanCongDetailViewModel, navController: NavControll
 }
 
 @Composable
-fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navController: NavController) {
+fun KtvThamGiaCard(
+    item: PhanCongKtvWithTaiKhoan,
+    currentUserId: Int?,
+    navController: NavController
+) {
     val borderColor = when (item.phanCongKtv.trangThai) {
         TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
         TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
@@ -235,45 +254,59 @@ fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navContro
         TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
         TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
         TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
-        else -> Color.LightGray
+        else -> MaterialTheme.colorScheme.outline
     }
 
     val isCurrentUser = item.taiKhoan.id == currentUserId
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-
     Box {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (!isCurrentUser) Modifier.clickable { expanded = true } else Modifier),
+                .then(if (!isCurrentUser) Modifier.clickable { expanded = true } else Modifier)
+                .shadow(4.dp, RoundedCornerShape(12.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp)),
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Column {
+                // Viền màu trạng thái
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
-                        .background(borderColor)
+                        .background(
+                            borderColor,
+                            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                        )
                 )
 
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Avatar tròn
                     Box(
                         modifier = Modifier
                             .size(48.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                            .shadow(2.dp, CircleShape)
+                            .border(1.dp, borderColor, CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = item.taiKhoan.hoTen?.firstOrNull()?.toString() ?: "?",
+                            text = item.taiKhoan.hoTen?.firstOrNull()?.uppercaseChar()?.toString()
+                                ?: "?",
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                         )
                     }
 
@@ -282,17 +315,22 @@ fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navContro
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = item.taiKhoan.hoTen.toString(),
+                                text = item.taiKhoan.hoTen ?: "Không rõ",
                                 style = MaterialTheme.typography.titleMedium
                             )
                             if (isCurrentUser) {
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("(Bạn)", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                                Text(
+                                    "(Bạn)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.Gray
+                                )
                             }
                         }
+
                         Text(
                             text = item.phanCongKtv.trangThai,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                             color = borderColor
                         )
                     }
@@ -300,18 +338,11 @@ fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navContro
             }
         }
 
-        // DropdownMenu hiển thị khi nhấn vào card
+        // Menu gọi điện
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-//            DropdownMenuItem(
-//                text = { Text("Xem thông tin cá nhân") },
-//                onClick = {
-//                    navController.navigate(Screen.AdminViewDetailProfile.createRoute(item.taiKhoan.id))
-//                    expanded = false
-//                }
-//            )
             DropdownMenuItem(
                 text = { Text("Gọi điện") },
                 onClick = {
@@ -323,14 +354,15 @@ fun KtvThamGiaCard(item: PhanCongKtvWithTaiKhoan, currentUserId: Int?, navContro
                         }
                         context.startActivity(intent)
                     } else {
-                        Toast.makeText(context, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             )
-
         }
     }
 }
+
 
 
 

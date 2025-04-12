@@ -28,6 +28,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +39,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -89,6 +92,7 @@ fun PhanCongDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .then(paddingValues)
+                .background(color = MaterialTheme.colorScheme.background)
 
         ) {
 
@@ -203,87 +207,6 @@ fun TabKTV(viewModel: PhanCongDetailViewModel, navController: NavController, pha
     }
 }
 
-//@Composable
-//fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
-//    val borderColor = when (item.phanCongKtv.trangThai) {
-//        TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
-//        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
-//        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
-//        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
-//        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
-//        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
-//        else -> Color.LightGray
-//    }
-//
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { onClick() },
-//        shape = RoundedCornerShape(12.dp),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//    ) {
-//        Column {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(6.dp)
-//                    .background(borderColor)
-//            )
-//
-//            Row(
-//                modifier = Modifier.padding(16.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Box(
-//                    modifier = Modifier
-//                        .size(48.dp)
-//                        .clip(CircleShape)
-//                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        text = item.taiKhoan.hoTen?.first().toString(),
-//                        color = MaterialTheme.colorScheme.primary,
-//                        style = MaterialTheme.typography.titleMedium
-//                    )
-//                }
-//
-//                Spacer(modifier = Modifier.width(16.dp))
-//
-//                Column {
-//                    Row(verticalAlignment = Alignment.CenterVertically) {
-//                        Text(
-//                            text = item.taiKhoan.hoTen.toString(),
-//                            style = MaterialTheme.typography.titleMedium
-//                        )
-//
-//                        if (item.phanCongKtv.dangXinGiaHan) {
-//                            Spacer(Modifier.width(8.dp))
-//                            Box(
-//                                modifier = Modifier
-//                                    .background(Color(0xFFFFF3E0), shape = RoundedCornerShape(6.dp))
-//                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-//                            ) {
-//                                Text(
-//                                    "Đang xin gia hạn",
-//                                    color = Color(0xFFFF9800),
-//                                    style = MaterialTheme.typography.labelSmall
-//                                )
-//                            }
-//                        }
-//                    }
-//
-//                    Text(
-//                        text = item.phanCongKtv.trangThai,
-//                        style = MaterialTheme.typography.bodySmall,
-//                        color = borderColor
-//                    )
-//                }
-//
-//            }
-//        }
-//    }
-//}
 @Composable
 fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
     val borderColor = when (item.phanCongKtv.trangThai) {
@@ -337,14 +260,14 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
                             shape = CircleShape
                         )
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = item.taiKhoan.hoTen?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                        color = borderColor, // hoặc dùng MaterialTheme.colorScheme.primary nếu bạn muốn giữ màu cố định
+                        color = MaterialTheme.colorScheme.onSurface, // hoặc dùng MaterialTheme.colorScheme.primary nếu bạn muốn giữ màu cố định
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -389,11 +312,11 @@ fun KtvCard(item: PhanCongKtvWithTaiKhoan, onClick: () -> Unit) {
                         )
 
                         // Chữ thật (lớp trên)
-                        Text(
-                            text = item.phanCongKtv.trangThai,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = borderColor // giữ màu theo trạng thái
-                        )
+//                        Text(
+//                            text = item.phanCongKtv.trangThai,
+//                            style = MaterialTheme.typography.bodySmall,
+//                            color = borderColor // giữ màu theo trạng thái
+//                        )
                     }
 
                 }
@@ -526,74 +449,7 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
 }
 
 
-//@Composable
-//fun TabThongTin(viewModel: PhanCongDetailViewModel) {
-//    val sessionViewModel: SessionViewModel = hiltViewModel()
-//    val currentUser by sessionViewModel.currentUser.collectAsState()
-//
-//    val phanCong = viewModel.phanCong.collectAsState().value
-//    val chiTiet = viewModel.chiTietYeuCau.collectAsState().value
-//    val tenDonVi = viewModel.tenDonVi.collectAsState().value
-//    val taiKhoanYeuCau = viewModel.taiKhoanYeuCau.collectAsState().value
-//    val taiKhoanTaoPhanCong = viewModel.taiKhoanTaoPhanCong.collectAsState().value
-//
-//    val currentUserId = currentUser?.id
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .verticalScroll(rememberScrollState())
-//            .padding(16.dp).background(color = MaterialTheme.colorScheme.background),
-//        verticalArrangement = Arrangement.spacedBy(16.dp)
-//    ) {
-//        // Thông tin người yêu cầu
-//        Card(modifier = Modifier.fillMaxWidth()) {
-//            Column(modifier = Modifier.padding(16.dp)) {
-//                Text("Người yêu cầu", style = MaterialTheme.typography.titleMedium)
-//                Text("Loại yêu cầu: ${chiTiet?.loaiYeuCau}")
-//                Text("Mô tả: ${chiTiet?.moTa}")
-//                Text("Họ tên: ${taiKhoanYeuCau?.hoTen ?: "Không rõ"}")
-//                Text("SĐT: ${taiKhoanYeuCau?.soDienThoai ?: "Không rõ"}")
-//                Text("Đơn vị: $tenDonVi")
-//            }
-//        }
-//
-//
-//        // Thông tin phân công chung
-//        Card(modifier = Modifier.fillMaxWidth()) {
-//            Column(modifier = Modifier.padding(16.dp)) {
-//                Text("Thông tin phân công", style = MaterialTheme.typography.titleMedium)
-//                phanCong?.let {
-//                    Text("Loại phân công: ${it.loaiPhanCong}")
-//                    Text("Mức độ ưu tiên: ${it.mucDoUuTien}")
-//                    Text("Ghi chú: ${it.ghiChu ?: "Không có"}")
-//                    Text("Thời gian tạo: ${it.thoiGianTaoPhanCong}")
-//                    Text("Số lượng KTV: ${it.soLuongKTVThamGia ?: "Chưa xác định"}")
-//                    Text("Người tạo: ${taiKhoanTaoPhanCong?.hoTen ?: "Không rõ"}")
-//                    Text("SĐT: ${taiKhoanTaoPhanCong?.soDienThoai ?: "Không rõ"}")
-//                }
-//            }
-//        }
-//
-//        // Thông tin phân công riêng (chỉ hiển thị nếu đúng là KTV đó)
-//        if (phanCong != null && currentUserId != null) {
-//            val ktvPhanCong = viewModel.dsKtv.collectAsState().value.firstOrNull {
-//                it.taiKhoan.id == currentUserId && it.phanCongKtv.phanCongId == phanCong.id
-//            }
-//            ktvPhanCong?.let {
-//                Card(modifier = Modifier.fillMaxWidth()) {
-//                    Column(modifier = Modifier.padding(16.dp)) {
-//                        Text("Phân công dành riêng cho bạn", style = MaterialTheme.typography.titleMedium)
-//                        Text("Mô tả công việc: ${it.phanCongKtv.moTaCongViec ?: "Không có"}")
-//                        Text("Thời gian dự kiến: ${it.phanCongKtv.thoiGianDuKien} phút")
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//    }
-//}
+
 @Composable
 fun TabThongTin(viewModel: PhanCongDetailViewModel) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
@@ -871,39 +727,20 @@ fun TabThietBi(viewModel: PhanCongDetailViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(color = MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Thông tin thiết bị", style = MaterialTheme.typography.titleMedium)
-
         thietBi?.let {
-            Text("Tên thiết bị: ${it.tenThietBi}")
-            Text("Loại thiết bị ID: ${it.loaiThietBiId}")
-            Text("Ngày cài đặt: ${it.ngayDaCat ?: "Chưa rõ"}")
-            Text("Bảo dưỡng định kỳ (ngày): ${it.baoDuongDinhKy ?: "Không xác định"}")
-            Text("Ngày bảo dưỡng gần nhất: ${it.ngayBaoDuongGanNhat ?: "Không có"}")
-            Text("Vị trí: $viTri")
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Mô tả:", style = MaterialTheme.typography.bodyLarge)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(8.dp)
-                    .background(Color(0xFFF2F2F2))
-            ) {
-                BasicTextField(
-                    value = it.moTa ?: "Không có mô tả",
-                    onValueChange = {},
-                    readOnly = true,
-                    textStyle = TextStyle(fontSize = 14.sp)
-                )
-            }
+            ThongTinThietBiCard(it)
+            ViTriThietBiCard(viTri)
+            CardThongKeBaoDuong(it)
+            GhiChuCard(it.ghiChu)
         }
     }
 }
+
 
 @Composable
 fun TabMinhChung(viewModel: PhanCongDetailViewModel) {
@@ -913,42 +750,92 @@ fun TabMinhChung(viewModel: PhanCongDetailViewModel) {
     var showImagePreview by remember { mutableStateOf<Uri?>(null) }
     var showVideoPreview by remember { mutableStateOf<Uri?>(null) }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .background(color = MaterialTheme.colorScheme.background)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // 🔹 Vùng ảnh
+        Column {
+            Text(
+                "Ảnh minh chứng",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground // hoặc onSurface
+            )
 
-        Text("Minh chứng đính kèm", style = MaterialTheme.typography.titleMedium)
+            if (imageUris.isEmpty()) {
+                Text("Không có ảnh được đính kèm", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(imageUris) { uri ->
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = null,
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    tonalElevation = 2.dp,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest, // màu nền dịu
                     modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { showImagePreview = uri },
-                    contentScale = ContentScale.Crop
-                )
-            }
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
 
-            item {
-                videoUri?.let { uri ->
-                    Box(
+                ) {
+                    LazyRow(
                         modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Black)
-                            .clickable { showVideoPreview = uri },
-                        contentAlignment = Alignment.Center
+                            .padding(12.dp), // khoảng cách bên trong vùng
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("▶", color = Color.White, fontSize = 32.sp)
+                        items(imageUris) { uri ->
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                                    .clickable { showImagePreview = uri },
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(uri),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
                     }
                 }
+
             }
+        }
+
+        // 🔹 Vùng video
+        Column {
+            Text("Video minh chứng", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
+
+            videoUri?.let { uri ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16 / 9f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                        .clickable { showVideoPreview = uri },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Xem video",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+
+            } ?: Text("Không có video được đính kèm", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 
+    // 🖼 Xem toàn màn hình ảnh
     showImagePreview?.let { uri ->
         Dialog(onDismissRequest = { showImagePreview = null }) {
             Box(
@@ -967,17 +854,19 @@ fun TabMinhChung(viewModel: PhanCongDetailViewModel) {
         }
     }
 
+    // ▶ Xem toàn màn hình video
     showVideoPreview?.let { uri ->
         Dialog(onDismissRequest = { showVideoPreview = null }) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black),
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 VideoPreviewAdmin(uri = uri)
             }
         }
+
     }
 }
 
@@ -1031,3 +920,6 @@ fun ExpandableTextBox(
         }
     }
 }
+
+
+
