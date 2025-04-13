@@ -62,6 +62,15 @@ sealed class Screen(val route: String) {
         }
     }
 
+    object BaiVietForm : Screen("bai_viet_form/{idBaiViet}?") {
+        fun createRoute(idBaiViet: Int?): String {
+            return if (idBaiViet != null) "bai_viet_form/$idBaiViet" else "bai_viet_form/"
+        }
+    }
+
+
+    object AdminBaiViet : Screen("admin_bai_viet")
+
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")
     object QLDVPhong : Screen("quanlydonvi_phong")

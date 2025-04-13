@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.facilitiesmanagementpj.ui.screen.DebugLoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminAccountScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.AdminBaiVietScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDashboardScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceDetailScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminDeviceListScreen
@@ -24,6 +25,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestDetailScre
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminRequestListScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewDetailProfileScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminViewTienTrinhLamViecScreen
+import com.example.facilitiesmanagementpj.ui.screen.admin.BaiVietFormScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.BienBanNghiemThuScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChiTietAnhMinhChungScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.ChonKyThuatVienScreen
@@ -112,7 +114,7 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         ) { backStackEntry ->
             val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
 
-            ChonKyThuatVienScreen(phanCongId,navController)
+            ChonKyThuatVienScreen(phanCongId, navController)
         }
 
         composable(
@@ -203,6 +205,35 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             )
         }
 
+        composable(
+            route = Screen.AdminBaiViet.route
+        ) {
+            AdminBaiVietScreen(
+                navController = navController
+            )
+        }
+
+        composable(
+            route = "bai_viet_form/{idBaiViet}?",
+            arguments = listOf(
+                navArgument("idBaiViet") {
+                    type = NavType.StringType // Cho phép nullable
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val idBaiViet = backStackEntry.arguments
+                ?.getString("idBaiViet")
+                ?.toIntOrNull() // chuyển sang Int nếu có
+
+            BaiVietFormScreen(
+                navController = navController,
+                idBaiViet = idBaiViet // có thể null
+            )
+        }
+
+
         // Màn hình Quản lý đơn vị
         composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
         composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
@@ -213,7 +244,11 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
 
 
         composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
-        composable("them_yeu_cau_moi/{yeuCauId}?", arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })) { backStackEntry ->
+
+        composable(
+            "them_yeu_cau_moi/{yeuCauId}?",
+            arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })
+        ) { backStackEntry ->
             val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
             ThemYeuCauMoiScreen(navController, yeuCauId)
         }
@@ -234,10 +269,6 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
             ThietBiDetailScreen(navController, thietBiId, isEditMode, yeuCauId)
         }
-
-
-
-
 
 
         // Màn hình Kỹ thuật viên
@@ -271,13 +302,6 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             KtvXemChiTietPhanCongScreen(navController, phanCongId)
         }
 
-//        composable(
-//            route = Screen.KtvLamViec.route,
-//            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
-//        ) { backStackEntry ->
-//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-//            KtvLamViecScreen(navController, phanCongId)
-//        }
 
         composable(
             route = Screen.KtvLamViec.route,
@@ -287,7 +311,6 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
             // 👇 Truyền backStackEntry vào
             KtvLamViecScreen(navController, phanCongId, backStackEntry)
         }
-
 
 
         // Màn hình Người dùng (Sinh viên, Giảng viên)

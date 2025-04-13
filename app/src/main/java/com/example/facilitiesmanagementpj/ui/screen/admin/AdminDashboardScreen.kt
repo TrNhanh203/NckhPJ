@@ -61,10 +61,10 @@ fun AdminDashboardScreen(navController: NavController) {
             )
 
             DashboardOption(
-                title = "Quản lý phân công",
+                title = "Quản lý bài viết",
                 icon = Icons.Default.AccountBox,
                 color = Color.Blue,
-                onClick = {  }
+                onClick = { navController.navigate(Screen.AdminBaiViet.route) }
             )
         }
     }

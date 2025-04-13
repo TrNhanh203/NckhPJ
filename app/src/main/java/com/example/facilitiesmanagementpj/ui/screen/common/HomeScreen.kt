@@ -54,18 +54,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.facilitiesmanagementpj.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BaiVietViewModel
 
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val baiVietViewModel: BaiVietViewModel = hiltViewModel()
     var showExitDialog by remember { mutableStateOf(false) }
-
+    val listBaiViet by baiVietViewModel.dsBaiViet.collectAsState()
     BackHandler {
         showExitDialog = true
     }
@@ -100,38 +106,47 @@ fun HomeScreen(navController: NavController) {
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
-                .then(modifier)
-                ,
+                .then(modifier),
         ) {
             //Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
             HeaderDateTimeBar() // 👈 đặt trên cùng
 
             Spacer(Modifier.height(8.dp))
-
-            val demoItems = listOf(
-                Article("A starry night", "Look up at the stars...", R.drawable.demobaibao),
-                Article("Explore the sea", "Dive into the deep blue...", R.drawable.demobaibao),
-                Article("Sunset valley", "Experience the golden hour...", R.drawable.demobaibao)
+            Text(
+                "Bài viết mới",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            AutoScrollingCarousel(items = demoItems)
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                listBaiViet.forEach { item ->
+                    ArticleCardDemo(
+                        imagePainter = rememberAsyncImagePainter(item.anhDaiDien),
+                        title = item.tieuDe,
+                        description = item.moTa,
+                        url = item.link ?: "",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
 
 //            ArticleCarouselWithAutoScroll()
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LocationCardDemo(
-                onNavigateClick = {
-                    // TODO: Mở Google Maps hoặc navigation
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            DemoCardTiemKiemPhong(
-                onFilterClick = {
-                    // Mở bottom sheet bộ lọc nâng cao
-                }
-            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//            LocationCardDemo(
+//                onNavigateClick = {
+//                    // TODO: Mở Google Maps hoặc navigation
+//                }
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//            DemoCardTiemKiemPhong(
+//                onFilterClick = {
+//                    // Mở bottom sheet bộ lọc nâng cao
+//                }
+//            )
 
 
         }
@@ -238,67 +253,6 @@ fun DemoCardTiemKiemPhong(
 }
 
 
-//@Composable
-//fun ArticleCardDemo(
-//    imagePainter: Painter,
-//    title: String,
-//    description: String,
-//    onExploreClick: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth(),
-//        shape = RoundedCornerShape(12.dp),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-//    ) {
-//        Column {
-//            Image(
-//                painter = imagePainter,
-//                contentDescription = null,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(160.dp)
-//            )
-//
-//            Spacer(Modifier.height(12.dp))
-//
-//            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-//                Text(
-//                    text = title,
-//                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-//                    color = MaterialTheme.colorScheme.onSurface
-//                )
-//                Spacer(Modifier.height(4.dp))
-//                Text(
-//                    text = description,
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = MaterialTheme.colorScheme.onSurfaceVariant
-//                )
-//            }
-//
-//            Spacer(Modifier.height(8.dp))
-//
-//            TextButton(
-//                onClick = onExploreClick,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp, vertical = 8.dp)
-//                    .background(
-//                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-//                        shape = RoundedCornerShape(8.dp)
-//                    )
-//            ) {
-//                Text("Explore", color = MaterialTheme.colorScheme.primary)
-//                Spacer(Modifier.width(4.dp))
-//                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-//            }
-//
-//            Spacer(Modifier.height(8.dp))
-//        }
-//    }
-//}
 
 data class ArticleData(
     val title: String,
@@ -337,13 +291,17 @@ fun ArticleCardDemo(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
@@ -351,7 +309,7 @@ fun ArticleCardDemo(
 
             TextButton(
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                     context.startActivity(intent)
                 },
                 modifier = Modifier
@@ -371,6 +329,7 @@ fun ArticleCardDemo(
         }
     }
 }
+
 
 
 
