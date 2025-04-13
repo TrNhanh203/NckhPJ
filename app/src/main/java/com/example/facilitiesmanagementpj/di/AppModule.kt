@@ -35,7 +35,7 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -111,8 +111,40 @@ object AppModule {
         }
     }
 
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `bai_viet` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `tieuDe` TEXT NOT NULL,
+                `moTa` TEXT NOT NULL,
+                `anhDaiDien` TEXT NOT NULL,
+                `link` TEXT,
+                `noiDungHtml` TEXT,
+                `thoiGianTao` INTEGER NOT NULL,
+                `nguoiTaoId` INTEGER
+            )
+        """.trimIndent())
+
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `danh_gia_ktv` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `phanCongKtvId` INTEGER NOT NULL,
+                `nguoiDanhGiaId` INTEGER NOT NULL,
+                `diem` INTEGER NOT NULL,
+                `nhanXet` TEXT,
+                `thoiGian` INTEGER NOT NULL
+            )
+        """.trimIndent())
+        }
+    }
 
 
+    @Provides
+    fun provideBaiVietDao(database: AppDatabase): BaiVietDao = database.baiVietDao()
+
+    @Provides
+    fun provideDanhGiaKTVDao(database: AppDatabase): DanhGiaKTVDao = database.danhGiaKTVDao()
 
 
     @Provides

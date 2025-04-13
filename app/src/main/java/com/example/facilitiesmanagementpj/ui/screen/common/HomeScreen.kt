@@ -1,6 +1,8 @@
 package com.example.facilitiesmanagementpj.ui.screen.common
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -30,12 +32,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Share
@@ -47,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facilitiesmanagementpj.R
@@ -295,46 +300,6 @@ fun DemoCardTiemKiemPhong(
 //    }
 //}
 
-@Composable
-fun ArticleCarouselWithAutoScroll() {
-    val list = remember {
-        listOf(
-            ArticleData("A starry night", "Look up at the night sky...", R.drawable.demobaibao),
-            ArticleData("Summer Forest", "Discover the lush green world...", R.drawable.demobaibao),
-            ArticleData("Urban Lights", "Explore the bustling city at night...", R.drawable.demobaibao),
-        )
-    }
-
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    // Auto-scroll effect
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(3000L)
-            val nextIndex = (listState.firstVisibleItemIndex + 1) % list.size
-            coroutineScope.launch {
-                listState.animateScrollToItem(nextIndex)
-            }
-        }
-    }
-
-    LazyRow(
-        state = listState,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(list) { article ->
-            ArticleCardDemo(
-                imagePainter = painterResource(id = article.imageRes),
-                title = article.title,
-                description = article.description,
-                onExploreClick = { Log.d("Carousel", "Clicked ${article.title}") },
-                modifier = Modifier.width(280.dp)
-            )
-        }
-    }
-}
 data class ArticleData(
     val title: String,
     val description: String,
@@ -345,9 +310,11 @@ fun ArticleCardDemo(
     imagePainter: Painter,
     title: String,
     description: String,
-    onExploreClick: () -> Unit,
+    url: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -383,7 +350,10 @@ fun ArticleCardDemo(
             Spacer(Modifier.height(8.dp))
 
             TextButton(
-                onClick = onExploreClick,
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    context.startActivity(intent)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -392,15 +362,16 @@ fun ArticleCardDemo(
                         shape = RoundedCornerShape(8.dp)
                     )
             ) {
-                Text("Explore", color = MaterialTheme.colorScheme.primary)
+                Text("Xem bài viết", color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
-                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Default.OpenInNew, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
 
             Spacer(Modifier.height(8.dp))
         }
     }
 }
+
 
 
 @Composable
@@ -501,11 +472,12 @@ fun AutoScrollingCarousel(
     ) {
         items(items) { item ->
             ArticleCardDemo(
-                imagePainter = painterResource(id = item.imageRes),
-                title = item.title,
-                description = item.description,
-                onExploreClick = { /* TODO */ }
+                imagePainter = painterResource(id = R.drawable.demobaibao),
+                title = "Giới thiệu tính năng mới",
+                description = "Khám phá hệ thống",
+                url = "https://translate.google.com/?sl=en&tl=vi&op=translate"
             )
+
         }
     }
 }
