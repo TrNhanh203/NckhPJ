@@ -35,7 +35,7 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -139,6 +139,25 @@ object AppModule {
         }
     }
 
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS thong_bao (
+                id TEXT NOT NULL PRIMARY KEY,
+                nguoiNhanId INTEGER NOT NULL,
+                tieuDe TEXT NOT NULL,
+                noiDung TEXT NOT NULL,
+                loai TEXT NOT NULL,
+                thoiGian INTEGER NOT NULL,
+                daDoc INTEGER NOT NULL
+            )
+        """.trimIndent())
+        }
+    }
+
+
+    @Provides
+    fun provideThongBaoDao(database: AppDatabase): ThongBaoDao = database.thongBaoDao()
 
     @Provides
     fun provideBaiVietDao(database: AppDatabase): BaiVietDao = database.baiVietDao()

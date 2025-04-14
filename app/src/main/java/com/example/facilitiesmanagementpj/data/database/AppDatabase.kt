@@ -30,13 +30,15 @@ import com.example.facilitiesmanagementpj.data.entity.*
         DonVi::class,
         BienBanYeuCau::class,
         BaiViet::class,
-        DanhGiaKTV::class
+        DanhGiaKTV::class,
+        ThongBao::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
+    abstract fun thongBaoDao(): ThongBaoDao
     abstract fun baiVietDao(): BaiVietDao
     abstract fun danhGiaKTVDao(): DanhGiaKTVDao
     abstract fun loaiThietBiDao(): LoaiThietBiDao

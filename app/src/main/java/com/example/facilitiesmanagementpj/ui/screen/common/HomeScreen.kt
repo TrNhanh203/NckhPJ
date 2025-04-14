@@ -131,8 +131,6 @@ fun HomeScreen(navController: NavController) {
             }
 
 
-//            ArticleCarouselWithAutoScroll()
-
 //            Spacer(modifier = Modifier.height(16.dp))
 //
 //            LocationCardDemo(
@@ -402,46 +400,3 @@ fun LocationCardDemo(
     }
 }
 
-
-
-@Composable
-fun AutoScrollingCarousel(
-    items: List<Article>,
-    modifier: Modifier = Modifier
-) {
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(3000) // mỗi 3 giây cuộn
-            val currentIndex = listState.firstVisibleItemIndex
-            val nextIndex = if (currentIndex < items.lastIndex) currentIndex + 1 else 0
-            coroutineScope.launch {
-                listState.animateScrollToItem(nextIndex)
-            }
-        }
-    }
-
-    LazyRow(
-        state = listState,
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        items(items) { item ->
-            ArticleCardDemo(
-                imagePainter = painterResource(id = R.drawable.demobaibao),
-                title = "Giới thiệu tính năng mới",
-                description = "Khám phá hệ thống",
-                url = "https://translate.google.com/?sl=en&tl=vi&op=translate"
-            )
-
-        }
-    }
-}
-data class Article(
-    val title: String,
-    val description: String,
-    val imageRes: Int
-)
