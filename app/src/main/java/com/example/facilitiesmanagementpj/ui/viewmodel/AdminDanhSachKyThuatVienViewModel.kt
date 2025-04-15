@@ -12,6 +12,7 @@ import com.example.facilitiesmanagementpj.data.entity.ChuyenMon
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVienWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.repository.ChuyenMonRepository
 import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
+import kotlinx.coroutines.flow.first
 
 // ✅ ViewModel
 @HiltViewModel
@@ -37,7 +38,7 @@ class DanhSachKyThuatVienViewModel @Inject constructor(
 
     fun loadChuyenMon() {
         viewModelScope.launch {
-            allChuyenMon = chuyenMonRepo.getAllChuyenMon()
+            allChuyenMon = chuyenMonRepo.getAllChuyenMon().first()
         }
     }
 

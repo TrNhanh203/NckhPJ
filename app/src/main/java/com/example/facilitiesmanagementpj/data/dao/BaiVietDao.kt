@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BaiVietDao {
+    @Insert
+    suspend fun insertAndReturnId(baiViet: BaiViet): Long
+
     @Query("SELECT * FROM bai_viet ORDER BY thoiGianTao DESC")
     fun getAll(): Flow<List<BaiViet>>
 

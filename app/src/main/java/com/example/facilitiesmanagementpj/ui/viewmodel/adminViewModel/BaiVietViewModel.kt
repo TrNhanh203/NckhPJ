@@ -4,7 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.facilitiesmanagementpj.data.dao.BaiVietDao
 import com.example.facilitiesmanagementpj.data.entity.BaiViet
+import com.example.facilitiesmanagementpj.data.repository.BaiVietFirestoreRepository
 import com.example.facilitiesmanagementpj.data.repository.BaiVietRepository
 import com.example.facilitiesmanagementpj.data.utils.deleteFileFromFirebaseStorage
 import com.example.facilitiesmanagementpj.data.utils.uploadFileToFirebaseStorage
@@ -20,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BaiVietViewModel @Inject constructor(
-    private val repo: BaiVietRepository
+    private val repo: BaiVietRepository,
+    private val baiVietFirestoreRepository: BaiVietFirestoreRepository,
+    private val baiVietDao: BaiVietDao
 ) : ViewModel() {
 
     val dsBaiViet = repo.getAll()
@@ -82,13 +86,16 @@ class BaiVietViewModel @Inject constructor(
                     nguoiTaoId = current?.nguoiTaoId
                 )
 
-                repo.insert(baiViet)
+                //repo.insert(baiViet)
+                val newId = baiVietDao.insertAndReturnId(baiViet).toInt()
+                baiVietFirestoreRepository.pushBaiVietToCloud(baiViet.copy(id = newId))
                 onDone()
             } catch (e: Exception) {
                 onError("Lỗi: ${e.localizedMessage}")
             }
         }
     }
+
 
     fun loadBaiVietById(id: Int) {
         viewModelScope.launch {
@@ -105,4 +112,6 @@ class BaiVietViewModel @Inject constructor(
         }
         repo.delete(item)
     }
+
+
 }

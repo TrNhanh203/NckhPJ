@@ -20,7 +20,7 @@ class ChuyenMonRepository @Inject constructor(
     suspend fun update(chuyenMon: ChuyenMon) = chuyenMonDao.update(chuyenMon)
     suspend fun delete(chuyenMon: ChuyenMon) = chuyenMonDao.delete(chuyenMon)
 
-    suspend fun getAllChuyenMon(): List<ChuyenMon> {
+    fun getAllChuyenMon(): Flow<List<ChuyenMon>> {
         return chuyenMonDao.getAll()
     }
 

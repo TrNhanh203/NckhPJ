@@ -10,6 +10,7 @@ import javax.inject.Singleton
 class BienBanYeuCauRepository @Inject constructor(private val bienBanYeuCauDao: BienBanYeuCauDao) {
     fun getBienBanByYeuCau(yeuCauId: Int): Flow<List<BienBanYeuCau>> = bienBanYeuCauDao.getBienBanByYeuCau(yeuCauId)
 
+    fun getAll(): Flow<List<BienBanYeuCau>> = bienBanYeuCauDao.getAll()
     suspend fun insert(bienBanYeuCau: BienBanYeuCau) {
         bienBanYeuCauDao.insert(bienBanYeuCau)
     }

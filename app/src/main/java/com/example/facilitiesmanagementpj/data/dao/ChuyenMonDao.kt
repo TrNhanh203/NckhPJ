@@ -7,8 +7,10 @@ import com.example.facilitiesmanagementpj.data.entity.*
 // 9. ChuyenMonDao
 @Dao
 interface ChuyenMonDao {
+
     @Query("SELECT * FROM chuyen_mon")
-    suspend fun getAll(): List<ChuyenMon>
+    fun getAll(): Flow<List<ChuyenMon>>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chuyenMon: ChuyenMon)

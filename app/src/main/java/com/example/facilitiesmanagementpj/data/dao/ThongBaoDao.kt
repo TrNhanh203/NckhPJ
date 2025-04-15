@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ThongBaoDao {
+    @Query("SELECT * FROM thong_bao")
+    fun getAll(): Flow<List<ThongBao>>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(thongBao: ThongBao)
 

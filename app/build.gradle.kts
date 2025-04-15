@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.firebase:firebase-firestore:25.1.3")
+
     implementation("com.google.code.gson:gson:2.10.1")
 
     //data store
@@ -79,6 +81,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

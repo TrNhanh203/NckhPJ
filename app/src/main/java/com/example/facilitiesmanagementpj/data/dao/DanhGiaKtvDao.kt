@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DanhGiaKTVDao {
+    @Query("SELECT * FROM danh_gia_ktv")
+    fun getAll(): Flow<List<DanhGiaKTV>>
+
     @Query("SELECT * FROM danh_gia_ktv WHERE phanCongKtvId = :pcKtvId")
     fun getByPhanCongKtvId(pcKtvId: Int): Flow<List<DanhGiaKTV>>
 

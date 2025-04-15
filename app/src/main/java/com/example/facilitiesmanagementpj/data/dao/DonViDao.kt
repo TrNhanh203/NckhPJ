@@ -15,7 +15,7 @@ interface DonViDao {
     suspend fun getById(id: Int): DonVi?
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(donVi: DonVi)
 
     @Update

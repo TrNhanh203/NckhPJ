@@ -8,7 +8,11 @@ interface BienBanYeuCauDao {
     @Query("SELECT * FROM bien_ban_yeu_cau WHERE id = :yeuCauId")
     fun getBienBanByYeuCau(yeuCauId: Int): Flow<List<BienBanYeuCau>>
 
-    @Insert
+    @Query("SELECT * FROM bien_ban_yeu_cau")
+    fun getAll(): Flow<List<BienBanYeuCau>>
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(bienBanYeuCau: BienBanYeuCau)
 
     @Update

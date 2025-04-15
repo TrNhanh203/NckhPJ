@@ -45,7 +45,7 @@ class ChuyenMonViewModel @Inject constructor(
                 kyThuatVienId = kyThuatVien.id
             }
 
-            val all = chuyenMonRepo.getAllChuyenMon()
+            val all = chuyenMonRepo.getAllChuyenMon().first()
             val selected = if (kyThuatVienId != -1) {
                 chuyenMonRepo.getChuyenMonIdsByKtv(kyThuatVienId)
             } else emptyList()

@@ -16,6 +16,7 @@ import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,7 +46,7 @@ class ChonKyThuatVienViewModel @Inject constructor(
 
     private fun loadChuyenMon() {
         viewModelScope.launch {
-            allChuyenMon = chuyenMonRepo.getAllChuyenMon()
+            allChuyenMon = chuyenMonRepo.getAllChuyenMon().first()
         }
     }
 

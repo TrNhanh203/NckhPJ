@@ -64,11 +64,13 @@ import java.util.Locale
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.ui.viewmodel.MainViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BaiVietViewModel
 
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val mainViewModel: MainViewModel = hiltViewModel()
     val baiVietViewModel: BaiVietViewModel = hiltViewModel()
     var showExitDialog by remember { mutableStateOf(false) }
     val listBaiViet by baiVietViewModel.dsBaiViet.collectAsState()
@@ -108,6 +110,10 @@ fun HomeScreen(navController: NavController) {
                 .padding(16.dp)
                 .then(modifier),
         ) {
+            //push all dữ liệu lên firestore
+            //ManualPushScreen()
+
+
             //Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
             HeaderDateTimeBar() // 👈 đặt trên cùng
 
@@ -400,3 +406,28 @@ fun LocationCardDemo(
     }
 }
 
+@Composable
+fun ManualPushScreen(viewModel: MainViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    val status by viewModel.pushStatus
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = { viewModel.pushAllToCloudManually(context) }
+        ) {
+            Text("Đồng bộ dữ liệu lên Firestore")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        status?.let {
+            Text(it, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
