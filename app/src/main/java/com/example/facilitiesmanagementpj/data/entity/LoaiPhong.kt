@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "loai_phong")
 data class LoaiPhong(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenLoaiPhong: String
+    val tenLoaiPhong: String = ""
 )

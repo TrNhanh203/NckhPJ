@@ -14,9 +14,9 @@ import androidx.room.PrimaryKey
     ]
 )
 data class BienBanYeuCau(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val yeuCauId: Int,  // ✅ Mỗi biên bản gắn với 1 báo cáo sự cố
-    val ngayLap: Long,   // ✅ Thời gian lập biên bản (timestamp)
-    val noiDung: String, // ✅ Mô tả nội dung biên bản
-    val fileDinhKem: String? // ✅ Lưu đường dẫn file đính kèm (PDF, ảnh)
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val yeuCauId: Int = 0,
+    val ngayLap: Long = System.currentTimeMillis(),
+    val noiDung: String = "",
+    val fileDinhKem: String? = null
 )

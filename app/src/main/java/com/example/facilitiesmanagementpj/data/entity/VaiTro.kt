@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "vai_tro")
 data class VaiTro(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenVaiTro: String
+    val tenVaiTro: String = ""
 )

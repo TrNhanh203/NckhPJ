@@ -24,6 +24,7 @@ object AppModule {
         return context
     }
 
+
     @Provides
     @Singleton
 //    fun provideDatabase(@dagger.hilt.android.qualifiers.ApplicationContext context: Context): AppDatabase {

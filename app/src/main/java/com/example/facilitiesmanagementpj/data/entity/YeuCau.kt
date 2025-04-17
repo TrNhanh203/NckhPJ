@@ -9,9 +9,9 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 data class YeuCau(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val ngayYeuCau: Long = System.currentTimeMillis(),
-    val taiKhoanId: Int,
-    val trangThai: String = TrangThaiYeuCau.NHAP,
-    val donViId: Int,
-    val moTa: String = "" ,
+    val taiKhoanId: Int = 0,
+    val trangThai: String = "NHAP",
+    val donViId: Int = 0,
+    val moTa: String = "",
     val lyDoTuChoi: String? = null
 )

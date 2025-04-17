@@ -3,12 +3,12 @@ package com.example.facilitiesmanagementpj.data.entity
 
 
 data class ChiTietYeuCauWithThietBiAndLoaiThietBi(
-    val id: Int,
-    val yeuCauId: Int,
-    val thietBiId: Int?,
-    val loaiYeuCau: String, // ✅ Lắp đặt, bảo trì, sửa chữa...
-    val moTa: String,
-    val loaiThietBiId: Int?,
-    val tenLoaiThietBi: String?,
-    val tenThietBi: String
+    val id: Int = 0,
+    val yeuCauId: Int = 0,
+    val thietBiId: Int? = null,
+    val loaiYeuCau: String = "",
+    val moTa: String = "",
+    val loaiThietBiId: Int? = null,
+    val tenLoaiThietBi: String? = null,
+    val tenThietBi: String = ""
 )

@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "loai_thiet_bi")
 data class LoaiThietBi(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenLoai: String
+    val tenLoai: String = ""
 )

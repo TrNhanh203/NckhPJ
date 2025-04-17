@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "chuyen_mon")
 data class ChuyenMon(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenChuyenMon: String,
-    val moTa: String?
+    val tenChuyenMon: String = "",
+    val moTa: String? = null
 )

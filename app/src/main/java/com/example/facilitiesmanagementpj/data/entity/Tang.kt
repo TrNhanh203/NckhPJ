@@ -8,18 +8,12 @@ import androidx.room.PrimaryKey
 // 4. Bảng Tang
 @Entity(
     tableName = "tang",
-    foreignKeys = [
-        ForeignKey(
-            entity = Day::class,
-            parentColumns = ["id"],
-            childColumns = ["dayId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
+    foreignKeys = [ForeignKey(entity = Day::class, parentColumns = ["id"], childColumns = ["dayId"], onDelete = ForeignKey.CASCADE)],
     indices = [Index(value = ["dayId"])]
 )
 data class Tang(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenTang: String,
-    val dayId: Int
+    val tenTang: String = "",
+    val dayId: Int = 0
 )
+

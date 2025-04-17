@@ -111,11 +111,11 @@ fun HomeScreen(navController: NavController) {
                 .then(modifier),
         ) {
             //push all dữ liệu lên firestore
-            //ManualPushScreen()
+            ManualPushScreen()
 
 
             //Text("Nội dung màn hình chính", style = MaterialTheme.typography.headlineMedium)
-            HeaderDateTimeBar() // 👈 đặt trên cùng
+            HeaderDateTimeBar()
 
             Spacer(Modifier.height(8.dp))
             Text(

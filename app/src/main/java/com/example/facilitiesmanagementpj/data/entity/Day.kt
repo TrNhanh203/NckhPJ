@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "day")
 data class Day(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val tenDay: String
+    val tenDay: String = ""
 )
