@@ -2,6 +2,7 @@ package com.example.facilitiesmanagementpj.data.sync
 
 import SmartSyncManager
 import android.content.Context
+import com.example.facilitiesmanagementpj.data.dao.SyncMetadataDao
 import com.example.facilitiesmanagementpj.data.entity.AnhMinhChungBaoCao
 import com.example.facilitiesmanagementpj.data.entity.AnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.entity.BaiViet
@@ -32,7 +33,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FirestoreSyncCoordinator @Inject constructor(
-    private val context: Context,
+    private val syncMetadataDao: SyncMetadataDao,
     private val baiVietSync: BaseFirestoreSyncService<BaiViet>,
     private val thongBaoSync: BaseFirestoreSyncService<ThongBao>,
     private val yeuCauSync: BaseFirestoreSyncService<YeuCau>,
@@ -80,7 +81,7 @@ class FirestoreSyncCoordinator @Inject constructor(
 //        safeSync<DonVi>("don_vi") { donViSync.syncFromCloudToRoom() }
 //        safeSync<VaiTro>("vai_tro") { vaiTroSync.syncFromCloudToRoom() }
 //    }
-private val smartSyncManager = SmartSyncManager(context)
+private val smartSyncManager = SmartSyncManager(syncMetadataDao)
 suspend fun syncSmartAll() {
     smartSyncManager.syncSmartAll(
         baiVietSync,

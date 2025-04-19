@@ -89,4 +89,7 @@ INNER JOIN tang ON phong.tangId = tang.id
 
     @Delete
     suspend fun delete(thietBi: ThietBi)
+
+
+
 }

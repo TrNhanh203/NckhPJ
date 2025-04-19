@@ -10,22 +10,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class BaseFirestoreSyncService<T>(
-    private val collectionName: String,
+    val collectionName: String,
     private val clazz: Class<T>,
     private val dao: SyncableDao<T>
 ) {
     private val firestore = Firebase.firestore
 
-    //    fun syncFromCloudToRoom() {
-//        firestore.collection(collectionName).get()
-//            .addOnSuccessListener { snapshot ->
-//                val items = snapshot.toObjects(clazz)
-//                Log.d("SYNCFIRESTORE", "Đã sync từ Firestore về Room: ${items.size} items")
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    dao.insertAll(items)
-//                }
-//            }
-//    }
     suspend fun syncFromCloudToRoom(): List<T> {
         val snapshot = firestore.collection(collectionName).get().await()
         val items = snapshot.toObjects(clazz)
@@ -45,7 +35,7 @@ class BaseFirestoreSyncService<T>(
     }
 
 
-    fun pushToCloud(item: T, id: String) {
+    suspend fun pushToCloud(item: T, id: String) {
         val data = item as Any
         val map = Gson().fromJson(Gson().toJson(data), Map::class.java).toMutableMap()
         map["thoiGianCapNhat"] = System.currentTimeMillis()
@@ -53,15 +43,38 @@ class BaseFirestoreSyncService<T>(
         firestore.collection(collectionName)
             .document(id)
             .set(map)
+            .await()
+    }
+
+    suspend fun pushToCloud(item: T) {
+        val idField = item!!::class.members.find { it.name == "id" }
+        val idValue = idField?.call(item)?.toString() ?: throw IllegalStateException("Item must have an 'id' field")
+
+        val data = item as Any
+        val map = Gson().fromJson(Gson().toJson(data), Map::class.java).toMutableMap()
+        map["thoiGianCapNhat"] = System.currentTimeMillis()
+
+        firestore.collection(collectionName)
+            .document(idValue)
+            .set(map)
+            .await()
+
+                Log.d("SyncDebug", "Pushed successfully: $collectionName/$idValue")
+
+
     }
 
 
-    fun deleteFromCloud(id: String) {
+
+
+    suspend fun deleteFromCloud(id: String) {
         firestore.collection(collectionName)
             .document(id)
             .delete()
-            .addOnSuccessListener { Log.d("Sync", "Đã xoá $id khỏi Firestore") }
-            .addOnFailureListener { Log.e("Sync", "Lỗi xoá: ${it.message}") }
+            .await()
+
+            Log.d("Sync", "Đã xoá $id khỏi Firestore")
+
     }
 
 

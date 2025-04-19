@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -61,6 +62,7 @@ fun AdminDeviceListScreen(
     navController: NavController,
     viewModel: AdminDeviceListViewModel = hiltViewModel()
 ) {
+
     val thietBiList by viewModel.filteredThietBiList.collectAsState()
     val donViList by viewModel.donViList.collectAsState()
 

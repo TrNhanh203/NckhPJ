@@ -15,6 +15,9 @@ interface AnhMinhChungBaoCaoDao {
     @Query("DELETE FROM anh_minh_chung_bao_cao WHERE urlAnh = :path")
     suspend fun deleteByPath(path: String)
 
+    @Query("SELECT * FROM anh_minh_chung_bao_cao WHERE urlAnh = :path LIMIT 1")
+    suspend fun getByPath(path: String): AnhMinhChungBaoCao?
+
     @Query("SELECT * FROM anh_minh_chung_bao_cao")
     fun getAll(): Flow<List<AnhMinhChungBaoCao>>
 

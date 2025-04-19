@@ -8,6 +8,9 @@ import com.example.facilitiesmanagementpj.data.entity.*
 @Dao
 interface YeuCauDao {
 
+    @Query("DELETE FROM yeu_cau WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
     @Query("UPDATE yeu_cau SET trangThai = :trangThai WHERE id = :id")
     suspend fun updateTrangThai(id: Int, trangThai: String)
 

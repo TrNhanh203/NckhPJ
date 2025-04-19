@@ -33,8 +33,9 @@ fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hilt
 //        }// Điều hướng đến màn hình chính
 //    }
 
-    val isSyncing by remember { derivedStateOf { viewModel.isSyncing } }
 
+    //****** SYNC ALL KHI MO APP ********
+    val isSyncing by remember { derivedStateOf { viewModel.isSyncing } }
     LaunchedEffect(Unit) {
         viewModel.startSync()
     }
@@ -55,7 +56,7 @@ fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hilt
         if (isLoading) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo), // Đặt logo của bạn trong res/drawable
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "App Logo",
                     modifier = Modifier.size(300.dp)
                 )

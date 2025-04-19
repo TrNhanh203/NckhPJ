@@ -35,7 +35,7 @@ fun DonViDashboardScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Admin Dashboard", style = MaterialTheme.typography.headlineMedium)
+            Text("QLDV Dashboard", style = MaterialTheme.typography.headlineMedium)
 
             DashboardOption(
                 title = "Danh sách phòng",

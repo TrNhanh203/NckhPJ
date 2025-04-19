@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation ("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
+
     implementation ("com.google.firebase:firebase-firestore:25.1.3")
 
     implementation("com.google.code.gson:gson:2.10.1")

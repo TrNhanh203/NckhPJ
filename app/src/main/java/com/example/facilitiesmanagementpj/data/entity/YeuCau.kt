@@ -10,7 +10,7 @@ data class YeuCau(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val ngayYeuCau: Long = System.currentTimeMillis(),
     val taiKhoanId: Int = 0,
-    val trangThai: String = "NHAP",
+    var trangThai: String = "Bản Nháp",
     val donViId: Int = 0,
     val moTa: String = "",
     val lyDoTuChoi: String? = null

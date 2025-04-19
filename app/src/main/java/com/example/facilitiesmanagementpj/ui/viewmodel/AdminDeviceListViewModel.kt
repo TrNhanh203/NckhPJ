@@ -1,7 +1,9 @@
 package com.example.facilitiesmanagementpj.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.facilitiesmanagementpj.data.dao.ThietBiDao
 import com.example.facilitiesmanagementpj.data.dao.ThietBiWithDetails
 import com.example.facilitiesmanagementpj.data.entity.DonVi
 import com.example.facilitiesmanagementpj.data.repository.DonViRepository
@@ -20,8 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class AdminDeviceListViewModel @Inject constructor(
     private val thietBiRepository: ThietBiRepository,
-    private val donViRepository: DonViRepository
+    private val donViRepository: DonViRepository,
+    private val thietBiDao: ThietBiDao
 ) : ViewModel() {
+
+
+
 
     val donViList: StateFlow<List<DonVi>> = donViRepository.getAllDonVi()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

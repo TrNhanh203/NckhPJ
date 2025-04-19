@@ -1,11 +1,14 @@
 package com.example.facilitiesmanagementpj.data.sync
 
+import android.util.Log
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class FirestorePushManager @Inject constructor(
+    private val syncMetadataDao: SyncMetadataDao,
     private val baiVietDao: BaiVietDao,
     private val thongBaoDao: ThongBaoDao,
     private val yeuCauDao: YeuCauDao,
@@ -50,30 +53,78 @@ class FirestorePushManager @Inject constructor(
     private val anhMinhChungBaoCaoSync: BaseFirestoreSyncService<AnhMinhChungBaoCao>,
     private val anhMinhChungLamViecSync: BaseFirestoreSyncService<AnhMinhChungLamViec>,
     private val donViSync: BaseFirestoreSyncService<DonVi>,
-    private val vaiTroSync: BaseFirestoreSyncService<VaiTro>
+    private val vaiTroSync: BaseFirestoreSyncService<VaiTro>,
 ) {
     suspend fun pushAllToCloud() {
-        baiVietDao.getAll().first().forEach { baiVietSync.pushToCloud(it, it.id.toString()) }
-        thongBaoDao.getAll().first().forEach { thongBaoSync.pushToCloud(it, it.id) }
-        yeuCauDao.getAll().first().forEach { yeuCauSync.pushToCloud(it, it.id.toString()) }
-        phanCongDao.getAll().first().forEach { phanCongSync.pushToCloud(it, it.id.toString()) }
-        phanCongKtvDao.getAll().first().forEach { phanCongKtvSync.pushToCloud(it, it.id.toString()) }
-        taiKhoanDao.getAll().first().forEach { taiKhoanSync.pushToCloud(it, it.id.toString()) }
-        kyThuatVienDao.getAll().first().forEach { kyThuatVienSync.pushToCloud(it, it.id.toString()) }
-        thietBiDao.getAll().first().forEach { thietBiSync.pushToCloud(it, it.id.toString()) }
-        phongDao.getAll().first().forEach { phongSync.pushToCloud(it, it.id.toString()) }
-        tangDao.getAll().first().forEach { tangSync.pushToCloud(it, it.id.toString()) }
-        dayDao.getAll().first().forEach { daySync.pushToCloud(it, it.id.toString()) }
-        loaiPhongDao.getAll().first().forEach { loaiPhongSync.pushToCloud(it, it.id.toString()) }
-        loaiThietBiDao.getAll().first().forEach { loaiThietBiSync.pushToCloud(it, it.id.toString()) }
-        chuyenMonDao.getAll().first().forEach { chuyenMonSync.pushToCloud(it, it.id.toString()) }
-        chuyenMonKtvDao.getAll().first().forEach { chuyenMonKtvSync.pushToCloud(it, it.id.toString()) }
-        danhGiaKtvDao.getAll().first().forEach { danhGiaKtvSync.pushToCloud(it, it.id.toString()) }
-        bienBanYeuCauDao.getAll().first().forEach { bienBanYeuCauSync.pushToCloud(it, it.id.toString()) }
-        chiTietYeuCauDao.getAll().first().forEach { chiTietYeuCauSync.pushToCloud(it, it.id.toString()) }
-        anhMinhChungBaoCaoDao.getAll().first().forEach { anhMinhChungBaoCaoSync.pushToCloud(it, it.id.toString()) }
-        anhMinhChungLamViecDao.getAll().first().forEach { anhMinhChungLamViecSync.pushToCloud(it, it.id.toString()) }
-        donViDao.getAll().first().forEach { donViSync.pushToCloud(it, it.id.toString()) }
-        vaiTroDao.getAll().first().forEach { vaiTroSync.pushToCloud(it, it.id.toString()) }
+        Log.d("PUSH_ALL", "🚀 Bắt đầu push toàn bộ dữ liệu lên Firestore")
+
+        val startTime = System.currentTimeMillis()
+
+        val pushList = listOf(
+            "BaiViet" to baiVietDao.getAll().first(),
+            "ThongBao" to thongBaoDao.getAll().first(),
+            "YeuCau" to yeuCauDao.getAll().first(),
+            "PhanCong" to phanCongDao.getAll().first(),
+            "PhanCongKtv" to phanCongKtvDao.getAll().first(),
+            "TaiKhoan" to taiKhoanDao.getAll().first(),
+            "KyThuatVien" to kyThuatVienDao.getAll().first(),
+            "ThietBi" to thietBiDao.getAll().first(),
+            "Phong" to phongDao.getAll().first(),
+            "Tang" to tangDao.getAll().first(),
+            "Day" to dayDao.getAll().first(),
+            "LoaiPhong" to loaiPhongDao.getAll().first(),
+            "LoaiThietBi" to loaiThietBiDao.getAll().first(),
+            "ChuyenMon" to chuyenMonDao.getAll().first(),
+            "ChuyenMonKtv" to chuyenMonKtvDao.getAll().first(),
+            "DanhGiaKTV" to danhGiaKtvDao.getAll().first(),
+            "BienBanYeuCau" to bienBanYeuCauDao.getAll().first(),
+            "ChiTietYeuCau" to chiTietYeuCauDao.getAll().first(),
+            "AnhMinhChungBaoCao" to anhMinhChungBaoCaoDao.getAll().first(),
+            "AnhMinhChungLamViec" to anhMinhChungLamViecDao.getAll().first(),
+            "DonVi" to donViDao.getAll().first(),
+            "VaiTro" to vaiTroDao.getAll().first()
+        )
+
+        for ((name, list) in pushList) {
+            for (item in list) {
+                when (item) {
+                    is BaiViet -> baiVietSync.pushToCloud(item, item.id.toString())
+                    is ThongBao -> thongBaoSync.pushToCloud(item, item.id)
+                    is YeuCau -> yeuCauSync.pushToCloud(item, item.id.toString())
+                    is PhanCong -> phanCongSync.pushToCloud(item, item.id.toString())
+                    is PhanCongKtv -> phanCongKtvSync.pushToCloud(item, item.id.toString())
+                    is TaiKhoan -> taiKhoanSync.pushToCloud(item, item.id.toString())
+                    is KyThuatVien -> kyThuatVienSync.pushToCloud(item, item.id.toString())
+                    is ThietBi -> thietBiSync.pushToCloud(item, item.id.toString())
+                    is Phong -> phongSync.pushToCloud(item, item.id.toString())
+                    is Tang -> tangSync.pushToCloud(item, item.id.toString())
+                    is Day -> daySync.pushToCloud(item, item.id.toString())
+                    is LoaiPhong -> loaiPhongSync.pushToCloud(item, item.id.toString())
+                    is LoaiThietBi -> loaiThietBiSync.pushToCloud(item, item.id.toString())
+                    is ChuyenMon -> chuyenMonSync.pushToCloud(item, item.id.toString())
+                    is ChuyenMonKtv -> chuyenMonKtvSync.pushToCloud(item, item.id.toString())
+                    is DanhGiaKTV -> danhGiaKtvSync.pushToCloud(item, item.id.toString())
+                    is BienBanYeuCau -> bienBanYeuCauSync.pushToCloud(item, item.id.toString())
+                    is ChiTietYeuCau -> chiTietYeuCauSync.pushToCloud(item, item.id.toString())
+                    is AnhMinhChungBaoCao -> anhMinhChungBaoCaoSync.pushToCloud(item, item.id.toString())
+                    is AnhMinhChungLamViec -> anhMinhChungLamViecSync.pushToCloud(item, item.id.toString())
+                    is DonVi -> donViSync.pushToCloud(item, item.id.toString())
+                    is VaiTro -> vaiTroSync.pushToCloud(item, item.id.toString())
+                }
+            }
+            Log.d("PUSH_ALL", "✅ Đã push ${list.size} bản ghi cho bảng $name")
+        }
+
+        val totalTime = System.currentTimeMillis() - startTime
+        Log.d("PUSH_ALL", "🏁 Hoàn tất push toàn bộ! Thời gian: ${totalTime}ms")
     }
+
+
+    // Hàm helper: Push và cập nhật sync time
+    private suspend fun pushAndUpdate(collectionName: String, block: suspend () -> Unit) {
+        block()
+        syncMetadataDao.updateSyncTime(collectionName, System.currentTimeMillis())
+    }
+
+
 }

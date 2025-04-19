@@ -36,7 +36,7 @@ object AppModule {
             context.applicationContext,
             AppDatabase::class.java,
             "app_database"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
             .build()
         //return AppDatabase.getDatabase(context)
     }
@@ -156,6 +156,23 @@ object AppModule {
         }
     }
 
+    val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS sync_metadata (
+                collectionName TEXT NOT NULL PRIMARY KEY,
+                lastSyncTime INTEGER NOT NULL
+            )
+            """.trimIndent()
+            )
+        }
+    }
+
+
+
+    @Provides
+    fun provideSyncMetadataDao(database: AppDatabase): SyncMetadataDao = database.syncMetadataDao()
 
     @Provides
     fun provideThongBaoDao(database: AppDatabase): ThongBaoDao = database.thongBaoDao()

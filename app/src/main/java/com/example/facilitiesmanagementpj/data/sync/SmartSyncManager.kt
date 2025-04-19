@@ -5,10 +5,10 @@ import com.example.facilitiesmanagementpj.data.sync.BaseFirestoreSyncService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.content.edit
+import com.example.facilitiesmanagementpj.data.dao.SyncMetadataDao
 
-class SmartSyncManager(private val context: Context) {
+class SmartSyncManager(private val syncMetadataDao: SyncMetadataDao) {
 
-    private val prefs = context.getSharedPreferences("sync_prefs", Context.MODE_PRIVATE)
 
     suspend fun <T> smartSync(
         name: String,
@@ -16,11 +16,11 @@ class SmartSyncManager(private val context: Context) {
     ): Int {
         return withContext(Dispatchers.IO) {
             try {
-                val lastSync = prefs.getLong("last_sync_$name", 0L)
+                val lastSync = syncMetadataDao.getLastSyncTime(name) ?: 0L
                 Log.d("SMART_SYNC", "▶️ Sync $name từ $lastSync")
                 val items = syncService.syncUpdatedOnly(lastSync)
                 Log.d("SMART_SYNC", "✅ Đã sync $name: ${items.size} bản ghi mới")
-                prefs.edit() { putLong("last_sync_$name", System.currentTimeMillis()).apply() }
+                syncMetadataDao.updateSyncTime(name, System.currentTimeMillis())
                 items.size
             } catch (e: Exception) {
                 Log.e("SMART_SYNC", "❌ Lỗi khi sync $name", e)
@@ -36,11 +36,11 @@ class SmartSyncManager(private val context: Context) {
         for ((name, service) in services) {
             val count = withContext(Dispatchers.IO) {
                 try {
-                    val lastSync = prefs.getLong("last_sync_$name", 0L)
+                    val lastSync = syncMetadataDao.getLastSyncTime(name) ?: 0L
                     Log.d("SMART_SYNC", "▶️ Sync $name từ $lastSync")
                     val items = service.syncUpdatedOnly(lastSync)
                     Log.d("SMART_SYNC", "✅ Đã sync $name: ${items.size} bản ghi mới")
-                    prefs.edit() { putLong("last_sync_$name", System.currentTimeMillis()).apply() }
+                    syncMetadataDao.insertOrUpdate(SyncMetadata(collectionName = name, lastSyncTime = System.currentTimeMillis()))
                     items.size
                 } catch (e: Exception) {
                     Log.e("SMART_SYNC", "❌ Lỗi khi sync $name", e)

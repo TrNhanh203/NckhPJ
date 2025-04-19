@@ -1,5 +1,7 @@
 package com.example.facilitiesmanagementpj.di
 
+import SmartSyncManager
+import android.content.Context
 import com.example.facilitiesmanagementpj.data.dao.*
 import com.example.facilitiesmanagementpj.data.entity.*
 import com.example.facilitiesmanagementpj.data.sync.BaseFirestoreSyncService
