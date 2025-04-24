@@ -79,13 +79,13 @@ class YeuCauRepository @Inject constructor(
         try {
             withContext(NonCancellable) {
                 Log.d("insertAnhMinhChung", "Attempting to insert: chiTietBaoCaoId=$chiTietBaoCaoId, url=$url, type=$type")
-                val existingRecords = anhMinhChungBaoCaoDao.getAll().firstOrNull()
-                val existingRecord = existingRecords?.firstOrNull { it.urlAnh == url }
+                val existingRecord = anhMinhChungBaoCaoDao.getByPath(url)
                 if (existingRecord == null) {
                     val anhMinhChung = AnhMinhChungBaoCao(chiTietBaoCaoId = chiTietBaoCaoId, urlAnh = url, type = type)
-                    anhMinhChungBaoCaoDao.insert(anhMinhChung)
+                    val id = anhMinhChungBaoCaoDao.insertAndReturnId(anhMinhChung)
+                    val anhMinhChungWithId = anhMinhChung.copy(id = id.toInt())
 
-                    SyncDispatcher.dispatch( anhMinhBaoCaoSyncService, anhMinhChung, SyncDispatcher.SyncType.INSERT)
+                    SyncDispatcher.dispatch( anhMinhBaoCaoSyncService, anhMinhChungWithId, SyncDispatcher.SyncType.INSERT)
                     Log.d("insertAnhMinhChung", "Insertion successful: $anhMinhChung")
                 } else {
                     Log.d("insertAnhMinhChung", "Record already exists: $existingRecord")
@@ -96,7 +96,14 @@ class YeuCauRepository @Inject constructor(
         }
     }
 
+    @OptIn(UnstableApi::class)
     suspend fun deleteYeuCauWithDetails(yeuCauId: Int) {
+        val yeuCau = yeuCauDao.getById(yeuCauId)
+
+        if (yeuCau == null || yeuCau.trangThai != TrangThaiYeuCau.NHAP) {
+            Log.w("YeuCauRepo", "❌ Không được phép xóa yêu cầu trạng thái ${yeuCau?.trangThai}")
+            return
+        }
         val chiTietYeuCauList = chiTietYeuCauDao.getChiTietYeuCauByYeuCau(yeuCauId).firstOrNull()
         chiTietYeuCauList?.forEach { chiTietYeuCau ->
             val images = anhMinhChungBaoCaoDao.getImagesByChiTietBaoCaoId(chiTietYeuCau.id)
@@ -151,29 +158,7 @@ class YeuCauRepository @Inject constructor(
         return newId
 
     }
-    suspend fun deleteYeuCau(yeuCauId: Int) {
-        // 1. Lấy toàn bộ chi tiết liên quan trước khi xóa trong Room
-        val chiTietList = chiTietYeuCauDao.getByYeuCauId(yeuCauId)
 
-        // 2. Xoá từng chi tiết yêu cầu trên Firestore
-        chiTietList.forEach { chiTiet ->
-            chiTietYeuCauSyncService.deleteFromCloud(chiTiet.id.toString())
-        }
-
-        // 3. Xoá chi tiết trong Room
-        chiTietYeuCauDao.deleteByYeuCauId(yeuCauId)
-
-        // 4. Lấy yeuCau cần xóa
-        val yeuCau = yeuCauDao.getById(yeuCauId)
-
-        // 5. Xoá yeuCau document Firestore
-        yeuCau?.let {
-            yeuCauSyncService.deleteFromCloud(it.id.toString())
-        }
-
-        // 6. Xoá yeuCau trong Room
-        yeuCauDao.deleteYeuCau(yeuCauId)
-    }
     suspend fun removeChiTietYeuCau(chiTietId: Int) {
         val chiTietYeuCau = chiTietYeuCauDao.getChiTietYeuCauByChiTietId(chiTietId)
 

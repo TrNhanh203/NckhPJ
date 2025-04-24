@@ -126,7 +126,7 @@ private fun startListening(lastSyncTime: Long) {
                 for (change in snapshots.documentChanges) {
                     when (change.type) {
                         DocumentChange.Type.REMOVED -> {
-                            // 🚩 Với REMOVE thì cứ xử lý luôn
+                            //  Với REMOVE thì cứ xử lý luôn
                             val id = change.document.getLong("id")?.toInt()
                             if (id != null) {
                                 Log.d("RealtimeSync", "Change detected: REMOVED - id=$id")

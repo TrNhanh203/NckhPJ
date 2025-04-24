@@ -31,6 +31,20 @@ class QLDVDanhSachYeuCauViewModel @Inject constructor(
     private val _selectedTrangThai = MutableStateFlow<String?>(null)
     val selectedTrangThai: StateFlow<String?> = _selectedTrangThai
 
+    fun observeYeuCauByDonVi(donViId: Int) {
+        viewModelScope.launch {
+            repository.getYeuCauByDonVi(donViId).collect { danhSach ->
+                _yeuCauList.value = danhSach
+
+                // Giữ nguyên việc cập nhật trạng thái
+                danhSach.map { yeuCau ->
+                    async { repository.capNhatTrangThaiYeuCau(yeuCau.id) }
+                }.awaitAll()
+            }
+        }
+    }
+
+
     fun loadYeuCauList(donViId: Int) {
         viewModelScope.launch {
             val danhSach = repository.getAllYeuCauTruNhapOnce()

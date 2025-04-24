@@ -42,16 +42,27 @@ class AdminRequestListViewModel @Inject constructor(
     }
 
     fun loadYeuCauList() {
+//        viewModelScope.launch {
+//            val danhSach = yeuCauRepository.getAllYeuCauTruNhapOnce()
+//            danhSach.map { yeuCau ->
+//                async { yeuCauRepository.capNhatTrangThaiYeuCau(yeuCau.id) }
+//            }.awaitAll()
+//
+//            yeuCauRepository.getAllYeuCauTruNhap().collect {
+//                _yeuCauList.value = it
+//            }
+//        }
         viewModelScope.launch {
-            val danhSach = yeuCauRepository.getAllYeuCauTruNhapOnce()
-            danhSach.map { yeuCau ->
-                async { yeuCauRepository.capNhatTrangThaiYeuCau(yeuCau.id) }
-            }.awaitAll()
-
-            yeuCauRepository.getAllYeuCauTruNhap().collect {
-                _yeuCauList.value = it
+            yeuCauRepository.getAllYeuCauTruNhap().collect { list ->
+                list.map { yeuCau ->
+                    launch {
+                        yeuCauRepository.capNhatTrangThaiYeuCau(yeuCau.id)
+                    }
+                }
+                _yeuCauList.value = list
             }
         }
+
     }
 
     fun loadDonViList() {

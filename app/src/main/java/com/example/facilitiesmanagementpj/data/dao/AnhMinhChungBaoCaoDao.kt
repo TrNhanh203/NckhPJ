@@ -30,6 +30,10 @@ interface AnhMinhChungBaoCaoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(anhMinhChung: AnhMinhChungBaoCao)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(anhMinhChung: AnhMinhChungBaoCao): Long
+
+
     @Update
     suspend fun update(anhMinhChung: AnhMinhChungBaoCao)
 

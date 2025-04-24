@@ -23,7 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel()) {
     var isLoading by remember { mutableStateOf(true) }
 
-//    // Giả lập xử lý dữ liệu trong 3 giây
+    // Giả lập xử lý dữ liệu trong 3 giây
 //    LaunchedEffect(Unit) {
 //        delay(2000) // Đợi 2 giây
 //        isLoading = false

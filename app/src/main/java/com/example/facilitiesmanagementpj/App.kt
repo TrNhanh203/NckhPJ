@@ -43,6 +43,7 @@ class App : Application() {
             "app_database"
         ).build()
 
+
         realtimeSyncManager = FirestoreRealtimeSyncManager(
             firestore = FirebaseFirestore.getInstance(),
             yeuCauDao = database.yeuCauDao(),

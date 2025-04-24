@@ -33,9 +33,16 @@ fun DanhSachYeuCauScreen(navController: NavController, viewModel: QLDVDanhSachYe
     var showDialog by remember { mutableStateOf(false) }
     var selectedYeuCau by remember { mutableStateOf<YeuCau?>(null) }
 
+//    LaunchedEffect(currentUser) {
+//        viewModel.loadYeuCauList(donViId)
+//    }
+
     LaunchedEffect(currentUser) {
-        viewModel.loadYeuCauList(donViId)
+        currentUser?.donViId?.let { donViId ->
+            viewModel.observeYeuCauByDonVi(donViId)
+        }
     }
+
 
     if (showDialog && selectedYeuCau != null) {
         AlertDialog(
