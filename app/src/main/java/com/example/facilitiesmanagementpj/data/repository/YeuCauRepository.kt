@@ -253,8 +253,20 @@ class YeuCauRepository @Inject constructor(
     }
 
 
-    suspend fun insert(yeuCau: YeuCau) = yeuCauDao.insert(yeuCau)
-    suspend fun update(yeuCau: YeuCau) = yeuCauDao.update(yeuCau)
-    suspend fun delete(yeuCau: YeuCau) = yeuCauDao.delete(yeuCau)
+    suspend fun insert(yeuCau: YeuCau) {
+        yeuCauDao.insert(yeuCau)
+        SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.INSERT)
+    }
+
+    suspend fun update(yeuCau: YeuCau) {
+        yeuCauDao.update(yeuCau)
+        SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.UPDATE)
+    }
+
+    suspend fun delete(yeuCau: YeuCau) {
+        yeuCauDao.delete(yeuCau)
+        SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.DELETE)
+    }
+
 }
 

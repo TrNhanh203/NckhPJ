@@ -33,10 +33,6 @@ class BaiVietFirestoreRepository @Inject constructor(){
             }
     }
 
-    fun syncAllBaiViet(list: List<BaiViet>) {
-        list.forEach { baiViet ->
-            pushBaiVietToCloud(baiViet)
-        }
-    }
+
 
 }

@@ -23,8 +23,6 @@ import javax.inject.Inject
 @HiltViewModel
 class BaiVietViewModel @Inject constructor(
     private val repo: BaiVietRepository,
-    private val baiVietFirestoreRepository: BaiVietFirestoreRepository,
-    private val baiVietDao: BaiVietDao
 ) : ViewModel() {
 
     val dsBaiViet = repo.getAll()
@@ -76,6 +74,20 @@ class BaiVietViewModel @Inject constructor(
                 }
 
                 // Lưu vào Room
+//                val baiViet = BaiViet(
+//                    id = current?.id ?: 0,
+//                    tieuDe = tieuDe,
+//                    moTa = moTa,
+//                    anhDaiDien = finalImageUrl,
+//                    link = link?.takeIf { it.isNotBlank() },
+//                    noiDungHtml = null,
+//                    nguoiTaoId = current?.nguoiTaoId
+//                )
+//
+//                //repo.insert(baiViet)
+//                val newId = baiVietDao.insertAndReturnId(baiViet).toInt()
+//                baiVietFirestoreRepository.pushBaiVietToCloud(baiViet.copy(id = newId))
+//                onDone()
                 val baiViet = BaiViet(
                     id = current?.id ?: 0,
                     tieuDe = tieuDe,
@@ -86,10 +98,15 @@ class BaiVietViewModel @Inject constructor(
                     nguoiTaoId = current?.nguoiTaoId
                 )
 
-                //repo.insert(baiViet)
-                val newId = baiVietDao.insertAndReturnId(baiViet).toInt()
-                baiVietFirestoreRepository.pushBaiVietToCloud(baiViet.copy(id = newId))
+                if (current == null || current.id == 0) {
+                    // Nếu là bài viết mới → để id = 0, Room sẽ tự sinh ID
+                    repo.insert(baiViet)
+                } else {
+                    // Nếu đang chỉnh sửa → giữ lại ID cũ
+                    repo.insert(baiViet.copy(id = current.id))
+                }
                 onDone()
+
             } catch (e: Exception) {
                 onError("Lỗi: ${e.localizedMessage}")
             }
