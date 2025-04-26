@@ -15,6 +15,9 @@ interface ChuyenMonDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chuyenMon: ChuyenMon)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: ChuyenMon): Long
+
     @Update
     suspend fun update(chuyenMon: ChuyenMon)
 

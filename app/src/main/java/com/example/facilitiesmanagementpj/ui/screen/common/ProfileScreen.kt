@@ -37,13 +37,14 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
         return
     }
 
-    ScaffoldLayout(title = "Trang chủ", navController = navController, showBottomBar = true) { modifier ->
+    ScaffoldLayout(title = "Hồ sơ", navController = navController, showBottomBar = true) { modifier ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .then(modifier)
+
                 .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(horizontal = 24.dp),
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .then(modifier),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {

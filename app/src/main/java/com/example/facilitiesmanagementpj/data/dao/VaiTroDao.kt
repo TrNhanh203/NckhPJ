@@ -12,6 +12,9 @@ interface VaiTroDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(vaiTro: VaiTro)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: VaiTro): Long
+
     @Update
     suspend fun update(vaiTro: VaiTro)
 

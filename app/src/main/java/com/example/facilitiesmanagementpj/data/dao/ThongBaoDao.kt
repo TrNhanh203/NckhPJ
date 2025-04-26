@@ -24,4 +24,7 @@ interface ThongBaoDao {
 
     @Query("DELETE FROM thong_bao WHERE id = :id")
     suspend fun delete(id: String)
+
+    @Query("DELETE FROM thong_bao WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

@@ -22,4 +22,7 @@ interface DanhGiaKTVDao {
 
     @Query("SELECT AVG(diem) FROM danh_gia_ktv WHERE phanCongKtvId = :pcKtvId")
     suspend fun getAverageRating(pcKtvId: Int): Float?
+
+    @Query("DELETE FROM danh_gia_ktv WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

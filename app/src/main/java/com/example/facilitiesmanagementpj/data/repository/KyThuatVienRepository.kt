@@ -85,10 +85,17 @@ class KyThuatVienRepository @Inject constructor(
 
     fun getAllKyThuatVien(): Flow<List<KyThuatVien>> = kyThuatVienDao.getAll()
 
-    suspend fun insert(ktv: KyThuatVien) {
-        kyThuatVienDao.insert(ktv)
-        SyncDispatcher.dispatch(syncService, ktv, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(ktv: KyThuatVien) {
+//        kyThuatVienDao.insert(ktv)
+//        SyncDispatcher.dispatch(syncService, ktv, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: KyThuatVien) {
+        val id = kyThuatVienDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(ktv: KyThuatVien) {
         kyThuatVienDao.update(ktv)

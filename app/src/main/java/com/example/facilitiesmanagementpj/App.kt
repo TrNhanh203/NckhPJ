@@ -47,8 +47,22 @@ class App : Application() {
         realtimeSyncManager = FirestoreRealtimeSyncManager(
             firestore = FirebaseFirestore.getInstance(),
             yeuCauDao = database.yeuCauDao(),
-            syncMetadataDao = database.syncMetadataDao()
-        )
+            syncMetadataDao = database.syncMetadataDao(),
+
+            phanCongDao = database.phanCongDao(),
+            phanCongKtvDao = database.phanCongKTVDao(),
+            thietBiDao = database.thietBiDao(),
+            kyThuatVienDao = database.kyThuatVienDao(),
+            baiVietDao = database.baiVietDao(),
+            thongBaoDao = database.thongBaoDao(),
+            danhGiaKtvDao = database.danhGiaKTVDao(),
+            taiKhoanDao = database.taiKhoanDao(),
+            anhMinhChungBaoCaoDao = database.anhMinhChungBaoCaoDao(),
+            anhMinhChungLamViecDao = database.anhMinhChungLamViecDao(),
+            chiTietYeuCauDao = database.chiTietYeuCauDao(),
+
+
+            )
 
         realtimeSyncManager.startAllListeners()
     }

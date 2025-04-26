@@ -28,10 +28,17 @@ class LoaiThietBiRepository @Inject constructor(
 
     fun getAllLoaiThietBi(): Flow<List<LoaiThietBi>> = loaiThietBiDao.getAll()
 
+//    suspend fun insert(loaiThietBi: LoaiThietBi) {
+//        loaiThietBiDao.insert(loaiThietBi)
+//        SyncDispatcher.dispatch(syncService, loaiThietBi, SyncDispatcher.SyncType.INSERT)
+//    }
+
     suspend fun insert(loaiThietBi: LoaiThietBi) {
-        loaiThietBiDao.insert(loaiThietBi)
-        SyncDispatcher.dispatch(syncService, loaiThietBi, SyncDispatcher.SyncType.INSERT)
+        val id = loaiThietBiDao.insertAndReturnId(loaiThietBi).toInt()
+        val updated = loaiThietBi.copy(id = id)
+        SyncDispatcher.dispatch(syncService, updated, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(loaiThietBi: LoaiThietBi) {
         loaiThietBiDao.update(loaiThietBi)

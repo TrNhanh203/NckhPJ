@@ -33,10 +33,17 @@ class AnhMinhChungLamViecRepository @Inject constructor(
     fun getAllAnhMinhChungLamViec(): Flow<List<AnhMinhChungLamViec>> =
         anhMinhChungLamViecDao.getAll()
 
+//    suspend fun insert(anh: AnhMinhChungLamViec) {
+//        anhMinhChungLamViecDao.insert(anh)
+//        SyncDispatcher.dispatch(syncService, anh, SyncDispatcher.SyncType.INSERT)
+//    }
+
     suspend fun insert(anh: AnhMinhChungLamViec) {
-        anhMinhChungLamViecDao.insert(anh)
-        SyncDispatcher.dispatch(syncService, anh, SyncDispatcher.SyncType.INSERT)
+        val id = anhMinhChungLamViecDao.insertAndReturnId(anh).toInt()
+        val anhWithId = anh.copy(id = id)
+        SyncDispatcher.dispatch(syncService, anhWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(anh: AnhMinhChungLamViec) {
         anhMinhChungLamViecDao.update(anh)

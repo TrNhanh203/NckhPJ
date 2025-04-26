@@ -23,10 +23,17 @@ class LoaiPhongRepository @Inject constructor(
 ) {
     fun getAllLoaiPhong(): Flow<List<LoaiPhong>> = loaiPhongDao.getAll()
 
-    suspend fun insert(loaiPhong: LoaiPhong) {
-        loaiPhongDao.insert(loaiPhong)
-        SyncDispatcher.dispatch(syncService, loaiPhong, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(loaiPhong: LoaiPhong) {
+//        loaiPhongDao.insert(loaiPhong)
+//        SyncDispatcher.dispatch(syncService, loaiPhong, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: LoaiPhong) {
+        val id = loaiPhongDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(loaiPhong: LoaiPhong) {
         loaiPhongDao.update(loaiPhong)

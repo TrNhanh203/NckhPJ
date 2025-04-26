@@ -24,10 +24,17 @@ class VaiTroRepository @Inject constructor(
 ) {
     fun getAllVaiTro(): Flow<List<VaiTro>> = vaiTroDao.getAll()
 
-    suspend fun insert(vaiTro: VaiTro) {
-        vaiTroDao.insert(vaiTro)
-        SyncDispatcher.dispatch(syncService, vaiTro, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(vaiTro: VaiTro) {
+//        vaiTroDao.insert(vaiTro)
+//        SyncDispatcher.dispatch(syncService, vaiTro, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: VaiTro) {
+        val id = vaiTroDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(vaiTro: VaiTro) {
         vaiTroDao.update(vaiTro)

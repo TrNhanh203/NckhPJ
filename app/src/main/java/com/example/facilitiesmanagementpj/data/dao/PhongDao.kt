@@ -41,6 +41,9 @@ interface PhongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(phong: Phong)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: Phong): Long
+
     @Update
     suspend fun update(phong: Phong)
 

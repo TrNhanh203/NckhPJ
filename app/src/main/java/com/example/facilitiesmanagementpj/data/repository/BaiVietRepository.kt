@@ -37,10 +37,17 @@ class BaiVietRepository @Inject constructor(
 ) {
     fun getAll(): Flow<List<BaiViet>> = baiVietDao.getAll()
 
+//    suspend fun insert(baiViet: BaiViet) {
+//        baiVietDao.insert(baiViet)
+//        SyncDispatcher.dispatch(syncService, baiViet, SyncDispatcher.SyncType.INSERT)
+//    }
+
     suspend fun insert(baiViet: BaiViet) {
-        baiVietDao.insert(baiViet)
-        SyncDispatcher.dispatch(syncService, baiViet, SyncDispatcher.SyncType.INSERT)
+        val id = baiVietDao.insertAndReturnId(baiViet).toInt()
+        val baiVietWithId = baiViet.copy(id = id)
+        SyncDispatcher.dispatch(syncService, baiVietWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun delete(baiViet: BaiViet) {
         baiVietDao.delete(baiViet)

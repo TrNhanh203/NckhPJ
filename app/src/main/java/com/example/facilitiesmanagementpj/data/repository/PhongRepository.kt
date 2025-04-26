@@ -63,10 +63,17 @@ class PhongRepository @Inject constructor(
 
     fun getAllPhong(): Flow<List<Phong>> = phongDao.getAll()
 
-    suspend fun insert(phong: Phong) {
-        phongDao.insert(phong)
-        SyncDispatcher.dispatch(syncService, phong, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(phong: Phong) {
+//        phongDao.insert(phong)
+//        SyncDispatcher.dispatch(syncService, phong, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: Phong) {
+        val id = phongDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(phong: Phong) {
         phongDao.update(phong)

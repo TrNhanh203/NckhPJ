@@ -17,6 +17,10 @@ interface LoaiThietBiDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(loaiThietBi: LoaiThietBi)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: LoaiThietBi): Long
+
+
     @Update
     suspend fun update(loaiThietBi: LoaiThietBi)
 

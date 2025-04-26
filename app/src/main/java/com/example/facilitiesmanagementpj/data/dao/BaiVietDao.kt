@@ -22,6 +22,9 @@ interface BaiVietDao {
     @Delete
     suspend fun delete(baiViet: BaiViet)
 
+    @Query("DELETE FROM bai_viet WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
     @Query("DELETE FROM bai_viet")
     suspend fun deleteAll()
 }

@@ -20,7 +20,7 @@ fun QLDVThietBiTheoPhongScreen(navController: NavController, phongId: Int, viewM
     LaunchedEffect(phongId) {
         viewModel.loadThietBiListByPhong(phongId)
     }
-    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Yêu Cầu", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
+    com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout("Danh Sách Thiết Bị", navController, showTopBar = true,showBottomBar = false,showDrawer = false)
     { modifier ->
         Column(modifier = Modifier.fillMaxSize().padding(16.dp).then(modifier)) {
             Text("Danh sách thiết bị trong phòng", style = MaterialTheme.typography.headlineMedium)

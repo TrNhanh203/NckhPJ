@@ -38,6 +38,10 @@ interface PhanCongDao {
     suspend fun insert(phanCong: PhanCong)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: PhanCong): Long
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAndGetId(phanCong: PhanCong): Long
 
     @Query("SELECT * FROM phan_cong WHERE chiTietYeuCauId = :chiTietId LIMIT 1")
@@ -49,4 +53,7 @@ interface PhanCongDao {
 
     @Delete
     suspend fun delete(phanCong: PhanCong)
+
+    @Query("DELETE FROM phan_cong WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

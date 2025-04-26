@@ -35,10 +35,17 @@ class BienBanYeuCauRepository @Inject constructor(
 
     fun getAll(): Flow<List<BienBanYeuCau>> = bienBanYeuCauDao.getAll()
 
-    suspend fun insert(bienBan: BienBanYeuCau) {
-        bienBanYeuCauDao.insert(bienBan)
-        SyncDispatcher.dispatch(syncService, bienBan, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(bienBan: BienBanYeuCau) {
+//        bienBanYeuCauDao.insert(bienBan)
+//        SyncDispatcher.dispatch(syncService, bienBan, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: BienBanYeuCau) {
+        val id = bienBanYeuCauDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(bienBan: BienBanYeuCau) {
         bienBanYeuCauDao.update(bienBan)

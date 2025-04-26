@@ -245,7 +245,7 @@ class YeuCauRepository @Inject constructor(
 
         if (yeuCau.trangThai != newStatus) {
             yeuCau.trangThai = newStatus
-            yeuCauDao.insert(yeuCau)
+            yeuCauDao.update(yeuCau)
             SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.UPDATE)
         } else {
             Log.d("YeuCauRepository", "⏩ Không thay đổi trạng thái yêu cầu id=${yeuCau.id}, bỏ qua push Firestore")
@@ -253,10 +253,17 @@ class YeuCauRepository @Inject constructor(
     }
 
 
-    suspend fun insert(yeuCau: YeuCau) {
-        yeuCauDao.insert(yeuCau)
-        SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(yeuCau: YeuCau) {
+//        yeuCauDao.insert(yeuCau)
+//        SyncDispatcher.dispatch(yeuCauSyncService, yeuCau, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: YeuCau) {
+        val id = yeuCauDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(yeuCauSyncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(yeuCau: YeuCau) {
         yeuCauDao.update(yeuCau)

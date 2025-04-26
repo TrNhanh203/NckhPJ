@@ -3,6 +3,7 @@ package com.example.facilitiesmanagementpj.data.dao
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import com.example.facilitiesmanagementpj.data.entity.*
+import org.checkerframework.checker.units.qual.K
 
 @Dao
 interface KyThuatVienDao {
@@ -31,11 +32,18 @@ interface KyThuatVienDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(kyThuatVien: KyThuatVien)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: KyThuatVien): Long
+
+
     @Update
     suspend fun update(kyThuatVien: KyThuatVien)
 
     @Delete
     suspend fun delete(kyThuatVien: KyThuatVien)
+
+    @Query("DELETE FROM ky_thuat_vien WHERE id = :id")
+    suspend fun deleteById(id: Int)
 
     // Dùng @Relation để lấy KyThuatVien kèm TaiKhoan
     @Transaction

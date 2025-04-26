@@ -57,6 +57,9 @@ interface YeuCauDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(yeuCau: YeuCau)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: YeuCau): Long
+
     @Update
     suspend fun update(yeuCau: YeuCau)
 

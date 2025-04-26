@@ -202,8 +202,10 @@ class PhanCongKtvRepository @Inject constructor(
     fun getAllPhanCongKtv(): Flow<List<PhanCongKtv>> = phanCongKtvDao.getAll()
 
     suspend fun insert(phanCongKtv: PhanCongKtv) {
-        phanCongKtvDao.insert(phanCongKtv)
-        SyncDispatcher.dispatch(syncService, phanCongKtv, SyncDispatcher.SyncType.INSERT)
+        val newId = phanCongKtvDao.insertAndReturnId(phanCongKtv).toInt()
+        val updated = phanCongKtv.copy(id = newId)
+        //phanCongKtvDao.insert(phanCongKtv)
+        SyncDispatcher.dispatch(syncService, updated, SyncDispatcher.SyncType.INSERT)
     }
 
     suspend fun update(phanCongKtv: PhanCongKtv) {

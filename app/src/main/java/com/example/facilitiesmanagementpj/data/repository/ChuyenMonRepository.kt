@@ -50,10 +50,17 @@ class ChuyenMonRepository @Inject constructor(
         return chuyenMonKtvDao.getChuyenMonIdsByKyThuatVienId(kyThuatVienId)
     }
 
-    suspend fun insert(chuyenMon: ChuyenMon) {
-        chuyenMonDao.insert(chuyenMon)
-        SyncDispatcher.dispatch(chuyenMonSync, chuyenMon, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(chuyenMon: ChuyenMon) {
+//        chuyenMonDao.insert(chuyenMon)
+//        SyncDispatcher.dispatch(chuyenMonSync, chuyenMon, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: ChuyenMon) {
+        val id = chuyenMonDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(chuyenMonSync, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(chuyenMon: ChuyenMon) {
         chuyenMonDao.update(chuyenMon)
@@ -82,8 +89,9 @@ class ChuyenMonRepository @Inject constructor(
 
         selectedIds.forEach { chuyenMonId ->
             val item = ChuyenMonKtv(chuyenMonId = chuyenMonId, kyThuatVienId = kyThuatVienId)
-            chuyenMonKtvDao.insert(item)
-            SyncDispatcher.dispatch(chuyenMonKtvSync, item, SyncDispatcher.SyncType.INSERT)
+            val id = chuyenMonKtvDao.insertAndReturnId(item).toInt()
+            val itemWithId = item.copy(id = id)
+            SyncDispatcher.dispatch(chuyenMonKtvSync, itemWithId, SyncDispatcher.SyncType.INSERT)
         }
     }
 }

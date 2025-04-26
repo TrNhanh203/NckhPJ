@@ -40,10 +40,17 @@ class AnhMinhChungBaoCaoRepository @Inject constructor(
     suspend fun getVideosByChiTietBaoCaoId(chiTietBaoCaoId: Int): List<AnhMinhChungBaoCao> =
         anhMinhChungBaoCaoDao.getVideosByChiTietBaoCaoId(chiTietBaoCaoId)
 
+//    suspend fun insert(anh: AnhMinhChungBaoCao) {
+//        anhMinhChungBaoCaoDao.insert(anh)
+//        SyncDispatcher.dispatch(syncService, anh, SyncDispatcher.SyncType.INSERT)
+//    }
+
     suspend fun insert(anh: AnhMinhChungBaoCao) {
-        anhMinhChungBaoCaoDao.insert(anh)
-        SyncDispatcher.dispatch(syncService, anh, SyncDispatcher.SyncType.INSERT)
+        val id = anhMinhChungBaoCaoDao.insertAndReturnId(anh).toInt()
+        val anhWithId = anh.copy(id = id)
+        SyncDispatcher.dispatch(syncService, anhWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(anh: AnhMinhChungBaoCao) {
         anhMinhChungBaoCaoDao.update(anh)

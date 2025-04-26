@@ -18,6 +18,10 @@ interface DayDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(day: Day)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: Day): Long
+
+
     @Update
     suspend fun update(day: Day)
 

@@ -206,10 +206,17 @@ class PhanCongRepository @Inject constructor(
 
     fun getAllPhanCong(): Flow<List<PhanCong>> = phanCongDao.getAll()
 
-    suspend fun insert(phanCong: PhanCong) {
-        phanCongDao.insert(phanCong)
-        SyncDispatcher.dispatch(syncService, phanCong, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(phanCong: PhanCong) {
+//        phanCongDao.insert(phanCong)
+//        SyncDispatcher.dispatch(syncService, phanCong, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: PhanCong) {
+        val id = phanCongDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(phanCong: PhanCong) {
         phanCongDao.update(phanCong)

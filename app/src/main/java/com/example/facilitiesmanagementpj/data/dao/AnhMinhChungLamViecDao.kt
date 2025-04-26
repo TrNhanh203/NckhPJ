@@ -18,9 +18,16 @@ interface AnhMinhChungLamViecDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(anhMinhChungLamViec: AnhMinhChungLamViec)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(anh: AnhMinhChungLamViec): Long
+
+
     @Update
     suspend fun update(anhMinhChungLamViec: AnhMinhChungLamViec)
 
     @Delete
     suspend fun delete(anhMinhChungLamViec: AnhMinhChungLamViec)
+
+    @Query("DELETE FROM anh_minh_chung_lam_viec WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

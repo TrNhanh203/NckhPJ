@@ -78,9 +78,15 @@ interface ChiTietYeuCauDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chiTietYeuCau: ChiTietYeuCau)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: ChiTietYeuCau): Long
+
     @Update
     suspend fun update(chiTietYeuCau: ChiTietYeuCau)
 
     @Delete
     suspend fun delete(chiTietYeuCau: ChiTietYeuCau)
+
+    @Query("DELETE FROM chi_tiet_yeu_cau WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

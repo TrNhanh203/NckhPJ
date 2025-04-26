@@ -98,9 +98,16 @@ interface TaiKhoanDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(taiKhoan: TaiKhoan)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: TaiKhoan): Long
+
+
     @Update
     suspend fun update(taiKhoan: TaiKhoan)
 
     @Delete
     suspend fun delete(taiKhoan: TaiKhoan)
+
+    @Query("DELETE FROM tai_khoan WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

@@ -35,10 +35,17 @@ class ChiTietYeuCauRepository @Inject constructor(
     fun getAllChiTietYeuCau(): Flow<List<ChiTietYeuCau>> =
         chiTietYeuCauDao.getAll()
 
-    suspend fun insert(chiTiet: ChiTietYeuCau) {
-        chiTietYeuCauDao.insert(chiTiet)
-        SyncDispatcher.dispatch(syncService, chiTiet, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(chiTiet: ChiTietYeuCau) {
+//        chiTietYeuCauDao.insert(chiTiet)
+//        SyncDispatcher.dispatch(syncService, chiTiet, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: ChiTietYeuCau) {
+        val id = chiTietYeuCauDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(chiTiet: ChiTietYeuCau) {
         chiTietYeuCauDao.update(chiTiet)

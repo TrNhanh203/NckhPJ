@@ -130,9 +130,15 @@ interface PhanCongKtvDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(phanCongKTV: PhanCongKtv)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(phanCongKtv: PhanCongKtv): Long
+
     @Update
     suspend fun update(phanCongKTV: PhanCongKtv)
 
     @Delete
     suspend fun delete(phanCongKTV: PhanCongKtv)
+
+    @Query("DELETE FROM phan_cong_ktv WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

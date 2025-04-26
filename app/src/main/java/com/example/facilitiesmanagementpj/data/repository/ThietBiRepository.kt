@@ -77,10 +77,17 @@ class ThietBiRepository @Inject constructor(
     fun getThietBiCanBaoDuong(ngayHienTai: Long): Flow<List<ThietBi>> =
         thietBiDao.getThietBiCanBaoDuong(ngayHienTai)
 
-    suspend fun insert(thietBi: ThietBi) {
-        thietBiDao.insert(thietBi)
-        SyncDispatcher.dispatch(syncService, thietBi, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(thietBi: ThietBi) {
+//        thietBiDao.insert(thietBi)
+//        SyncDispatcher.dispatch(syncService, thietBi, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: ThietBi) {
+        val id = thietBiDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(thietBi: ThietBi) {
         thietBiDao.update(thietBi)

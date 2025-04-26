@@ -18,6 +18,10 @@ interface DonViDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(donVi: DonVi)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: DonVi): Long
+
+
     @Update
     suspend fun update(donVi: DonVi)
 

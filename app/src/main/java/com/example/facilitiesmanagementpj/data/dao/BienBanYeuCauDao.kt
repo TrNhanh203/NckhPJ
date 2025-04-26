@@ -15,6 +15,10 @@ interface BienBanYeuCauDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(bienBanYeuCau: BienBanYeuCau)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: BienBanYeuCau): Long
+
+
     @Update
     suspend fun update(bienBanYeuCau: BienBanYeuCau)
 

@@ -39,4 +39,7 @@ interface AnhMinhChungBaoCaoDao {
 
     @Delete
     suspend fun delete(anhMinhChung: AnhMinhChungBaoCao)
+
+    @Query("DELETE FROM anh_minh_chung_bao_cao WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

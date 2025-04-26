@@ -17,6 +17,9 @@ interface TangDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(tang: Tang)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: Tang): Long
+
     @Update
     suspend fun update(tang: Tang)
 

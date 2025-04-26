@@ -28,10 +28,17 @@ class DayRepository @Inject constructor(
 ) {
     fun getAllDay(): Flow<List<Day>> = dayDao.getAll()
 
-    suspend fun insert(day: Day) {
-        dayDao.insert(day)
-        SyncDispatcher.dispatch(syncService, day, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(day: Day) {
+//        dayDao.insert(day)
+//        SyncDispatcher.dispatch(syncService, day, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: Day) {
+        val id = dayDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(day: Day) {
         dayDao.update(day)

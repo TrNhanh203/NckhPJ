@@ -13,6 +13,9 @@ interface LoaiPhongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(loaiPhong: LoaiPhong)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: LoaiPhong): Long
+
     @Update
     suspend fun update(loaiPhong: LoaiPhong)
 

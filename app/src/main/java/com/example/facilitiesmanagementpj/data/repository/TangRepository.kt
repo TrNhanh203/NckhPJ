@@ -33,10 +33,17 @@ class TangRepository @Inject constructor(
 ) {
     fun getAllTang(): Flow<List<Tang>> = tangDao.getAll()
 
-    suspend fun insert(tang: Tang) {
-        tangDao.insert(tang)
-        SyncDispatcher.dispatch(syncService, tang, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(tang: Tang) {
+//        tangDao.insert(tang)
+//        SyncDispatcher.dispatch(syncService, tang, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: Tang) {
+        val id = tangDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(tang: Tang) {
         tangDao.update(tang)

@@ -84,12 +84,17 @@ INNER JOIN tang ON phong.tangId = tang.id
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(thietBi: ThietBi)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: ThietBi): Long
+
+
     @Update
     suspend fun update(thietBi: ThietBi)
 
     @Delete
     suspend fun delete(thietBi: ThietBi)
 
-
+    @Query("DELETE FROM thiet_bi WHERE id = :id")
+    suspend fun deleteById(id: Int)
 
 }

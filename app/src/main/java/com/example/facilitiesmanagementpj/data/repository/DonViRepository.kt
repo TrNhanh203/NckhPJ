@@ -45,10 +45,17 @@ class DonViRepository @Inject constructor(
         return donViDao.getById(id)
     }
 
-    suspend fun insert(donVi: DonVi) {
-        donViDao.insert(donVi)
-        SyncDispatcher.dispatch(syncService, donVi, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(donVi: DonVi) {
+//        donViDao.insert(donVi)
+//        SyncDispatcher.dispatch(syncService, donVi, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: DonVi) {
+        val id = donViDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(donVi: DonVi) {
         donViDao.update(donVi)

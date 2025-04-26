@@ -20,6 +20,9 @@ interface ChuyenMonKtvDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chuyenMonKTV: ChuyenMonKtv)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(entity: ChuyenMonKtv): Long
+
     @Update
     suspend fun update(chuyenMonKTV: ChuyenMonKtv)
 

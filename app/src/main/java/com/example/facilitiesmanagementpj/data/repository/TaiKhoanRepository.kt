@@ -106,10 +106,17 @@ class TaiKhoanRepository @Inject constructor(
 
     fun getAllTaiKhoan(): Flow<List<TaiKhoan>> = taiKhoanDao.getAll()
 
-    suspend fun insert(taiKhoan: TaiKhoan) {
-        taiKhoanDao.insert(taiKhoan)
-        SyncDispatcher.dispatch(syncService, taiKhoan, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    suspend fun insert(taiKhoan: TaiKhoan) {
+//        taiKhoanDao.insert(taiKhoan)
+//        SyncDispatcher.dispatch(syncService, taiKhoan, SyncDispatcher.SyncType.INSERT) // 🔄 Bổ sung
+//    }
+
+    suspend fun insert(entity: TaiKhoan) {
+        val id = taiKhoanDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(taiKhoan: TaiKhoan) {
         taiKhoanDao.update(taiKhoan)

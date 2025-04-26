@@ -1,5 +1,6 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ fun AdminDashboardScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(16.dp)
                 .then(modifier),
             verticalArrangement = Arrangement.spacedBy(16.dp),

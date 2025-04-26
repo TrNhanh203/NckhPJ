@@ -24,10 +24,17 @@ class ChuyenMonKtvRepository @Inject constructor(
 ) {
     fun getAllChuyenMonKtv(): Flow<List<ChuyenMonKtv>> = chuyenMonKtvDao.getAll()
 
-    suspend fun insert(chuyenMonKtv: ChuyenMonKtv) {
-        chuyenMonKtvDao.insert(chuyenMonKtv)
-        SyncDispatcher.dispatch(syncService, chuyenMonKtv, SyncDispatcher.SyncType.INSERT)
+//    suspend fun insert(chuyenMonKtv: ChuyenMonKtv) {
+//        chuyenMonKtvDao.insert(chuyenMonKtv)
+//        SyncDispatcher.dispatch(syncService, chuyenMonKtv, SyncDispatcher.SyncType.INSERT)
+//    }
+
+    suspend fun insert(entity: ChuyenMonKtv) {
+        val id = chuyenMonKtvDao.insertAndReturnId(entity).toInt()
+        val entityWithId = entity.copy(id = id)
+        SyncDispatcher.dispatch(syncService, entityWithId, SyncDispatcher.SyncType.INSERT)
     }
+
 
     suspend fun update(chuyenMonKtv: ChuyenMonKtv) {
         chuyenMonKtvDao.update(chuyenMonKtv)
