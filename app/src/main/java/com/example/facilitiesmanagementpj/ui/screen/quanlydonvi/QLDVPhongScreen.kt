@@ -1,6 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,22 +36,7 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp).then(modifier)) {
             //Text("Danh sách phòng", style = MaterialTheme.typography.headlineMedium)
 
-//            LazyColumn {
-//                items(phongList) { phong ->
-//                    Card(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(8.dp)
-//                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id)) }
-//                    ) {
-//                        Column(modifier = Modifier.padding(16.dp)) {
-//                            Text("Tên phòng: ${phong.tenPhong}")
-//                            Text("Dãy: ${phong.tenDay} - Tầng: ${phong.tenTang}")
-//                            Text("Số lượng thiết bị: ${phong.soLuongThietBi}")
-//                        }
-//                    }
-//                }
-//            }
+
 
             LazyColumn(
                 contentPadding = PaddingValues(8.dp),
@@ -60,7 +46,13 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id, phongName = phong.tenPhong)) },
+                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id, phongName = phong.tenPhong)) }
+                            .border(
+                                width = 0.8.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(12.dp)
+                            ),
+
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         shape = RoundedCornerShape(16.dp)
@@ -70,7 +62,7 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
                             Box(
                                 Modifier
                                     .fillMaxWidth()
-                                    .height(6.dp)
+                                    .height(12.dp)
                                     .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                             )
 
