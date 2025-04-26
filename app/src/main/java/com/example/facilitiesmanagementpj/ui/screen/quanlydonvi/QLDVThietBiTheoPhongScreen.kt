@@ -87,7 +87,7 @@ fun QLDVThietBiTheoPhongScreen(
     }
 
     ScaffoldLayout(
-        title = formattedTitle,
+        title = "Thiết bị theo phòng",
         navController = navController,
         showTopBar = true,
         showBottomBar = false,

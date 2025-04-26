@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -40,7 +41,8 @@ import com.example.facilitiesmanagementpj.ui.component.AddNewMediaButton
 @Composable
 fun VideoPickerSection(
     selectedVideo: Uri?,
-    onVideoSelected: (Uri?) -> Unit
+    onVideoSelected: (Uri?) -> Unit,
+    onPreviewVideo: (Uri) -> Unit
 ) {
     val context = LocalContext.current
     var showVideoPicker by remember { mutableStateOf(false) }
@@ -52,6 +54,8 @@ fun VideoPickerSection(
         }
     }
 
+
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -59,7 +63,7 @@ fun VideoPickerSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(280.dp)
                 .background(Color.LightGray, shape = RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -71,7 +75,7 @@ fun VideoPickerSection(
                 VideoPreviewItem(
                     uri = selectedVideo,
                     onRemove = { onVideoSelected(null) },
-                    onClick = { /* Tùy chọn thêm nếu muốn mở video lớn */ }
+                    onClick = { onPreviewVideo(selectedVideo) }
                 )
             }
         }

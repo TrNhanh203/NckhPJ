@@ -1,21 +1,31 @@
 package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 
 import android.net.Uri
+import android.widget.VideoView
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.facilitiesmanagementpj.data.utils.LoaiYeuCau
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.component.ImageVideoPickerScreen
@@ -27,6 +37,7 @@ import com.example.facilitiesmanagementpj.ui.screen.admin.CardThongKeBaoDuong
 import com.example.facilitiesmanagementpj.ui.screen.admin.ThongTinThietBiCard
 import com.example.facilitiesmanagementpj.ui.screen.admin.ViTriThietBiCard
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
+import com.google.common.collect.ComparisonChain.start
 
 
 // In ThietBiDetailScreen.kt
@@ -382,131 +393,282 @@ fun ChiTietYeuCauEditSection(
     viewModel: ThietBiDetailViewModel
 ) {
     if (!isEditMode) return
+    var selectedImageToPreview by remember { mutableStateOf<Uri?>(null) }
+    var selectedVideoToPreview by remember { mutableStateOf<Uri?>(null) }
 
     var showLoaiYeuCauSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = if (isExistingDetail) "Cập nhật chi tiết yêu cầu" else "Thêm chi tiết yêu cầu",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        // Button chọn Loại yêu cầu
-        OutlinedButton(
-            onClick = { showLoaiYeuCauSheet = true },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .weight(1f) // chiếm hết phần còn lại
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(selectedLoaiYeuCau ?: "Chọn loại yêu cầu")
+
+            Text(
+                text = if (isExistingDetail) "Cập nhật chi tiết yêu cầu" else "Thêm chi tiết yêu cầu",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            // Button chọn Loại yêu cầu
+            OutlinedButton(
+                onClick = { showLoaiYeuCauSheet = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(selectedLoaiYeuCau ?: "Chọn loại yêu cầu")
+            }
+
+            // Sheet chọn loại yêu cầu
+            if (showLoaiYeuCauSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showLoaiYeuCauSheet = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            "Chọn loại yêu cầu",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        LoaiYeuCau.ALL.forEach { loai ->
+                            ListItem(
+                                headlineContent = { Text(loai) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.updateSelectedLoaiYeuCau(loai)
+                                        showLoaiYeuCauSheet = false
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Mô tả chi tiết
+            OutlinedTextField(
+                value = moTa,
+                onValueChange = { viewModel.updateMoTa(it) },
+                label = { Text("Mô tả chi tiết yêu cầu") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp),
+                maxLines = 6,
+                singleLine = false,
+                isError = moTa.isBlank()
+            )
+
+
+            // Ảnh và Video picker
+            Text(
+                text = "Ảnh/Video minh chứng",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            ImagePickerSection(
+                selectedImages = selectedImages,
+                onImagesSelected = { images -> viewModel.updateSelectedImages(images) },
+                onPreviewImage = { uri ->
+                    selectedImageToPreview = uri
+                }
+            )
+
+
+            VideoPickerSection(
+                selectedVideo = selectedVideo,
+                onVideoSelected = { viewModel.updateSelectedVideo(it) },
+                onPreviewVideo = { uri -> selectedVideoToPreview = uri }
+            )
         }
 
-        // Sheet chọn loại yêu cầu
-        if (showLoaiYeuCauSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showLoaiYeuCauSheet = false }
-            ) {
-                Column(
+
+        // Nút thêm hoặc cập nhật yêu cầu
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            if (trangThai == TrangThaiYeuCau.NHAP) {
+                Button(
+                    onClick = {
+                        if (yeuCauId != null && selectedLoaiYeuCau != null) {
+                            if (isExistingDetail) {
+                                viewModel.updateChiTietYeuCau(
+                                    yeuCauId,
+                                    thietBiId,
+                                    selectedLoaiYeuCau,
+                                    moTa,
+                                    selectedImages,
+                                    selectedVideo
+                                )
+                            } else {
+                                viewModel.addChiTietYeuCau(
+                                    yeuCauId,
+                                    thietBiId,
+                                    selectedLoaiYeuCau,
+                                    moTa,
+                                    selectedImages,
+                                    selectedVideo
+                                )
+                            }
+                            navController.popBackStack()
+                        }
+                    },
+                    enabled = !selectedLoaiYeuCau.isNullOrBlank() && moTa.isNotBlank(),
                     modifier = Modifier
-                        .padding(16.dp)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 8.dp
+                    )
                 ) {
                     Text(
-                        "Chọn loại yêu cầu",
+                        if (isExistingDetail) "Cập nhật chi tiết yêu cầu" else "Thêm vào yêu cầu",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-
-                    LoaiYeuCau.ALL.forEach { loai ->
-                        ListItem(
-                            headlineContent = { Text(loai) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.updateSelectedLoaiYeuCau(loai)
-                                    showLoaiYeuCauSheet = false
-                                }
+                }
+            } else {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    tonalElevation = 2.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Không thể chỉnh sửa yêu cầu",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
             }
         }
 
-        // Mô tả chi tiết
-        OutlinedTextField(
-            value = moTa,
-            onValueChange = { viewModel.updateMoTa(it) },
-            label = { Text("Mô tả chi tiết yêu cầu") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(140.dp),
-            maxLines = 6,
-            singleLine = false,
-            isError = moTa.isBlank()
-        )
 
-        if (trangThai == TrangThaiYeuCau.NHAP) {
-            Button(
-                onClick = {
-                    if (yeuCauId != null && selectedLoaiYeuCau != null) {
-                        if (isExistingDetail) {
-                            viewModel.updateChiTietYeuCau(
-                                yeuCauId,
-                                thietBiId,
-                                selectedLoaiYeuCau,
-                                moTa,
-                                selectedImages,
-                                selectedVideo
-                            )
-                        } else {
-                            viewModel.addChiTietYeuCau(
-                                yeuCauId,
-                                thietBiId,
-                                selectedLoaiYeuCau,
-                                moTa,
-                                selectedImages,
-                                selectedVideo
-                            )
-                        }
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !selectedLoaiYeuCau.isNullOrBlank() && moTa.isNotBlank()
-            ) {
-                Text(if (isExistingDetail) "Cập nhật chi tiết" else "Thêm vào yêu cầu")
-            }
-        } else {
-            Text(
-                text = "Không thể chỉnh sửa yêu cầu này.",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        // Ảnh và Video picker
-        Text(
-            text = "Ảnh/Video minh chứng",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        ImagePickerSection(
-            selectedImages = selectedImages,
-            onImagesSelected = { images -> viewModel.updateSelectedImages(images) }
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        VideoPickerSection(
-            selectedVideo = selectedVideo,
-            onVideoSelected = { video -> viewModel.updateSelectedVideo(video) }
-        )
     }
+
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        verticalArrangement = Arrangement.spacedBy(16.dp)
+//    ) {
+//
+//        Spacer(Modifier.height(16.dp))
+//
+//        if (trangThai == TrangThaiYeuCau.NHAP) {
+//            Button(
+//                onClick = {
+//                    if (yeuCauId != null && selectedLoaiYeuCau != null) {
+//                        if (isExistingDetail) {
+//                            viewModel.updateChiTietYeuCau(
+//                                yeuCauId,
+//                                thietBiId,
+//                                selectedLoaiYeuCau,
+//                                moTa,
+//                                selectedImages,
+//                                selectedVideo
+//                            )
+//                        } else {
+//                            viewModel.addChiTietYeuCau(
+//                                yeuCauId,
+//                                thietBiId,
+//                                selectedLoaiYeuCau,
+//                                moTa,
+//                                selectedImages,
+//                                selectedVideo
+//                            )
+//                        }
+//                        navController.popBackStack()
+//                    }
+//                },
+//                modifier = Modifier.fillMaxWidth(),
+//                enabled = !selectedLoaiYeuCau.isNullOrBlank() && moTa.isNotBlank()
+//            ) {
+//                Text(if (isExistingDetail) "Cập nhật chi tiết" else "Thêm vào yêu cầu")
+//            }
+//        } else {
+//            Text(
+//                text = "Không thể chỉnh sửa yêu cầu này.",
+//                color = MaterialTheme.colorScheme.error,
+//                style = MaterialTheme.typography.bodyLarge,
+//                modifier = Modifier.padding(vertical = 8.dp)
+//            )
+//        }
+//
+//
+//        if (selectedImageToPreview != null) {
+//            Dialog(onDismissRequest = { selectedImageToPreview = null }) {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .background(Color.Black)
+//                ) {
+//                    AsyncImage(
+//                        model = selectedImageToPreview,
+//                        contentDescription = null,
+//                        contentScale = ContentScale.Fit,
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .clickable { selectedImageToPreview = null }
+//                    )
+//                }
+//            }
+//        }
+//        if (selectedVideoToPreview != null) {
+//            Dialog(onDismissRequest = { selectedVideoToPreview = null }) {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .background(Color.Black)
+//                ) {
+//                    AndroidView(
+//                        factory = { context ->
+//                            VideoView(context).apply {
+//                                setVideoURI(selectedVideoToPreview)
+//                                setOnPreparedListener { start() }
+//                            }
+//                        },
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                }
+//            }
+//        }
+//
+//
+//    }
 }
 
 

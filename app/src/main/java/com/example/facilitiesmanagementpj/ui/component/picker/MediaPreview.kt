@@ -36,10 +36,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 
 @Composable
-fun MediaPreviewItem(uri: Uri, onRemove: () -> Unit) {
+fun MediaPreviewItem(uri: Uri, onRemove: () -> Unit, onClick: () -> Unit) {
     Box(modifier = Modifier
         .size(80.dp)
-        .padding(4.dp)) {
+        .padding(4.dp)
+        .clickable { onClick() }
+    )
+    {
         Image(
             painter = rememberAsyncImagePainter(uri),
             contentDescription = "Preview",
@@ -81,7 +84,7 @@ fun VideoPreviewItem(uri: Uri, onRemove: () -> Unit, onClick: () -> Unit) {
         }
     }
 
-    Box(modifier = Modifier.size(160.dp).padding(4.dp).clickable { onClick() }) {
+    Box(modifier = Modifier.size(240.dp).padding(4.dp).clickable { onClick() }) {
         AndroidView(factory = { PlayerView(it).apply { player = exoPlayer } })
 
         // Nút "X" để xóa video

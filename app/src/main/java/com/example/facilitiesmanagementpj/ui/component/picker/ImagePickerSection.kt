@@ -31,7 +31,8 @@ import com.example.facilitiesmanagementpj.ui.component.AddNewMediaButton
 @Composable
 fun ImagePickerSection(
     selectedImages: List<Uri>,
-    onImagesSelected: (List<Uri>) -> Unit
+    onImagesSelected: (List<Uri>) -> Unit,
+    onPreviewImage: (Uri) -> Unit
 ) {
     var showImagePicker by remember { mutableStateOf(false) }
 
@@ -46,7 +47,7 @@ fun ImagePickerSection(
         LazyRow {
             item { AddNewMediaButton { showImagePicker = true } }
             items(selectedImages) { uri ->
-                MediaPreviewItem(uri, onRemove = { onImagesSelected(selectedImages - uri) })
+                MediaPreviewItem(uri, onRemove = { onImagesSelected(selectedImages - uri)},onClick = { onPreviewImage(uri) })
             }
         }
     }
