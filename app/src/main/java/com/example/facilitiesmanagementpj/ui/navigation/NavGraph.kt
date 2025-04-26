@@ -237,10 +237,24 @@ fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
         // Màn hình Quản lý đơn vị
         composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
         composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
-        composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
+//        composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
+//            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
+//            QLDVThietBiTheoPhongScreen(navController, phongId)
+//        }
+
+        composable(
+            route = "quanlydonvi_thietbi/{phongId}/{phongName}"
+        ) { backStackEntry ->
             val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
-            QLDVThietBiTheoPhongScreen(navController, phongId)
+            val phongName = backStackEntry.arguments?.getString("phongName") ?: "Phòng"
+
+            QLDVThietBiTheoPhongScreen(
+                phongId = phongId,
+                phongName = phongName,
+                navController = navController
+            )
         }
+
 
 
         composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }

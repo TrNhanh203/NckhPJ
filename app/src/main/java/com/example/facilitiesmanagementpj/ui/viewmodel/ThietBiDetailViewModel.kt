@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.facilitiesmanagementpj.data.repository.DayRepository
+import com.example.facilitiesmanagementpj.data.repository.PhongRepository
+import com.example.facilitiesmanagementpj.data.repository.TangRepository
 
 
 @HiltViewModel
@@ -29,18 +32,65 @@ class ThietBiDetailViewModel @Inject constructor(
     private val thietBiRepository: ThietBiRepository,
     private val yeuCauRepository: YeuCauRepository,
     private val anhMinhCungBaoCaoRepository: AnhMinhChungBaoCaoRepository,
+    private val phongRepository: PhongRepository,
+    private val tangRepository: TangRepository,
+    private val dayRepository: DayRepository,
     application: Application
 ) : AndroidViewModel(application) {
+
+    private val _selectedLoaiYeuCau = MutableStateFlow<String?>(null)
+    val selectedLoaiYeuCau: StateFlow<String?> = _selectedLoaiYeuCau
+
+    private val _moTa = MutableStateFlow("")
+    val moTa: StateFlow<String> = _moTa
+
+    private val _selectedImages = MutableStateFlow<List<Uri>>(emptyList())
+    val selectedImages: StateFlow<List<Uri>> = _selectedImages
+
+    private val _selectedVideo = MutableStateFlow<Uri?>(null)
+    val selectedVideo: StateFlow<Uri?> = _selectedVideo
+
+    fun updateSelectedLoaiYeuCau(loai: String) {
+        _selectedLoaiYeuCau.value = loai
+    }
+
+    fun updateMoTa(moTa: String) {
+        _moTa.value = moTa
+    }
+
+    fun updateSelectedImages(images: List<Uri>) {
+        _selectedImages.value = images
+    }
+
+    fun updateSelectedVideo(video: Uri?) {
+        _selectedVideo.value = video
+    }
+
 
 
     private val _thietBi = MutableStateFlow<ThietBi?>(null)
     val thietBi: StateFlow<ThietBi?> = _thietBi
 
 
+//    fun loadThietBi(thietBiId: Int) {
+//        viewModelScope.launch {
+//            val thietBi = thietBiRepository.getThietBiById(thietBiId)
+//            _thietBi.value = thietBi
+//        }
+//    }
+
+    private val _viTri = MutableStateFlow("")
+    val viTri: StateFlow<String> = _viTri
+
     fun loadThietBi(thietBiId: Int) {
         viewModelScope.launch {
             val thietBi = thietBiRepository.getThietBiById(thietBiId)
             _thietBi.value = thietBi
+
+            val phong = phongRepository.getById(thietBi?.phongId ?: return@launch)
+            val tang = tangRepository.getById(phong?.tangId ?: return@launch)
+            val day = dayRepository.getById(tang?.dayId ?: return@launch)
+            _viTri.value = listOfNotNull(day?.tenDay, tang?.tenTang, phong?.tenPhong).joinToString(" > ")
         }
     }
 
@@ -102,19 +152,42 @@ class ThietBiDetailViewModel @Inject constructor(
     private val _videoUri = MutableStateFlow<Uri?>(null)
     val videoUri: StateFlow<Uri?> = _videoUri
 
+//    @OptIn(UnstableApi::class)
+//    fun loadMedia(chiTietBaoCaoId: Int) {
+//        viewModelScope.launch {
+//            val images = anhMinhCungBaoCaoRepository.getImagesByChiTietBaoCaoId(chiTietBaoCaoId)
+//            val videos = anhMinhCungBaoCaoRepository.getVideosByChiTietBaoCaoId(chiTietBaoCaoId)
+//            _imageUris.value = images.map { it.urlAnh.toUri() }
+//            _videoUri.value = videos.firstOrNull()?.urlAnh?.toUri()
+//            Log.d(
+//                "ThietBiDetailViewModel",
+//                "Loaded images: ${_imageUris.value}, video: ${_videoUri.value}"
+//            )
+//        }
+//    }
+
     @OptIn(UnstableApi::class)
-    fun loadMedia(chiTietBaoCaoId: Int) {
+    fun loadMedia(chiTietBaoCaoId: Int, onLoaded: (List<Uri>, Uri?) -> Unit = { _, _ -> }) {
         viewModelScope.launch {
             val images = anhMinhCungBaoCaoRepository.getImagesByChiTietBaoCaoId(chiTietBaoCaoId)
             val videos = anhMinhCungBaoCaoRepository.getVideosByChiTietBaoCaoId(chiTietBaoCaoId)
-            _imageUris.value = images.map { it.urlAnh.toUri() }
-            _videoUri.value = videos.firstOrNull()?.urlAnh?.toUri()
-            Log.d(
-                "ThietBiDetailViewModel",
-                "Loaded images: ${_imageUris.value}, video: ${_videoUri.value}"
-            )
+
+            val imageUris = images.map { it.urlAnh.toUri() }
+            val videoUri = videos.firstOrNull()?.urlAnh?.toUri()
+
+            _imageUris.value = imageUris
+            _videoUri.value = videoUri
+
+            _selectedImages.value = imageUris
+            _selectedVideo.value = videoUri
+
+            Log.d("ThietBiDetailViewModel", "Loaded images: $imageUris, video: $videoUri")
+
+            // Gọi callback nếu có
+            onLoaded(imageUris, videoUri)
         }
     }
+
 
     @OptIn(UnstableApi::class)
     private suspend fun saveMedia(chiTietBaoCaoId: Int, images: List<Uri>, video: Uri?) {

@@ -74,9 +74,15 @@ sealed class Screen(val route: String) {
     // Quản lý đơn vị Screens
     object DonViDashboard : Screen("donvi_dashboard")
     object QLDVPhong : Screen("quanlydonvi_phong")
-    object QLDVThietBiTheoPhong : Screen("quanlydonvi_thietbi/{phongId}") {
-        fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
+//    object QLDVThietBiTheoPhong : Screen("quanlydonvi_thietbi/{phongId}") {
+//        fun createRoute(phongId: Int) = "quanlydonvi_thietbi/$phongId"
+//    }
+
+    object QLDVThietBiTheoPhong : Screen("quanlydonvi_thietbi/{phongId}/{phongName}") {
+        fun createRoute(phongId: Int, phongName: String) =
+            "quanlydonvi_thietbi/$phongId/${phongName.urlEncode()}"
     }
+
     object QLDVThietBiTheoDV : Screen("quanlydonvi_thietbi_theodv")
 
     object ThemYeuCauMoi : Screen("them_yeu_cau_moi/{yeuCauId}?") {
@@ -119,6 +125,7 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
 }
 
+fun String.urlEncode(): String = java.net.URLEncoder.encode(this, "UTF-8")
 
 
 

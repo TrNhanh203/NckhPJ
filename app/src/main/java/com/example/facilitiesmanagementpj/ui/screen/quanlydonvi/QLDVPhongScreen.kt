@@ -60,7 +60,7 @@ fun QLDVPhongScreen(navController: NavController, viewModel: QLDVPhongViewModel 
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id)) },
+                            .clickable { navController.navigate(Screen.QLDVThietBiTheoPhong.createRoute(phongId = phong.id, phongName = phong.tenPhong)) },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         shape = RoundedCornerShape(16.dp)
