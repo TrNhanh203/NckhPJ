@@ -162,6 +162,8 @@ class PhanCongRepository @Inject constructor(
         }
 
         phanCongDao.updateTrangThai(phanCongId, newTrangThai)
+        val soLuongKtvThamGia = trangThaiCoGiaTri.size
+        phanCongDao.updateSoLuongKtvThamGia(phanCongId, soLuongKtvThamGia)
 
         val pc = phanCongDao.getById(phanCongId)
         val tbId = pc?.thietBiId

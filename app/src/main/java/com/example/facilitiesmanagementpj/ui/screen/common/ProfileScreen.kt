@@ -90,7 +90,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = hi
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.ChangePassword.route) },
+                onClick = {  },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(

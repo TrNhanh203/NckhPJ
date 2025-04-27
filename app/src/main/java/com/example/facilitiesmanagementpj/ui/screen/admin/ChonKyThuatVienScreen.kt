@@ -1,5 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -19,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -28,6 +31,7 @@ import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.viewmodel.ChonKyThuatVienViewModel
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +44,7 @@ fun ChonKyThuatVienScreen(
     val viewModel: ChonKyThuatVienViewModel = hiltViewModel()
     val sheetState = rememberModalBottomSheetState()
     var selectedKtvWithTrangThai by remember { mutableStateOf<KyThuatVienWithSoTaskWithTrangThaiPhanCong?>(null) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadDanhSachKTV(phanCongId)
@@ -226,7 +231,7 @@ fun ChonKyThuatVienScreen(
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                     item.trangThaiPhanCong?.let {
-                                        Text("Phân công: $it", style = MaterialTheme.typography.labelSmall)
+                                        Text("Phân công hiện tại: $it", style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
                             }
@@ -256,13 +261,22 @@ fun ChonKyThuatVienScreen(
                     options.add("Đề cử")
                     options.add("Xem tất cả công việc")
                 } else {
+//                    when (selected.trangThaiPhanCong) {
+//                        TrangThaiPhanCong.CHO_PHAN_HOI -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+//                        TrangThaiPhanCong.DA_CHAP_NHAN -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+//                        TrangThaiPhanCong.DA_TU_CHOI -> options.addAll(listOf("Xem lý do từ chối", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+//                        TrangThaiPhanCong.DANG_THUC_HIEN -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
+//                        TrangThaiPhanCong.TAM_NGHI -> options.addAll(listOf("Xem tiến độ", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
+//                        TrangThaiPhanCong.HOAN_THANH, TrangThaiPhanCong.BI_HUY -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
+//                    }
+
                     when (selected.trangThaiPhanCong) {
-                        TrangThaiPhanCong.CHO_PHAN_HOI -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
-                        TrangThaiPhanCong.DA_CHAP_NHAN -> options.addAll(listOf("Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
-                        TrangThaiPhanCong.DA_TU_CHOI -> options.addAll(listOf("Xem lý do từ chối", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
-                        TrangThaiPhanCong.DANG_THUC_HIEN -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
-                        TrangThaiPhanCong.TAM_NGHI -> options.addAll(listOf("Xem tiến độ", "Thay người", "Hủy bỏ", "Xem thông tin cá nhân", "Gọi điện"))
-                        TrangThaiPhanCong.HOAN_THANH, TrangThaiPhanCong.BI_HUY -> options.addAll(listOf("Xem tiến độ", "Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.CHO_PHAN_HOI -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DA_CHAP_NHAN -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DA_TU_CHOI -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.DANG_THUC_HIEN -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.TAM_NGHI -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
+                        TrangThaiPhanCong.HOAN_THANH, TrangThaiPhanCong.BI_HUY -> options.addAll(listOf("Xem thông tin cá nhân", "Gọi điện"))
                     }
 
                     // Thêm lựa chọn xem toàn bộ công việc
@@ -286,6 +300,20 @@ fun ChonKyThuatVienScreen(
                                                 selected.ktv.taiKhoan.soDienThoai.toString(), phanCongId)
                                         )
                                     }
+                                    "Xem thông tin cá nhân" -> {
+                                        navController.navigate(
+                                            Screen.AdminViewDetailProfile.createRoute(selected.ktv.taiKhoan.id)
+                                        )
+                                    }
+                                    "Gọi điện" -> {
+                                        val phoneNumber = selected.ktv.taiKhoan.soDienThoai
+                                        phoneNumber?.let { number ->
+                                            val intent = Intent(Intent.ACTION_DIAL,
+                                                "tel:$number".toUri())
+                                            context.startActivity(intent)
+                                        }
+                                    }
+
                                     // Các case còn lại bạn giữ nguyên xử lý như cũ
                                 }
 

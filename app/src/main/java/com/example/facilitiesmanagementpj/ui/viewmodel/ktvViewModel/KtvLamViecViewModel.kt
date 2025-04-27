@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facilitiesmanagementpj.data.entity.AnhMinhChungLamViec
 import com.example.facilitiesmanagementpj.data.repository.AnhMinhChungLamViecRepository
+import com.example.facilitiesmanagementpj.data.repository.KyThuatVienRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongKtvRepository
 import com.example.facilitiesmanagementpj.data.repository.PhanCongRepository
 import com.example.facilitiesmanagementpj.data.utils.LoaiAnhMinhChungLamViec
@@ -36,6 +37,7 @@ class KtvLamViecViewModel @Inject constructor(
     private val anhRepo: AnhMinhChungLamViecRepository,
     private val pcKtvRepo: PhanCongKtvRepository,
     private val phanCongRepo: PhanCongRepository,
+    private val kyThuatVienRepo: KyThuatVienRepository
 ) : ViewModel() {
 
     private val _imageUris = MutableStateFlow<List<Uri>>(emptyList())
@@ -308,7 +310,7 @@ class KtvLamViecViewModel @Inject constructor(
     suspend fun guiMinhChungTacVu(
         phanCongKtvId: Int,
         tacVu: LoaiTacVu,
-        soPhut: Int? = null
+        soPhut: Int? = null,
     ): Boolean = withContext(NonCancellable) {
         val now = System.currentTimeMillis()
         val uploadedFiles = mutableListOf<AnhMinhChungLamViec>()
@@ -367,6 +369,7 @@ class KtvLamViecViewModel @Inject constructor(
             uploadedFiles.forEach { anhRepo.insert(it) }
 
             val phanCongId = phanCongRepo.getPhanCongIdByPhanCongKtvId(phanCongKtvId)
+
             when (tacVu) {
                 LoaiTacVu.XIN_GIA_HAN -> {
                     if (soPhut != null) pcKtvRepo.xinGiaHan(phanCongKtvId, soPhut)
@@ -374,7 +377,10 @@ class KtvLamViecViewModel @Inject constructor(
 
                 LoaiTacVu.CHECK_IN -> {
                     pcKtvRepo.updateTrangThaiPhanCongKtv(phanCongKtvId, TrangThaiPhanCong.DANG_THUC_HIEN)
+                    delay(50L)
                     phanCongRepo.capNhatTrangThaiPhanCong(phanCongId)
+//                    delay(50L)
+//                    kyThuatVienRepo.capNhatTrangThaiKTV(taiKhoanKtvId)
                 }
 
                 LoaiTacVu.TAM_NGHI -> {

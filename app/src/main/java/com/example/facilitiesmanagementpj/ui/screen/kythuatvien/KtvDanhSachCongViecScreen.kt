@@ -57,8 +57,7 @@ fun KtvDanhSachCongViecScreen(
 
     val allTasks by viewModel.tasksWithTime.collectAsState()
     val viecMoi = allTasks.filter {
-        it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI ||
-                it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DA_TU_CHOI
+        it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.CHO_PHAN_HOI
     }
     val dangLam = allTasks.filter {
         it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DA_CHAP_NHAN ||
@@ -66,13 +65,14 @@ fun KtvDanhSachCongViecScreen(
                 it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.TAM_NGHI
     }
     val hoanThanh = allTasks.filter { it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.HOAN_THANH }
-    val biHuy = allTasks.filter { it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.BI_HUY }
+    val biHuy = allTasks.filter { it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.BI_HUY ||
+            it.pc.phanCongKtv.trangThai == TrangThaiPhanCong.DA_TU_CHOI}
 
     val tabData = listOf(
         viecMoi to "Việc mới",
         dangLam to "Đang làm",
         hoanThanh to "Đã hoàn thành",
-        biHuy to "Bị hủy"
+        biHuy to "Bị hủy",
     )
 
     val tasks = when (selectedTabIndex) {
@@ -375,7 +375,7 @@ fun KtvDanhSachCongViecScreen(
                                 }
                             )
 
-                            if (trangThai != TrangThaiPhanCong.CHO_PHAN_HOI) {
+                            if (trangThai != TrangThaiPhanCong.CHO_PHAN_HOI && trangThai != TrangThaiPhanCong.DA_TU_CHOI ) {
                                 ListItem(
                                     headlineContent = { Text("Vào phiên làm việc") },
                                     leadingContent = { Icon(Icons.Default.Work, contentDescription = null) },

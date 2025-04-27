@@ -76,31 +76,63 @@ class SmartSyncManager(private val syncMetadataDao: SyncMetadataDao) {
         donViSync: BaseFirestoreSyncService<DonVi>,
         vaiTroSync: BaseFirestoreSyncService<VaiTro>
     ) {
+//        syncSmartAll(
+//            linkedMapOf( // old là mapof
+//                "bai_viet" to baiVietSync,
+//                "thong_bao" to thongBaoSync,
+//                "loai_phong" to loaiPhongSync,
+//                "loai_thiet_bi" to loaiThietBiSync,
+//                "chuyen_mon" to chuyenMonSync,
+//                "yeu_cau" to yeuCauSync,
+//                "phan_cong" to phanCongSync,
+//                "phan_cong_ktv" to phanCongKtvSync,
+//                "don_vi" to donViSync,
+//                "vai_tro" to vaiTroSync,
+//                "tai_khoan" to taiKhoanSync,
+//                "ky_thuat_vien" to kyThuatVienSync,
+//                "thiet_bi" to thietBiSync,
+//                "day" to daySync,
+//                "tang" to tangSync,
+//                "phong" to phongSync,
+//                "chuyen_mon_ktv" to chuyenMonKtvSync,
+//                "danh_gia_ktv" to danhGiaKtvSync,
+//                "bien_ban_yeu_cau" to bienBanYeuCauSync,
+//                "chi_tiet_yeu_cau" to chiTietYeuCauSync,
+//                "anh_minh_chung_bao_cao" to anhMinhChungBaoCaoSync,
+//                "anh_minh_chung_lam_viec" to anhMinhChungLamViecSync,
+//
+//            )
+//        )
         syncSmartAll(
-            mapOf(
+            linkedMapOf(
                 "bai_viet" to baiVietSync,
                 "thong_bao" to thongBaoSync,
-                "yeu_cau" to yeuCauSync,
-                "phan_cong" to phanCongSync,
-                "phan_cong_ktv" to phanCongKtvSync,
-                "tai_khoan" to taiKhoanSync,
-                "ky_thuat_vien" to kyThuatVienSync,
-                "thiet_bi" to thietBiSync,
-                "phong" to phongSync,
-                "tang" to tangSync,
-                "day" to daySync,
                 "loai_phong" to loaiPhongSync,
                 "loai_thiet_bi" to loaiThietBiSync,
                 "chuyen_mon" to chuyenMonSync,
+
+                "don_vi" to donViSync,
+                "vai_tro" to vaiTroSync,
+                "tai_khoan" to taiKhoanSync,
+                "ky_thuat_vien" to kyThuatVienSync,
                 "chuyen_mon_ktv" to chuyenMonKtvSync,
                 "danh_gia_ktv" to danhGiaKtvSync,
-                "bien_ban_yeu_cau" to bienBanYeuCauSync,
+
+                "day" to daySync,
+                "tang" to tangSync,
+                "phong" to phongSync,
+                "thiet_bi" to thietBiSync,
+
+                "yeu_cau" to yeuCauSync,
                 "chi_tiet_yeu_cau" to chiTietYeuCauSync,
+                "phan_cong" to phanCongSync,
+                "phan_cong_ktv" to phanCongKtvSync,
+
+                "bien_ban_yeu_cau" to bienBanYeuCauSync,
                 "anh_minh_chung_bao_cao" to anhMinhChungBaoCaoSync,
                 "anh_minh_chung_lam_viec" to anhMinhChungLamViecSync,
-                "don_vi" to donViSync,
-                "vai_tro" to vaiTroSync
             )
         )
+
     }
 }

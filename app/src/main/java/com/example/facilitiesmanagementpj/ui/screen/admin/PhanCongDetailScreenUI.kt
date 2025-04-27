@@ -372,18 +372,17 @@ fun KtvOptionsBottomSheet(item: PhanCongKtvWithTaiKhoan, onDismiss: () -> Unit, 
                                 goiDien(context, item.taiKhoan.soDienThoai)
                                 onDismiss()
                             }
-                            "Xem thông tin cá nhân" -> {onDismiss()
+                            "Xem thông tin cá nhân" -> {
+                                onDismiss()
                                 navController.navigate(Screen.AdminViewDetailProfile.createRoute(item.taiKhoan.id))}
                             "Xem yêu cầu gia hạn" -> {
                                 onDismiss()
                                 navController.navigate(Screen.XemYeuCauGiaHan.createRoute(item.phanCongKtv.id))
                             }
                             "Xem lý do từ chối" -> {
-                                onDismiss()
                                 showRejectReasonDialog = true
                             }
                             "Hủy bỏ" -> {
-                                onDismiss()
                                 showConfirmCancelDialog = true
                             }
                             "Xem tiến độ" -> {navController.navigate(Screen.AdminViewTienTrinhLamViec.createRoute(item.phanCongKtv.id))}

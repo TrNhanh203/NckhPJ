@@ -1,10 +1,14 @@
 package com.example.facilitiesmanagementpj.data.repository
 
+import android.util.Log
 import com.example.facilitiesmanagementpj.data.dao.KyThuatVienDao
+import com.example.facilitiesmanagementpj.data.dao.PhanCongKtvDao
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVien
 import com.example.facilitiesmanagementpj.data.entity.KyThuatVienWithTaiKhoan
 import com.example.facilitiesmanagementpj.data.sync.BaseFirestoreSyncService
 import com.example.facilitiesmanagementpj.data.sync.SyncDispatcher
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiKtv
+import com.example.facilitiesmanagementpj.data.utils.TrangThaiPhanCong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -54,8 +58,43 @@ import javax.inject.Singleton
 class KyThuatVienRepository @Inject constructor(
     private val kyThuatVienDao: KyThuatVienDao,
     private val chuyenMonRepo: ChuyenMonRepository,
+    private val phanCongKtvDao: PhanCongKtvDao,
     private val syncService: BaseFirestoreSyncService<KyThuatVien>
 ) {
+
+    suspend fun capNhatTrangThaiKTV(taiKhoanId: Int) {
+        Log.d("capNhatTrangThaiKTV", "Bắt đầu cập nhật trạng thái cho tài khoản ID = $taiKhoanId")
+
+        // 🔹 Lấy danh sách tất cả các phân công KTV
+        val dsPhanCongKtv = phanCongKtvDao.getPhanCongDangLamByKtv(taiKhoanId)
+        Log.d("capNhatTrangThaiKTV", "Số lượng phân công KTV lấy được: ${dsPhanCongKtv.size}")
+
+        // 🔹 Kiểm tra trạng thái
+        val coDangLamViec = dsPhanCongKtv.any { it.trangThai == TrangThaiPhanCong.DANG_THUC_HIEN }
+        Log.d("capNhatTrangThaiKTV", "Có đang làm việc hay không? $coDangLamViec")
+
+        val newTrangThai = when {
+            coDangLamViec -> TrangThaiKtv.DANG_LAM_VIEC
+            else -> TrangThaiKtv.DANG_NGHI
+        }
+        Log.d("capNhatTrangThaiKTV", "Trạng thái mới xác định: $newTrangThai")
+
+        // 🔹 Cập nhật vào DB
+        kyThuatVienDao.updateTrangThaiKTV(taiKhoanId, newTrangThai)
+        Log.d("capNhatTrangThaiKTV", "Đã update trạng thái vào database")
+
+        // 🔹 Lấy lại thông tin KTV mới
+        val updatedKtv = kyThuatVienDao.getKyThuatVienByTaiKhoanId(taiKhoanId)
+        if (updatedKtv != null) {
+            Log.d("capNhatTrangThaiKTV", "Lấy được KTV sau cập nhật, tiến hành sync Firestore: $updatedKtv")
+            SyncDispatcher.dispatch(syncService, updatedKtv, SyncDispatcher.SyncType.UPDATE)
+            Log.d("capNhatTrangThaiKTV", "Đã sync Firestore thành công")
+        } else {
+            Log.w("capNhatTrangThaiKTV", "Không tìm thấy KTV sau khi update!")
+        }
+    }
+
+
 
     suspend fun getByTrangThaiWithTaiKhoan(trangThai: String?): List<KyThuatVienWithTaiKhoan> {
         return kyThuatVienDao.getByTrangThaiWithTaiKhoan(trangThai)

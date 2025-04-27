@@ -38,12 +38,15 @@ fun AdminViewTienTrinhLamViecScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tiến trình làm việc") },
+                title = { Text("Tiến trình làm việc", color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back",tint = MaterialTheme.colorScheme.onPrimary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     ) { padding ->
@@ -113,7 +116,8 @@ fun TabTienTrinhLamViec(
                 Text("Chưa có dữ liệu minh chứng")
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(danhSachNhom) { nhom ->
                     Card(
                         modifier = Modifier

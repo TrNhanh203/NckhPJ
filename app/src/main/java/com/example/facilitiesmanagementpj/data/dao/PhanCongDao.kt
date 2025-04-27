@@ -19,6 +19,9 @@ interface PhanCongDao {
     @Query("UPDATE phan_cong SET trangThai = :trangThai WHERE id = :id")
     suspend fun updateTrangThai(id: Int, trangThai: String)
 
+    @Query("UPDATE phan_cong SET soLuongKtvThamGia = :soLuong WHERE id = :phanCongId")
+    suspend fun updateSoLuongKtvThamGia(phanCongId: Int, soLuong: Int)
+
     // Truy vấn để lấy PhanCongId từ ChiTietYeuCauId
     @Query("SELECT id FROM phan_cong WHERE chiTietYeuCauId = :chiTietYeuCauId LIMIT 1")
     suspend fun getPhanCongIdByChiTietYeuCauId(chiTietYeuCauId: Int): Int?

@@ -8,13 +8,16 @@ import org.checkerframework.checker.units.qual.K
 @Dao
 interface KyThuatVienDao {
 
+    @Query("UPDATE ky_thuat_vien SET trangThaiHienTai = :trangThai WHERE taiKhoanId = :taiKhoanId")
+    suspend fun updateTrangThaiKTV(taiKhoanId: Int, trangThai: String)
+
     @Query("UPDATE ky_thuat_vien SET ngayBatDauLam = :ngay WHERE taiKhoanId = :taiKhoanId")
     suspend fun updateNgayBatDauLamByTaiKhoanId(taiKhoanId: Int, ngay: Long)
 
     @Query("SELECT * FROM ky_thuat_vien WHERE taiKhoanId = :taiKhoanId LIMIT 1")
     fun getByTaiKhoanId(taiKhoanId: Int): Flow<KyThuatVien?>
 
-    @Query("SELECT * FROM ky_thuat_vien WHERE taiKhoanId = :taiKhoanId")
+    @Query("SELECT * FROM ky_thuat_vien WHERE taiKhoanId = :taiKhoanId LIMIT 1")
     suspend fun getKyThuatVienByTaiKhoanId(taiKhoanId: Int): KyThuatVien?
 
     @Query("""

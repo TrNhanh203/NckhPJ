@@ -111,7 +111,7 @@ fun KtvLamViecScreen(
     val isCurrentUserAllowed = currentPhanCongKtv != null
     var selectedTab by remember { mutableIntStateOf(1) } // tab giữa mặc định là "Thực hiện"
     val isLoading by lamViecViewModel.isGuiMinhChungLoading.collectAsState()
-
+    //val taiKhoanId = currentPhanCongKtv?.phanCongKtv?.taiKhoanKTVId?: 0
 
     LaunchedEffect(Unit) {
         viewModel.loadPhanCongChiTiet(phanCongId)
@@ -225,13 +225,12 @@ fun KtvLamViecScreen(
             Column(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
                     0 -> TabChiTietPhanCong(viewModel, navController)
-                    1 -> TabCongViec(
+                    1 ->TabCongViec(
                         currentPhanCongKtv.phanCongKtv.id,
                         currentPhanCongKtv.phanCongKtv.trangThai,
                         phanCongId,
                         lamViecViewModel
                     )
-
                     2 -> TabTienTrinhLamViec(currentPhanCongKtv.phanCongKtv.id)
                 }
             }
@@ -1130,58 +1129,6 @@ fun TabTienTrinhLamViec(
                         onClick = { nhomDuocChon = nhom },
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
-//                    Card(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(vertical = 4.dp)
-//                            .clickable { nhomDuocChon = nhom },
-//                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-//                        colors = CardDefaults.cardColors(
-//                            containerColor = MaterialTheme.colorScheme.surfaceVariant // hoặc Color.White
-//                        )
-//
-//                    ) {
-//                        Row(
-//                            modifier = Modifier.padding(12.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Box(modifier = Modifier.size(56.dp)) {
-//                                Image(
-//                                    painter = rememberAsyncImagePainter(nhom.danhSachAnh.first().urlAnh),
-//                                    contentDescription = null,
-//                                    modifier = Modifier.matchParentSize()
-//                                )
-//                                Box(
-//                                    modifier = Modifier
-//                                        .align(Alignment.BottomEnd)
-//                                        .padding(2.dp)
-//                                        .size(18.dp)
-//                                        .background(
-//                                            Color.Black.copy(alpha = 0.7f),
-//                                            shape = MaterialTheme.shapes.small
-//                                        ),
-//                                    contentAlignment = Alignment.Center
-//                                ) {
-//                                    Text(
-//                                        text = nhom.danhSachAnh.size.toString(),
-//                                        color = Color.White,
-//                                        style = MaterialTheme.typography.labelSmall
-//                                    )
-//                                }
-//                            }
-//                            Spacer(modifier = Modifier.width(12.dp))
-//                            Column {
-//                                Text(
-//                                    text = loaiAnhToLabel(nhom.loaiAnh),
-//                                    fontWeight = FontWeight.Bold
-//                                )
-//                                Text(
-//                                    text = formatTime(nhom.thoiGian),
-//                                    style = MaterialTheme.typography.labelSmall
-//                                )
-//                            }
-//                        }
-//                    }
                 }
             }
         }
