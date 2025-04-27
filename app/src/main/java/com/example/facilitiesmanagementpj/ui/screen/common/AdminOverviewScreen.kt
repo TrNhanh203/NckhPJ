@@ -47,6 +47,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBi
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiThietBiColor
+import com.example.facilitiesmanagementpj.ui.screen.admin.getColorForTrangThaiPhanCong
 
 
 @Composable
@@ -74,7 +75,6 @@ fun AdminOverviewScreen(navController: NavController) {
                 DashboardOption(
                     title = "Quản lý tài khoản",
                     icon = Icons.Default.AccountCircle,
-                    color = Color.Blue,
                     onClick = { navController.navigate(Screen.AdminAccount.route) }
                 )
             }
@@ -82,7 +82,6 @@ fun AdminOverviewScreen(navController: NavController) {
                 DashboardOption(
                     title = "Quản lý thiết bị",
                     icon = Icons.Default.Settings,
-                    color = Color.Blue,
                     onClick = { navController.navigate(Screen.AdminDeviceList.route) }
                 )
             }
@@ -90,7 +89,6 @@ fun AdminOverviewScreen(navController: NavController) {
                 DashboardOption(
                     title = "Danh sách kỹ thuật viên",
                     icon = Icons.Default.AccountBox,
-                    color = Color.Blue,
                     onClick = { navController.navigate(Screen.DanhSachKyThuatVien.route) }
                 )
             }
@@ -98,7 +96,6 @@ fun AdminOverviewScreen(navController: NavController) {
                 DashboardOption(
                     title = "Quản lý bài viết",
                     icon = Icons.Default.AccountBox,
-                    color = Color.Blue,
                     onClick = { navController.navigate(Screen.AdminBaiViet.route) }
                 )
             }
@@ -133,7 +130,7 @@ fun DeviceOverviewCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
@@ -504,5 +501,314 @@ fun getTrangThaiColor(trangThai: String): Color {
         "Đã Nghiệm Thu" -> Color(0xFF009688)
         "Bản Nháp" -> Color(0xFFBDBDBD)
         else -> Color.Gray
+    }
+}
+
+
+//@Composable
+//fun KtvLamViecViewCard(
+//    statusCounts: Map<String, Int>,
+//    modifier: Modifier = Modifier,
+//    onClickDetail: () -> Unit
+//) {
+//    Card(
+//        modifier = modifier,
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+//        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primaryContainer),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+//    ) {
+//        Column(modifier = Modifier.fillMaxWidth()) {
+//            // Phần trên
+//            Column(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
+//                verticalArrangement = Arrangement.spacedBy(12.dp)
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Column(
+//                        verticalArrangement = Arrangement.spacedBy(8.dp),
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+//                        val statusList = statusCounts.entries.toList()
+//                        statusList.forEach { (status, count) ->
+//                            Row(verticalAlignment = Alignment.CenterVertically) {
+//                                Box(
+//                                    Modifier
+//                                        .size(10.dp)
+//                                        .background(getColorForTrangThaiPhanCong(status), shape = RoundedCornerShape(50))
+//                                )
+//                                Spacer(Modifier.width(4.dp))
+//                                Text("$status: $count", style = MaterialTheme.typography.bodyMedium)
+//                            }
+//                        }
+//                    }
+//
+//                    Box(
+//                        contentAlignment = Alignment.Center,
+//                        modifier = Modifier.size(140.dp)
+//                    ) {
+//                        DonutChartForPhanCong(
+//                            data = statusCounts,
+//                            size = 120.dp,
+//                            thickness = 20.dp
+//                        )
+//                        Text(
+//                            text = "${statusCounts.values.sum()}",
+//                            style = MaterialTheme.typography.titleLarge.copy(
+//                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+//                            ),
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                    }
+//                }
+//            }
+//
+//            // Phần dưới
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .background(MaterialTheme.colorScheme.primaryContainer)
+//                    .height(60.dp),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxSize(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ) {
+//                    Text(
+//                        text = "Tình hình công việc",
+//                        style = MaterialTheme.typography.titleMedium,
+//                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+//                        modifier = Modifier.padding(start = 16.dp)
+//                    )
+//                    Button(
+//                        onClick = onClickDetail,
+//                        modifier = Modifier
+//                            .offset(y = (-24).dp)
+//                            .padding(end = 16.dp),
+//                        shape = RoundedCornerShape(12.dp),
+//                        border = BorderStroke(4.dp, MaterialTheme.colorScheme.primary),
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//                            contentColor = MaterialTheme.colorScheme.primary
+//                        )
+//                    ) {
+//                        Text("Xem chi tiết")
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+//@Composable
+//fun DonutChartForPhanCong(data: Map<String, Int>, size: Dp, thickness: Dp) {
+//    val total = data.values.sum().toFloat()
+//    val gapDegree = 2f
+//
+//    Canvas(
+//        modifier = Modifier.size(size)
+//    ) {
+//        var startAngle = -90f
+//
+//        data.forEach { (status, count) ->
+//            val sweepAngle = (count / total) * 360f - gapDegree
+//
+//            drawArc(
+//                color = Color.Black.copy(alpha = 0.08f),
+//                startAngle = startAngle + gapDegree / 2,
+//                sweepAngle = sweepAngle,
+//                useCenter = false,
+//                style = Stroke(width = thickness.toPx() + 4f)
+//            )
+//
+//            drawArc(
+//                color = getColorForTrangThaiPhanCong(status),
+//                startAngle = startAngle + gapDegree / 2,
+//                sweepAngle = sweepAngle,
+//                useCenter = false,
+//                style = Stroke(width = thickness.toPx())
+//            )
+//
+//            startAngle += (sweepAngle + gapDegree)
+//        }
+//    }
+//}
+@Composable
+fun KtvLamViecViewCard(
+    statusCounts: Map<String, Int>,
+    modifier: Modifier = Modifier,
+    onClickDetail: () -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tình hình công việc",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            // Body
+            Spacer(Modifier.height(12.dp))
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                // Donut chart ở trên
+                Box(contentAlignment = Alignment.Center) {
+                    DonutChartForPhanCong(
+                        data = statusCounts,
+                        size = 160.dp,
+                        thickness = 28.dp
+                    )
+                    Text(
+                        text = "${statusCounts.values.sum()}",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                // Danh sách trạng thái bên dưới
+                Column(
+                    modifier = Modifier.fillMaxWidth(), // 👈 ép full chiều ngang luôn
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val statusList = statusCounts.entries.toList()
+                    statusList.forEach { (status, count) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(), // 👈 từng dòng cũng kéo full width
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween // 👈 label bên trái, số bên phải
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    Modifier
+                                        .size(16.dp)
+                                        .background(getColorForTrangThaiPhanCong(status), shape = RoundedCornerShape(50))
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = status,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            // Đường gạch nối tự động expand
+                            Text(
+                                text = "........................................",
+                                modifier = Modifier.weight(1f), // 👈 fill ra hết chỗ trống giữa
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                text = "$count",
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                            )
+                        }
+                    }
+                }
+
+            }
+            Spacer(Modifier.height(12.dp))
+
+            // Footer
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .height(56.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = onClickDetail,
+                    modifier = Modifier
+                        .offset(y = (-12).dp)
+                        .width(240.dp)    // 👈 Tùy chỉnh rộng
+                        .height(64.dp),   // 👈 Tùy chỉnh cao
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(4.dp, MaterialTheme.colorScheme.primaryContainer),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = "Xem chi tiết",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize, // 👈 To hơn bodyLarge
+                            fontWeight = FontWeight.Bold // 👈 In đậm
+                        )
+                    )
+                }
+
+            }
+
+        }
+    }
+}
+
+@Composable
+fun DonutChartForPhanCong(data: Map<String, Int>, size: Dp, thickness: Dp) {
+    val total = data.values.sum().toFloat()
+    val gapDegree = 2f
+
+    Canvas(
+        modifier = Modifier.size(size)
+    ) {
+        var startAngle = -90f
+
+        data.forEach { (status, count) ->
+            val sweepAngle = (count / total) * 360f - gapDegree
+
+            drawArc(
+                color = Color.Black.copy(alpha = 0.08f),
+                startAngle = startAngle + gapDegree / 2,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                style = Stroke(width = thickness.toPx() + 4f)
+            )
+
+            drawArc(
+                color = getColorForTrangThaiPhanCong(status),
+                startAngle = startAngle + gapDegree / 2,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                style = Stroke(width = thickness.toPx())
+            )
+
+            startAngle += (sweepAngle + gapDegree)
+        }
     }
 }

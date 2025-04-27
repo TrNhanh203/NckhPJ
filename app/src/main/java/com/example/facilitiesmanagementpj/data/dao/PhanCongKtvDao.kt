@@ -112,6 +112,9 @@ interface PhanCongKtvDao {
 """)
     suspend fun getPhanCongDangLamByKtv(taiKhoanId: Int): List<PhanCongKtv>
 
+    @Query("SELECT * FROM phan_cong_ktv WHERE taiKhoanKTVId = :tkKtvId")
+    suspend fun getPhanCongByTkKtvId(tkKtvId: Int): List<PhanCongKtv>
+
 
     @Transaction
     @Query("SELECT * FROM phan_cong_ktv WHERE phanCongId = :phanCongId")

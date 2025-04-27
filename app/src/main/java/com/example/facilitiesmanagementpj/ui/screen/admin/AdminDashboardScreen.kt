@@ -1,5 +1,7 @@
 package com.example.facilitiesmanagementpj.ui.screen.admin
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 
 import androidx.compose.material3.*
@@ -27,8 +30,14 @@ import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.screen.common.YeuCauOverviewCard
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.DashBoardOptionviewViewMode
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import com.example.facilitiesmanagementpj.ui.screen.common.DeviceOverviewCard
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import com.example.facilitiesmanagementpj.R
 
 
 @Composable
@@ -47,7 +56,7 @@ fun AdminDashboardScreen(navController: NavController) {
     val deviceStatusCounts by viewModel.deviceStatusCounts.collectAsState()
 
 
-    ScaffoldLayout(title = "Admin DashBoard", navController = navController, showBottomBar = true, isHomeScreen = false) { modifier ->
+    ScaffoldLayout(title = "", navController = navController, showBottomBar = true, isHomeScreen = false) { modifier ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -58,14 +67,16 @@ fun AdminDashboardScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Admin Dashboard", style = MaterialTheme.typography.headlineMedium)
-
-            DashboardOption(
-                title = "Quản lý tài khoản",
-                icon = Icons.Default.AccountCircle,
-                color = Color.Blue,
-                onClick = { navController.navigate(Screen.AdminAccount.route) }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Admin Dashboard",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold // tăng độ đậm
+                ),
+                color = MaterialTheme.colorScheme.primary // đổi màu
             )
+            Spacer(modifier = Modifier.height(2.dp))
+
 
 //            DashboardOption(
 //                title = "Quản lý yêu cầu",
@@ -84,6 +95,7 @@ fun AdminDashboardScreen(navController: NavController) {
 //                color = Color.Blue,
 //                onClick = { navController.navigate(Screen.AdminDeviceList.route) }
 //            )
+            Spacer(modifier = Modifier.height(8.dp))
             DeviceOverviewCard(
                 statusCounts = deviceStatusCounts,
                 modifier = Modifier.fillMaxWidth(),
@@ -92,16 +104,20 @@ fun AdminDashboardScreen(navController: NavController) {
 
 
             DashboardOption(
-                title = "Danh sách kỹ thuật viên",
-                icon = Icons.Default.AccountBox,
-                color = Color.Blue,
+                title = "Danh sách KTV",
+                imgIcon = painterResource(id = R.drawable.crew),
                 onClick = { navController.navigate(Screen.DanhSachKyThuatVien.route) }
             )
 
             DashboardOption(
+                title = "Quản lý tài khoản",
+                imgIcon = painterResource(id = R.drawable.account),
+                onClick = { navController.navigate(Screen.AdminAccount.route) }
+            )
+
+            DashboardOption(
                 title = "Quản lý bài viết",
-                icon = Icons.Default.AccountBox,
-                color = Color.Blue,
+                imgIcon = painterResource(id = R.drawable.post),
                 onClick = { navController.navigate(Screen.AdminBaiViet.route) }
             )
         }
@@ -109,24 +125,94 @@ fun AdminDashboardScreen(navController: NavController) {
 }
 
 // Component hiển thị từng tùy chọn trong Dashboard
+//@Composable
+//fun DashboardOption(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(80.dp)
+//            .clickable(onClick = onClick),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))
+//    ) {
+//        Row(
+//            modifier = Modifier.fillMaxSize().padding(16.dp),
+//            verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.Start
+//        ) {
+//            Icon(icon, contentDescription = title, tint = color, modifier = Modifier.size(40.dp))
+//            Spacer(modifier = Modifier.width(16.dp))
+//            Text(title, fontSize = 20.sp, color = color)
+//        }
+//    }
+//}
+
 @Composable
-fun DashboardOption(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+fun DashboardOption(
+    title: String,
+    imgIcon: Painter? = null,
+    icon: ImageVector = Icons.Default.AccountCircle,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .clickable(onClick = onClick),
+            .height(86.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(icon, contentDescription = title, tint = color, modifier = Modifier.size(40.dp))
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(title, fontSize = 20.sp, color = color)
+            // Icon + Title
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (imgIcon != null) {
+                    Image(
+                        painter = imgIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp) // icon nhỏ hơn
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp), // chữ to hơn
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            // IconButton hình vuông bo góc nhẹ
+            IconButton(
+                onClick = onClick,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Xem chi tiết",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
         }
     }
 }
+
+

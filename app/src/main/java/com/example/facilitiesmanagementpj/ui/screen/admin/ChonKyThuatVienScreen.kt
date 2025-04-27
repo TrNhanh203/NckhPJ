@@ -361,20 +361,33 @@ fun ChonKyThuatVienScreen(
     }
 }
 
-@Composable
+
+//fun getColorForTrangThaiPhanCong(trangThai: String?): Color {
+//    return when (trangThai) {
+//        TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
+//        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
+//        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
+//        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
+//        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
+//        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
+//        else -> Color.LightGray
+//    }
+//}
 fun getColorForTrangThaiPhanCong(trangThai: String?): Color {
     return when (trangThai) {
-        TrangThaiPhanCong.DA_CHAP_NHAN, TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)
-        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107)
-        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF2196F3)
-        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800)
-        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)
-        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336)
+        TrangThaiPhanCong.DA_CHAP_NHAN -> Color(0xFF2196F3) // Xanh dương (chấp nhận, sẵn sàng)
+        TrangThaiPhanCong.HOAN_THANH -> Color(0xFF4CAF50)   // Xanh lá (hoàn thành)
+        TrangThaiPhanCong.CHO_PHAN_HOI -> Color(0xFFFFC107) // Vàng (chờ phản hồi)
+        TrangThaiPhanCong.DANG_THUC_HIEN -> Color(0xFF1976D2) // Xanh dương đậm hơn (đang thực hiện)
+        TrangThaiPhanCong.TAM_NGHI -> Color(0xFFFF9800) // Cam (tạm nghỉ)
+        TrangThaiPhanCong.BI_HUY -> Color(0xFF9E9E9E)   // Xám (bị huỷ)
+        TrangThaiPhanCong.DA_TU_CHOI -> Color(0xFFF44336) // Đỏ (từ chối)
         else -> Color.LightGray
     }
 }
 
-@Composable
+
+
 fun getColorForTrangThaiHoatDong(trangThai: String): Color {
     return when (trangThai) {
         TrangThaiKtv.DANG_LAM_VIEC -> Color(0xFF4CAF50)

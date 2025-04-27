@@ -2,6 +2,7 @@ package com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.facilitiesmanagementpj.data.dao.PhanCongKtvDao
 import com.example.facilitiesmanagementpj.data.dao.TaiKhoanWithRole
 import com.example.facilitiesmanagementpj.data.dao.ThietBiDao
 import com.example.facilitiesmanagementpj.data.dao.YeuCauDao
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DashBoardOptionviewViewMode @Inject constructor(
     private val yeuCauDao: YeuCauDao,
-    private val thietBiDao: ThietBiDao
+    private val thietBiDao: ThietBiDao,
+    private val phanCongKtvDao: PhanCongKtvDao,
 ) : ViewModel() {
 
     private val _statusCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
@@ -22,6 +24,17 @@ class DashBoardOptionviewViewMode @Inject constructor(
 
     private val _deviceStatusCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     val deviceStatusCounts: StateFlow<Map<String, Int>> = _deviceStatusCounts
+
+    private val _taskStatusCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val taskStatusCounts: StateFlow<Map<String, Int>> = _taskStatusCounts
+
+    fun loadPhanCongKtv(currentUserId: Int) {
+        viewModelScope.launch {
+            val phanCongList = phanCongKtvDao.getPhanCongByTkKtvId(currentUserId)
+            val grouped = phanCongList.groupingBy { it.trangThai }.eachCount()
+            _taskStatusCounts.value = grouped
+        }
+    }
 
     fun loadData(currentUser: TaiKhoanWithRole) {
         viewModelScope.launch {

@@ -3,8 +3,10 @@ package com.example.facilitiesmanagementpj.ui.screen.quanlydonvi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,9 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.facilitiesmanagementpj.R
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
 import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.screen.admin.DashboardOption
@@ -47,7 +52,7 @@ fun DonViDashboardScreen(navController: NavController) {
     val deviceStatusCounts by viewModel.deviceStatusCounts.collectAsState()
 
     ScaffoldLayout(
-        title = "Don Vi DashBoard",
+        title = "",
         navController = navController,
         showBottomBar = true
     ) { modifier ->
@@ -61,12 +66,25 @@ fun DonViDashboardScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("QLDV Dashboard", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "QLDV Dashboard",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold // tăng độ đậm
+                ),
+                color = MaterialTheme.colorScheme.primary // đổi màu
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+
+            DeviceOverviewCard(
+                statusCounts = deviceStatusCounts,
+                modifier = Modifier.fillMaxWidth(),
+                onClickDetail = { navController.navigate(Screen.QLDVThietBiTheoDV.route) }
+            )
 
             DashboardOption(
                 title = "Danh sách phòng",
-                icon = Icons.Default.AccountCircle,
-                color = Color.DarkGray,
+                imgIcon = painterResource(id = R.drawable.university),
                 onClick = { navController.navigate(Screen.QLDVPhong.route) }
             )
 
@@ -76,6 +94,7 @@ fun DonViDashboardScreen(navController: NavController) {
 //                color = Color.DarkGray,
 //                onClick = { navController.navigate(Screen.QLDVDanhSachYeuCau.route) }
 //            )
+            Spacer(modifier = Modifier.height(16.dp))
             YeuCauOverviewCard(
                 statusCounts = statusCounts,
                 onClickDetail = { navController.navigate(Screen.QLDVDanhSachYeuCau.route) }
@@ -83,8 +102,7 @@ fun DonViDashboardScreen(navController: NavController) {
 
             DashboardOption(
                 title = "Tạo Yêu Cầu Mới",
-                icon = Icons.Default.Settings,
-                color = Color.DarkGray,
+                imgIcon = painterResource(id = R.drawable.createyeucau),
                 onClick = { navController.navigate(Screen.ThemYeuCauMoi.createRoute(null)) }
             )
 
@@ -94,11 +112,7 @@ fun DonViDashboardScreen(navController: NavController) {
 //                color = Color.DarkGray,
 //                onClick = { navController.navigate(Screen.QLDVThietBiTheoDV.route) }
 //            )
-            DeviceOverviewCard(
-                statusCounts = deviceStatusCounts,
-                modifier = Modifier.fillMaxWidth(),
-                onClickDetail = { navController.navigate(Screen.QLDVThietBiTheoDV.route) }
-            )
+
 
 
         }
