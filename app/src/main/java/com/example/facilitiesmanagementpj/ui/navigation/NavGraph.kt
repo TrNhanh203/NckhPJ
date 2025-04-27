@@ -1,20 +1,29 @@
 package com.example.facilitiesmanagementpj.ui.navigation
 
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.facilitiesmanagementpj.data.entity.ThongBao
+import com.example.facilitiesmanagementpj.ui.component.NotificationBanner
 import com.example.facilitiesmanagementpj.ui.screen.DebugLoginScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminAccountScreen
 import com.example.facilitiesmanagementpj.ui.screen.admin.AdminBaiVietScreen
@@ -51,284 +60,589 @@ import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoP
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.QLDVThietBiTheoDVScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThemYeuCauMoiScreen
 import com.example.facilitiesmanagementpj.ui.screen.quanlydonvi.ThietBiDetailScreen
+import com.example.facilitiesmanagementpj.ui.viewmodel.ThongBaoViewModel
 
 
 @Composable
 fun NavGraph(startDestination: String = Screen.SplashScreen.route) {
     val navController = rememberNavController()
+    val thongBaoViewModel: ThongBaoViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = startDestination) {
-        // Màn hình chung
-        composable(Screen.SplashScreen.route) { SplashScreen(navController) }
-        composable(Screen.Home.route) { HomeScreen(navController) }
-        composable(Screen.Register.route) { RegisterScreen(navController) }
 
-        composable(Screen.Login.route) { LoginScreen(navController) }
-        composable(Screen.DebugLogin.route) { DebugLoginScreen(navController) }
 
-        composable(Screen.Profile.route) { ProfileScreen(navController) }
+    var currentThongBao by remember { mutableStateOf<ThongBao?>(null) }
+
+    LaunchedEffect(Unit) {
+        thongBaoViewModel.newThongBao.collect { thongBao ->
+            currentThongBao = thongBao
+        }
+    }
+
+    Scaffold(
+        topBar = { /* Nếu cần Toolbar */ },
+        bottomBar = { /* Nếu cần BottomNavigation */ }
+    ) { innerPadding ->
+        Box(Modifier.padding(innerPadding)) {
+            NavHost(navController = navController, startDestination = startDestination) {
+                // Màn hình chung
+                composable(Screen.SplashScreen.route) { SplashScreen(navController) }
+                composable(Screen.Home.route) { HomeScreen(navController, thongBaoViewModel) }
+                composable(Screen.Register.route) { RegisterScreen(navController) }
+
+                composable(Screen.Login.route) { LoginScreen(navController) }
+                composable(Screen.DebugLogin.route) { DebugLoginScreen(navController) }
+
+                composable(Screen.Profile.route) { ProfileScreen(navController) }
 //        composable(Screen.ForgotPassword.route) { ForgotPasswordScreen(navController) }
 //        composable(Screen.ChangePassword.route) { ChangePasswordScreen(navController) }
 
-        // Màn hình Admin
-        composable(Screen.AdminDashboard.route) { AdminDashboardScreen(navController) }
-        composable(Screen.AdminAccount.route) { AdminAccountScreen(navController) }
-        composable(
-            route = Screen.AdminViewDetailProfile.route,
-            arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
-            AdminViewDetailProfileScreen(navController, taiKhoanId)
-        }
-        composable(Screen.AdminRequestList.route) { AdminRequestListScreen(navController) }
-
-        composable(
-            route = Screen.AdminRequestDetail.route,
-            arguments = listOf(navArgument("yeuCauId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
-            AdminRequestDetailScreen(navController, yeuCauId)
-        }
-        composable(
-            route = Screen.AdminDeviceDetail.route,
-            arguments = listOf(
-                navArgument("thietBiId") { type = NavType.IntType },
-                navArgument("yeuCauId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val thietBiId = backStackEntry.arguments?.getInt("thietBiId") ?: 0
-            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
-            AdminDeviceDetailScreen(navController, thietBiId, yeuCauId)
-        }
-        composable(
-            route = Screen.AdminDeviceList.route
-        ) {
-            AdminDeviceListScreen(navController)
-        }
-
-        composable(
-            route = Screen.ChonKyThuatVien.route,
-            arguments = listOf(
-                navArgument("phanCongId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-
-            ChonKyThuatVienScreen(phanCongId, navController)
-        }
-
-        composable(
-            route = Screen.PhanCongDetail.route,
-            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-            PhanCongDetailScreen(navController, phanCongId)
-        }
-
-
-        composable(
-            route = Screen.XacNhanDeCuKtv.route,
-            arguments = listOf(
-                navArgument("phanCongId") { type = NavType.IntType },
-                navArgument("taiKhoanId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
-            XacNhanDeCuKtvScreen(phanCongId, taiKhoanId, navController)
-        }
-
-        composable(
-            route = Screen.XemYeuCauGiaHan.route,
-            arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
-            XemYeuCauGiaHanScreen(phanCongKtvId, navController)
-        }
-
-        composable(
-            route = Screen.AdminViewTienTrinhLamViec.route,
-            arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
-            AdminViewTienTrinhLamViecScreen(navController, phanCongKtvId)
-        }
-
-        composable(
-            route = Screen.BienBanNghiemThu.route,
-            arguments = listOf(
-                navArgument("yeuCauId") { type = NavType.IntType },
-                navArgument("nguoiXacNhanId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
-            val nguoiXacNhanId = backStackEntry.arguments?.getInt("nguoiXacNhanId") ?: 0
-            BienBanNghiemThuScreen(
-                yeuCauId = yeuCauId,
-                nguoiXacNhanId = nguoiXacNhanId,
-                navController = navController,
-                onHoanTat = { kyA, kyB -> /* Handle completion */ }
-            )
-        }
-
-        composable(
-            route = Screen.XemAnhKhiNghiemThu.route,
-            arguments = listOf(navArgument("chiTietId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val chiTietId = backStackEntry.arguments?.getInt("chiTietId") ?: 0
-            ChiTietAnhMinhChungScreen(
-                viewModel = hiltViewModel(),
-                chiTietId = chiTietId,
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(
-            route = Screen.KtvCongViecHienTai.route,
-            arguments = listOf(
-                navArgument("tkKtvId") { type = NavType.IntType },
-                navArgument("hoTen") { type = NavType.StringType },
-                navArgument("soDienThoai") { type = NavType.StringType },
-                navArgument("phanCongId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
-            val hoTen = backStackEntry.arguments?.getString("hoTen") ?: ""
-            val soDienThoai = backStackEntry.arguments?.getString("soDienThoai") ?: ""
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-
-            KtvCongViecHienTaiScreen(
-                tkKtvId = tkKtvId,
-                hoTen = hoTen,
-                soDienThoai = soDienThoai,
-                phanCongId = phanCongId,
-                navController = navController
-            )
-        }
-
-        composable(
-            route = Screen.AdminBaiViet.route
-        ) {
-            AdminBaiVietScreen(
-                navController = navController
-            )
-        }
-
-        composable(
-            route = "bai_viet_form/{idBaiViet}?",
-            arguments = listOf(
-                navArgument("idBaiViet") {
-                    type = NavType.StringType // Cho phép nullable
-                    nullable = true
-                    defaultValue = null
+                // Màn hình Admin
+                composable(Screen.AdminDashboard.route) { AdminDashboardScreen(navController) }
+                composable(Screen.AdminAccount.route) { AdminAccountScreen(navController) }
+                composable(
+                    route = Screen.AdminViewDetailProfile.route,
+                    arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+                    AdminViewDetailProfileScreen(navController, taiKhoanId)
                 }
-            )
-        ) { backStackEntry ->
-            val idBaiViet = backStackEntry.arguments
-                ?.getString("idBaiViet")
-                ?.toIntOrNull() // chuyển sang Int nếu có
+                composable(Screen.AdminRequestList.route) { AdminRequestListScreen(navController) }
 
-            BaiVietFormScreen(
-                navController = navController,
-                idBaiViet = idBaiViet // có thể null
-            )
-        }
+                composable(
+                    route = Screen.AdminRequestDetail.route,
+                    arguments = listOf(navArgument("yeuCauId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+                    AdminRequestDetailScreen(navController, yeuCauId)
+                }
+                composable(
+                    route = Screen.AdminDeviceDetail.route,
+                    arguments = listOf(
+                        navArgument("thietBiId") { type = NavType.IntType },
+                        navArgument("yeuCauId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val thietBiId = backStackEntry.arguments?.getInt("thietBiId") ?: 0
+                    val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+                    AdminDeviceDetailScreen(navController, thietBiId, yeuCauId)
+                }
+                composable(
+                    route = Screen.AdminDeviceList.route
+                ) {
+                    AdminDeviceListScreen(navController)
+                }
+
+                composable(
+                    route = Screen.ChonKyThuatVien.route,
+                    arguments = listOf(
+                        navArgument("phanCongId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+
+                    ChonKyThuatVienScreen(phanCongId, navController)
+                }
+
+                composable(
+                    route = Screen.PhanCongDetail.route,
+                    arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+                    PhanCongDetailScreen(navController, phanCongId)
+                }
 
 
-        // Màn hình Quản lý đơn vị
-        composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
-        composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
+                composable(
+                    route = Screen.XacNhanDeCuKtv.route,
+                    arguments = listOf(
+                        navArgument("phanCongId") { type = NavType.IntType },
+                        navArgument("taiKhoanId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+                    val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+                    XacNhanDeCuKtvScreen(phanCongId, taiKhoanId, navController)
+                }
+
+                composable(
+                    route = Screen.XemYeuCauGiaHan.route,
+                    arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
+                    XemYeuCauGiaHanScreen(phanCongKtvId, navController)
+                }
+
+                composable(
+                    route = Screen.AdminViewTienTrinhLamViec.route,
+                    arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
+                    AdminViewTienTrinhLamViecScreen(navController, phanCongKtvId)
+                }
+
+                composable(
+                    route = Screen.BienBanNghiemThu.route,
+                    arguments = listOf(
+                        navArgument("yeuCauId") { type = NavType.IntType },
+                        navArgument("nguoiXacNhanId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+                    val nguoiXacNhanId = backStackEntry.arguments?.getInt("nguoiXacNhanId") ?: 0
+                    BienBanNghiemThuScreen(
+                        yeuCauId = yeuCauId,
+                        nguoiXacNhanId = nguoiXacNhanId,
+                        navController = navController,
+                        onHoanTat = { kyA, kyB -> /* Handle completion */ }
+                    )
+                }
+
+                composable(
+                    route = Screen.XemAnhKhiNghiemThu.route,
+                    arguments = listOf(navArgument("chiTietId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val chiTietId = backStackEntry.arguments?.getInt("chiTietId") ?: 0
+                    ChiTietAnhMinhChungScreen(
+                        viewModel = hiltViewModel(),
+                        chiTietId = chiTietId,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable(
+                    route = Screen.KtvCongViecHienTai.route,
+                    arguments = listOf(
+                        navArgument("tkKtvId") { type = NavType.IntType },
+                        navArgument("hoTen") { type = NavType.StringType },
+                        navArgument("soDienThoai") { type = NavType.StringType },
+                        navArgument("phanCongId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+                    val hoTen = backStackEntry.arguments?.getString("hoTen") ?: ""
+                    val soDienThoai = backStackEntry.arguments?.getString("soDienThoai") ?: ""
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+
+                    KtvCongViecHienTaiScreen(
+                        tkKtvId = tkKtvId,
+                        hoTen = hoTen,
+                        soDienThoai = soDienThoai,
+                        phanCongId = phanCongId,
+                        navController = navController
+                    )
+                }
+
+                composable(
+                    route = Screen.AdminBaiViet.route
+                ) {
+                    AdminBaiVietScreen(
+                        navController = navController
+                    )
+                }
+
+                composable(
+                    route = "bai_viet_form/{idBaiViet}?",
+                    arguments = listOf(
+                        navArgument("idBaiViet") {
+                            type = NavType.StringType // Cho phép nullable
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) { backStackEntry ->
+                    val idBaiViet = backStackEntry.arguments
+                        ?.getString("idBaiViet")
+                        ?.toIntOrNull() // chuyển sang Int nếu có
+
+                    BaiVietFormScreen(
+                        navController = navController,
+                        idBaiViet = idBaiViet // có thể null
+                    )
+                }
+
+
+                // Màn hình Quản lý đơn vị
+                composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
+                composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
 //        composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
 //            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
 //            QLDVThietBiTheoPhongScreen(navController, phongId)
 //        }
 
-        composable(
-            route = "quanlydonvi_thietbi/{phongId}/{phongName}"
-        ) { backStackEntry ->
-            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
-            val phongName = backStackEntry.arguments?.getString("phongName") ?: "Phòng"
+                composable(
+                    route = "quanlydonvi_thietbi/{phongId}/{phongName}"
+                ) { backStackEntry ->
+                    val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
+                    val phongName = backStackEntry.arguments?.getString("phongName") ?: "Phòng"
 
-            QLDVThietBiTheoPhongScreen(
-                phongId = phongId,
-                phongName = phongName,
-                navController = navController
-            )
-        }
-
-
-
-        composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
-
-        composable(
-            "them_yeu_cau_moi/{yeuCauId}?",
-            arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })
-        ) { backStackEntry ->
-            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
-            ThemYeuCauMoiScreen(navController, yeuCauId)
-        }
-
-        composable(Screen.QLDVThietBiTheoDV.route) {
-            QLDVThietBiTheoDVScreen(navController, isSelectMode = false, yeuCauId = null)
-        }
-        composable("chon_thiet_bi/{yeuCauId}") { backStackEntry ->  //vao chung mh ds thiet bị theo dv nhung de chọn thiet bi cho yêu cầu
-            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toInt() ?: 0
-            QLDVThietBiTheoDVScreen(navController, isSelectMode = true, yeuCauId = yeuCauId)
-        }
+                    QLDVThietBiTheoPhongScreen(
+                        phongId = phongId,
+                        phongName = phongName,
+                        navController = navController
+                    )
+                }
 
 
-        //QLDV chi tiet thiet bi - chi tiet yeu cau
-        composable(Screen.ThietBiDetail.route) { backStackEntry ->
-            val thietBiId = backStackEntry.arguments?.getString("thietBiId")?.toInt() ?: 0
-            val isEditMode = backStackEntry.arguments?.getString("isEditMode").toBoolean()
-            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
-            ThietBiDetailScreen(navController, thietBiId, isEditMode, yeuCauId)
-        }
+
+                composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
+
+                composable(
+                    "them_yeu_cau_moi/{yeuCauId}?",
+                    arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })
+                ) { backStackEntry ->
+                    val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+                    ThemYeuCauMoiScreen(navController, yeuCauId, thongBaoViewModel)
+                }
+
+                composable(Screen.QLDVThietBiTheoDV.route) {
+                    QLDVThietBiTheoDVScreen(navController, isSelectMode = false, yeuCauId = null)
+                }
+                composable("chon_thiet_bi/{yeuCauId}") { backStackEntry ->  //vao chung mh ds thiet bị theo dv nhung de chọn thiet bi cho yêu cầu
+                    val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toInt() ?: 0
+                    QLDVThietBiTheoDVScreen(navController, isSelectMode = true, yeuCauId = yeuCauId)
+                }
 
 
-        // Màn hình Kỹ thuật viên
-        composable(Screen.KtvDashboard.route) { KtvDashboardScreen(navController) }
-        composable(
-            route = Screen.ChuyenMonKyThuatVien.route,
-            arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
-            ChuyenMonKyThuatVienScreen(taiKhoanId = taiKhoanId, navController) {
-                navController.popBackStack()
-            }
-        }
-        composable(Screen.DanhSachKyThuatVien.route) {
-            DanhSachKyThuatVienScreen(navController)
-        }
-
-        composable(
-            route = Screen.KtvDanhSachCongViec.route,
-            arguments = listOf(navArgument("tkKtvId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
-            KtvDanhSachCongViecScreen(tkKtvId, navController)
-        }
-
-        composable(
-            route = Screen.KtvXemChiTietPhanCong.route,
-            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-            KtvXemChiTietPhanCongScreen(navController, phanCongId)
-        }
+                //QLDV chi tiet thiet bi - chi tiet yeu cau
+                composable(Screen.ThietBiDetail.route) { backStackEntry ->
+                    val thietBiId = backStackEntry.arguments?.getString("thietBiId")?.toInt() ?: 0
+                    val isEditMode = backStackEntry.arguments?.getString("isEditMode").toBoolean()
+                    val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+                    ThietBiDetailScreen(navController, thietBiId, isEditMode, yeuCauId)
+                }
 
 
-        composable(
-            route = Screen.KtvLamViec.route,
-            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
-            // 👇 Truyền backStackEntry vào
-            KtvLamViecScreen(navController, phanCongId, backStackEntry)
-        }
+                // Màn hình Kỹ thuật viên
+                composable(Screen.KtvDashboard.route) { KtvDashboardScreen(navController) }
+                composable(
+                    route = Screen.ChuyenMonKyThuatVien.route,
+                    arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+                    ChuyenMonKyThuatVienScreen(taiKhoanId = taiKhoanId, navController) {
+                        navController.popBackStack()
+                    }
+                }
+                composable(Screen.DanhSachKyThuatVien.route) {
+                    DanhSachKyThuatVienScreen(navController)
+                }
+
+                composable(
+                    route = Screen.KtvDanhSachCongViec.route,
+                    arguments = listOf(navArgument("tkKtvId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+                    KtvDanhSachCongViecScreen(tkKtvId, navController)
+                }
+
+                composable(
+                    route = Screen.KtvXemChiTietPhanCong.route,
+                    arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+                    KtvXemChiTietPhanCongScreen(navController, phanCongId)
+                }
 
 
-        // Màn hình Người dùng (Sinh viên, Giảng viên)
+                composable(
+                    route = Screen.KtvLamViec.route,
+                    arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+                    // 👇 Truyền backStackEntry vào
+                    KtvLamViecScreen(navController, phanCongId, backStackEntry)
+                }
+
+
+                // Màn hình Người dùng (Sinh viên, Giảng viên)
 //        composable(Screen.UserSearch.route) { UserSearchScreen(navController) }
 //        composable(Screen.RoomInfo.route) { RoomInfoScreen(navController) }
+            }
+
+            currentThongBao?.let { thongBao ->
+                NotificationBanner(
+                    thongBao = thongBao,
+                    onDismiss = { currentThongBao = null },
+                    onClick = {
+                        // Tuỳ ý: ví dụ điều hướng tới màn hình danh sách thông báo
+                        currentThongBao = null
+                    }
+                )
+            }
+        }
     }
+
+//    NavHost(navController = navController, startDestination = startDestination) {
+//        // Màn hình chung
+//        composable(Screen.SplashScreen.route) { SplashScreen(navController) }
+//        composable(Screen.Home.route) { HomeScreen(navController) }
+//        composable(Screen.Register.route) { RegisterScreen(navController) }
+//
+//        composable(Screen.Login.route) { LoginScreen(navController) }
+//        composable(Screen.DebugLogin.route) { DebugLoginScreen(navController) }
+//
+//        composable(Screen.Profile.route) { ProfileScreen(navController) }
+////        composable(Screen.ForgotPassword.route) { ForgotPasswordScreen(navController) }
+////        composable(Screen.ChangePassword.route) { ChangePasswordScreen(navController) }
+//
+//        // Màn hình Admin
+//        composable(Screen.AdminDashboard.route) { AdminDashboardScreen(navController) }
+//        composable(Screen.AdminAccount.route) { AdminAccountScreen(navController) }
+//        composable(
+//            route = Screen.AdminViewDetailProfile.route,
+//            arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+//            AdminViewDetailProfileScreen(navController, taiKhoanId)
+//        }
+//        composable(Screen.AdminRequestList.route) { AdminRequestListScreen(navController) }
+//
+//        composable(
+//            route = Screen.AdminRequestDetail.route,
+//            arguments = listOf(navArgument("yeuCauId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+//            AdminRequestDetailScreen(navController, yeuCauId)
+//        }
+//        composable(
+//            route = Screen.AdminDeviceDetail.route,
+//            arguments = listOf(
+//                navArgument("thietBiId") { type = NavType.IntType },
+//                navArgument("yeuCauId") { type = NavType.IntType }
+//            )
+//        ) { backStackEntry ->
+//            val thietBiId = backStackEntry.arguments?.getInt("thietBiId") ?: 0
+//            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+//            AdminDeviceDetailScreen(navController, thietBiId, yeuCauId)
+//        }
+//        composable(
+//            route = Screen.AdminDeviceList.route
+//        ) {
+//            AdminDeviceListScreen(navController)
+//        }
+//
+//        composable(
+//            route = Screen.ChonKyThuatVien.route,
+//            arguments = listOf(
+//                navArgument("phanCongId") { type = NavType.IntType }
+//            )
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//
+//            ChonKyThuatVienScreen(phanCongId, navController)
+//        }
+//
+//        composable(
+//            route = Screen.PhanCongDetail.route,
+//            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//            PhanCongDetailScreen(navController, phanCongId)
+//        }
+//
+//
+//        composable(
+//            route = Screen.XacNhanDeCuKtv.route,
+//            arguments = listOf(
+//                navArgument("phanCongId") { type = NavType.IntType },
+//                navArgument("taiKhoanId") { type = NavType.IntType }
+//            )
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+//            XacNhanDeCuKtvScreen(phanCongId, taiKhoanId, navController)
+//        }
+//
+//        composable(
+//            route = Screen.XemYeuCauGiaHan.route,
+//            arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
+//            XemYeuCauGiaHanScreen(phanCongKtvId, navController)
+//        }
+//
+//        composable(
+//            route = Screen.AdminViewTienTrinhLamViec.route,
+//            arguments = listOf(navArgument("phanCongKtvId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongKtvId = backStackEntry.arguments?.getInt("phanCongKtvId") ?: 0
+//            AdminViewTienTrinhLamViecScreen(navController, phanCongKtvId)
+//        }
+//
+//        composable(
+//            route = Screen.BienBanNghiemThu.route,
+//            arguments = listOf(
+//                navArgument("yeuCauId") { type = NavType.IntType },
+//                navArgument("nguoiXacNhanId") { type = NavType.IntType }
+//            )
+//        ) { backStackEntry ->
+//            val yeuCauId = backStackEntry.arguments?.getInt("yeuCauId") ?: 0
+//            val nguoiXacNhanId = backStackEntry.arguments?.getInt("nguoiXacNhanId") ?: 0
+//            BienBanNghiemThuScreen(
+//                yeuCauId = yeuCauId,
+//                nguoiXacNhanId = nguoiXacNhanId,
+//                navController = navController,
+//                onHoanTat = { kyA, kyB -> /* Handle completion */ }
+//            )
+//        }
+//
+//        composable(
+//            route = Screen.XemAnhKhiNghiemThu.route,
+//            arguments = listOf(navArgument("chiTietId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val chiTietId = backStackEntry.arguments?.getInt("chiTietId") ?: 0
+//            ChiTietAnhMinhChungScreen(
+//                viewModel = hiltViewModel(),
+//                chiTietId = chiTietId,
+//                onBack = { navController.popBackStack() }
+//            )
+//        }
+//        composable(
+//            route = Screen.KtvCongViecHienTai.route,
+//            arguments = listOf(
+//                navArgument("tkKtvId") { type = NavType.IntType },
+//                navArgument("hoTen") { type = NavType.StringType },
+//                navArgument("soDienThoai") { type = NavType.StringType },
+//                navArgument("phanCongId") { type = NavType.IntType }
+//            )
+//        ) { backStackEntry ->
+//            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+//            val hoTen = backStackEntry.arguments?.getString("hoTen") ?: ""
+//            val soDienThoai = backStackEntry.arguments?.getString("soDienThoai") ?: ""
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//
+//            KtvCongViecHienTaiScreen(
+//                tkKtvId = tkKtvId,
+//                hoTen = hoTen,
+//                soDienThoai = soDienThoai,
+//                phanCongId = phanCongId,
+//                navController = navController
+//            )
+//        }
+//
+//        composable(
+//            route = Screen.AdminBaiViet.route
+//        ) {
+//            AdminBaiVietScreen(
+//                navController = navController
+//            )
+//        }
+//
+//        composable(
+//            route = "bai_viet_form/{idBaiViet}?",
+//            arguments = listOf(
+//                navArgument("idBaiViet") {
+//                    type = NavType.StringType // Cho phép nullable
+//                    nullable = true
+//                    defaultValue = null
+//                }
+//            )
+//        ) { backStackEntry ->
+//            val idBaiViet = backStackEntry.arguments
+//                ?.getString("idBaiViet")
+//                ?.toIntOrNull() // chuyển sang Int nếu có
+//
+//            BaiVietFormScreen(
+//                navController = navController,
+//                idBaiViet = idBaiViet // có thể null
+//            )
+//        }
+//
+//
+//        // Màn hình Quản lý đơn vị
+//        composable(Screen.DonViDashboard.route) { DonViDashboardScreen(navController) }
+//        composable(Screen.QLDVPhong.route) { QLDVPhongScreen(navController) }
+////        composable("quanlydonvi_thietbi/{phongId}") { backStackEntry ->
+////            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
+////            QLDVThietBiTheoPhongScreen(navController, phongId)
+////        }
+//
+//        composable(
+//            route = "quanlydonvi_thietbi/{phongId}/{phongName}"
+//        ) { backStackEntry ->
+//            val phongId = backStackEntry.arguments?.getString("phongId")?.toInt() ?: 0
+//            val phongName = backStackEntry.arguments?.getString("phongName") ?: "Phòng"
+//
+//            QLDVThietBiTheoPhongScreen(
+//                phongId = phongId,
+//                phongName = phongName,
+//                navController = navController
+//            )
+//        }
+//
+//
+//
+//        composable("danh_sach_yeu_cau") { DanhSachYeuCauScreen(navController) }
+//
+//        composable(
+//            "them_yeu_cau_moi/{yeuCauId}?",
+//            arguments = listOf(navArgument("yeuCauId") { nullable = true; defaultValue = null })
+//        ) { backStackEntry ->
+//            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+//            ThemYeuCauMoiScreen(navController, yeuCauId)
+//        }
+//
+//        composable(Screen.QLDVThietBiTheoDV.route) {
+//            QLDVThietBiTheoDVScreen(navController, isSelectMode = false, yeuCauId = null)
+//        }
+//        composable("chon_thiet_bi/{yeuCauId}") { backStackEntry ->  //vao chung mh ds thiet bị theo dv nhung de chọn thiet bi cho yêu cầu
+//            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toInt() ?: 0
+//            QLDVThietBiTheoDVScreen(navController, isSelectMode = true, yeuCauId = yeuCauId)
+//        }
+//
+//
+//        //QLDV chi tiet thiet bi - chi tiet yeu cau
+//        composable(Screen.ThietBiDetail.route) { backStackEntry ->
+//            val thietBiId = backStackEntry.arguments?.getString("thietBiId")?.toInt() ?: 0
+//            val isEditMode = backStackEntry.arguments?.getString("isEditMode").toBoolean()
+//            val yeuCauId = backStackEntry.arguments?.getString("yeuCauId")?.toIntOrNull()
+//            ThietBiDetailScreen(navController, thietBiId, isEditMode, yeuCauId)
+//        }
+//
+//
+//        // Màn hình Kỹ thuật viên
+//        composable(Screen.KtvDashboard.route) { KtvDashboardScreen(navController) }
+//        composable(
+//            route = Screen.ChuyenMonKyThuatVien.route,
+//            arguments = listOf(navArgument("taiKhoanId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val taiKhoanId = backStackEntry.arguments?.getInt("taiKhoanId") ?: 0
+//            ChuyenMonKyThuatVienScreen(taiKhoanId = taiKhoanId, navController) {
+//                navController.popBackStack()
+//            }
+//        }
+//        composable(Screen.DanhSachKyThuatVien.route) {
+//            DanhSachKyThuatVienScreen(navController)
+//        }
+//
+//        composable(
+//            route = Screen.KtvDanhSachCongViec.route,
+//            arguments = listOf(navArgument("tkKtvId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val tkKtvId = backStackEntry.arguments?.getInt("tkKtvId") ?: 0
+//            KtvDanhSachCongViecScreen(tkKtvId, navController)
+//        }
+//
+//        composable(
+//            route = Screen.KtvXemChiTietPhanCong.route,
+//            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//            KtvXemChiTietPhanCongScreen(navController, phanCongId)
+//        }
+//
+//
+//        composable(
+//            route = Screen.KtvLamViec.route,
+//            arguments = listOf(navArgument("phanCongId") { type = NavType.IntType })
+//        ) { backStackEntry ->
+//            val phanCongId = backStackEntry.arguments?.getInt("phanCongId") ?: 0
+//            // 👇 Truyền backStackEntry vào
+//            KtvLamViecScreen(navController, phanCongId, backStackEntry)
+//        }
+//
+//
+//        // Màn hình Người dùng (Sinh viên, Giảng viên)
+////        composable(Screen.UserSearch.route) { UserSearchScreen(navController) }
+////        composable(Screen.RoomInfo.route) { RoomInfoScreen(navController) }
+//    }
 }

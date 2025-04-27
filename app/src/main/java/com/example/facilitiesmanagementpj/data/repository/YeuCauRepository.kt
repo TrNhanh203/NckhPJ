@@ -210,14 +210,29 @@ class YeuCauRepository @Inject constructor(
         return newId.toInt()
     }
 
+//    suspend fun updateYeuCauStatus(yeuCauId: Int, status: String) {
+//        yeuCauDao.updateYeuCauStatus(yeuCauId, status)
+//        if(status == TrangThaiYeuCau.CHO_XAC_NHAN){
+//            yeuCauDao.updateYeuCauThoiGianGui(yeuCauId, System.currentTimeMillis())
+//            val updated = yeuCauDao.getById(yeuCauId)
+//            updated?.let { SyncDispatcher.dispatch(yeuCauSyncService, updated, SyncDispatcher.SyncType.UPDATE) }
+//        }
+//    }
+
     suspend fun updateYeuCauStatus(yeuCauId: Int, status: String) {
-        yeuCauDao.updateYeuCauStatus(yeuCauId, status)
-        if(status == TrangThaiYeuCau.CHO_XAC_NHAN){
-            yeuCauDao.updateYeuCauThoiGianGui(yeuCauId, System.currentTimeMillis())
-            val updated = yeuCauDao.getById(yeuCauId)
-            updated?.let { SyncDispatcher.dispatch(yeuCauSyncService, updated, SyncDispatcher.SyncType.UPDATE) }
+        val yeuCau = yeuCauDao.getById(yeuCauId)
+
+        yeuCau?.let {
+            val updatedYeuCau = it.copy(
+                trangThai = status,
+                ngayYeuCau = if (status == TrangThaiYeuCau.CHO_XAC_NHAN) System.currentTimeMillis() else it.ngayYeuCau
+            )
+
+            yeuCauDao.update(updatedYeuCau)
+            SyncDispatcher.dispatch(yeuCauSyncService, updatedYeuCau, SyncDispatcher.SyncType.UPDATE)
         }
     }
+
 
     suspend fun updateYeuCauKhiTuChoi(yeuCauId: Int, status: String, lyDoTuChoi: String) {
         yeuCauDao.updateYeuCauKhiTuChoi(yeuCauId, status, lyDoTuChoi)

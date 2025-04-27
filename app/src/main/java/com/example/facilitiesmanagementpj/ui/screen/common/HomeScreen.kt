@@ -63,13 +63,17 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.data.entity.ThongBao
 import com.example.facilitiesmanagementpj.ui.viewmodel.MainViewModel
+import com.example.facilitiesmanagementpj.ui.viewmodel.ThongBaoViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.adminViewModel.BaiVietViewModel
+import java.util.UUID
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, thongBaoViewModel: ThongBaoViewModel) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val baiVietViewModel: BaiVietViewModel = hiltViewModel()
     var showExitDialog by remember { mutableStateOf(false) }
@@ -110,6 +114,11 @@ fun HomeScreen(navController: NavController) {
                 .padding(16.dp)
                 .then(modifier),
         ) {
+//            Button(onClick = {
+//                thongBaoViewModel.pushFakeThongBao()
+//            }) {
+//                Text("Test thông báo fake realtime")
+//            }
             //push all dữ liệu lên firestore
             //ManualPushScreen()
 

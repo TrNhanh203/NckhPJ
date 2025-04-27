@@ -38,6 +38,9 @@ import java.time.format.DateTimeFormatter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +50,7 @@ fun KtvDanhSachCongViecScreen(
     navController: NavController,
     viewModel: KtvDanhSachCongViecViewModel = hiltViewModel()
 ) {
+    val isRefreshing = remember { mutableStateOf(false) }
     val tabTitles = listOf("Việc mới", "Đang làm", "Đã hoàn thành", "Thay người", "Bị hủy")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var sortOption by remember { mutableStateOf("Ưu tiên") }
@@ -188,90 +192,98 @@ fun KtvDanhSachCongViecScreen(
                 var selectedPhanCongId by remember { mutableStateOf<Int?>(null) }
                 var showSheet by remember { mutableStateOf(false) }
 
-                LazyColumn(modifier = Modifier.padding(horizontal = 16.dp),verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                    items(tasks) { item ->
-                        val phanCong = item.pc.phanCong.phanCong
-                        val thietBi = item.pc.phanCong.thietBi.thietBi
-                        val loaiThietBi = item.pc.phanCong.thietBi.loaiThietBi
-                        val trangThai = item.pc.phanCongKtv.trangThai
+                SwipeRefresh(
+                    state = rememberSwipeRefreshState(isRefreshing = isRefreshing.value),
+                    onRefresh = {
+                        isRefreshing.value = true
+                        viewModel.loadTasksWithTime(tkKtvId)
+                        isRefreshing.value = false
+                    }
+                ){
+                    LazyColumn(modifier = Modifier.padding(horizontal = 16.dp),verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                        items(tasks) { item ->
+                            val phanCong = item.pc.phanCong.phanCong
+                            val thietBi = item.pc.phanCong.thietBi.thietBi
+                            val loaiThietBi = item.pc.phanCong.thietBi.loaiThietBi
+                            val trangThai = item.pc.phanCongKtv.trangThai
 
-                        val iconPrefix = when (phanCong.loaiPhanCong) {
-                            "Sửa Chữa" -> "🛠"
-                            "Kiểm Tra" -> "🔍"
-                            "Tháo Dỡ" -> "📦"
-                            else -> "📌"
-                        }
+                            val iconPrefix = when (phanCong.loaiPhanCong) {
+                                "Sửa Chữa" -> "🛠"
+                                "Kiểm Tra" -> "🔍"
+                                "Tháo Dỡ" -> "📦"
+                                else -> "📌"
+                            }
 
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f), // viền nhẹ, tinh tế
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .shadow(6.dp, RoundedCornerShape(10.dp))
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable {
-                                    selectedPhanCongId = phanCong.id
-                                    showSheet = true
-                                },
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // tăng độ nổi khối
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, // nền sang trọng
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        ) {
-                            Column {
-                                // 🔷 Header: Loại phân công + Chip trạng thái
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = "$iconPrefix ${phanCong.loaiPhanCong}",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.SemiBold
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f), // viền nhẹ, tinh tế
+                                        shape = RoundedCornerShape(12.dp)
                                     )
-
-                                    AssistChip(
-                                        onClick = {},
-                                        label = { Text(trangThai) },
-                                        colors = AssistChipDefaults.assistChipColors(
-                                            containerColor = getTrangThaiPcKtvColor(item.pc.phanCongKtv.trangThai),
-                                            labelColor = Color.White
-                                        )
-                                    )
-                                }
-
-                                Divider(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    thickness = 1.dp,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                    .shadow(6.dp, RoundedCornerShape(10.dp))
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        selectedPhanCongId = phanCong.id
+                                        showSheet = true
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // tăng độ nổi khối
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, // nền sang trọng
+                                    contentColor = MaterialTheme.colorScheme.onSurface
                                 )
-
-                                // 🔸 Body nội dung
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    // 🔹 Thiết bị
-                                    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+                            ) {
+                                Column {
+                                    // 🔷 Header: Loại phân công + Chip trạng thái
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
                                         Text(
-                                            text = "Tên thiết bị",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            text = "$iconPrefix ${phanCong.loaiPhanCong}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.SemiBold
                                         )
-                                        Text(
-                                            text = thietBi.tenThietBi,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
+
+                                        AssistChip(
+                                            onClick = {},
+                                            label = { Text(trangThai) },
+                                            colors = AssistChipDefaults.assistChipColors(
+                                                containerColor = getTrangThaiPcKtvColor(item.pc.phanCongKtv.trangThai),
+                                                labelColor = Color.White
+                                            )
                                         )
                                     }
+
+                                    Divider(
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        thickness = 1.dp,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+
+                                    // 🔸 Body nội dung
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        // 🔹 Thiết bị
+                                        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+                                            Text(
+                                                text = "Tên thiết bị",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = thietBi.tenThietBi,
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
 
 // 🔹 Loại thiết bị
 //                                    Column(modifier = Modifier.fillMaxWidth()) {
@@ -288,70 +300,73 @@ fun KtvDanhSachCongViecScreen(
 //                                    }
 
 
-                                    Spacer(Modifier.height(8.dp))
+                                        Spacer(Modifier.height(8.dp))
 
-                                    PriorityLevelBar(level = phanCong.mucDoUuTien)
+                                        PriorityLevelBar(level = phanCong.mucDoUuTien)
 
-                                    Spacer(Modifier.height(8.dp))
+                                        Spacer(Modifier.height(8.dp))
 
-                                    // Thời gian tạo + thời lượng
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                                        val ngayTaoFormatted = formatter.format(Date(phanCong.thoiGianTaoPhanCong))
+                                        // Thời gian tạo + thời lượng
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                                            val ngayTaoFormatted = formatter.format(Date(phanCong.thoiGianTaoPhanCong))
 
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = Icons.Default.Schedule,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(Modifier.width(4.dp))
-                                            Text(
-                                                text = "Tạo: $ngayTaoFormatted",
-                                                style = MaterialTheme.typography.labelMedium
-                                            )
-                                        }
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Schedule,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Spacer(Modifier.width(4.dp))
+                                                Text(
+                                                    text = "Tạo: $ngayTaoFormatted",
+                                                    style = MaterialTheme.typography.labelMedium
+                                                )
+                                            }
 
-                                        val hours = item.pc.phanCongKtv.thoiGianDuKien / 60
-                                        val minutes = item.pc.phanCongKtv.thoiGianDuKien % 60
-                                        val thoiGianDuKienFormatted = if (hours > 0)
-                                            "${hours}h ${minutes}p"
-                                        else
-                                            "${minutes}p"
+                                            val hours = item.pc.phanCongKtv.thoiGianDuKien / 60
+                                            val minutes = item.pc.phanCongKtv.thoiGianDuKien % 60
+                                            val thoiGianDuKienFormatted = if (hours > 0)
+                                                "${hours}h ${minutes}p"
+                                            else
+                                                "${minutes}p"
 
-                                        val conLai = item.thoiGianConLaiThamKhao
-                                        val isTre = conLai != null && conLai <= 0
-                                        val timeColor = if (isTre) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                        val thoiGian = if (conLai != null && conLai <= 0) "Đã trễ"
-                                        else if (conLai != null) "Còn lại: ${conLai}p"
-                                        else "Hạn: $thoiGianDuKienFormatted"
+                                            val conLai = item.thoiGianConLaiThamKhao
+                                            val isTre = conLai != null && conLai <= 0
+                                            val timeColor = if (isTre) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                            val thoiGian = if (conLai != null && conLai <= 0) "Đã trễ"
+                                            else if (conLai != null) "Còn lại: ${conLai}p"
+                                            else "Hạn: $thoiGianDuKienFormatted"
 
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = Icons.Default.Timer,
-                                                contentDescription = null,
-                                                tint = timeColor,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(Modifier.width(4.dp))
-                                            Text(
-                                                text = thoiGian,
-                                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                color = timeColor
-                                            )
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Timer,
+                                                    contentDescription = null,
+                                                    tint = timeColor,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Spacer(Modifier.width(4.dp))
+                                                Text(
+                                                    text = thoiGian,
+                                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                    color = timeColor
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
+                        }
                     }
                 }
+
+
                 if (showSheet && selectedPhanCongId != null) {
                     val selectedItem = tasks.find { it.pc.phanCong.phanCong.id == selectedPhanCongId }
                     val trangThai = selectedItem?.pc?.phanCongKtv?.trangThai

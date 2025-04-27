@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.facilitiesmanagementpj.data.entity.ThongBao
 import com.example.facilitiesmanagementpj.data.utils.TrangThaiYeuCau
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVCreateYeuCauViewModel
 import com.example.facilitiesmanagementpj.ui.component.ScaffoldLayout
@@ -49,13 +50,16 @@ import com.example.facilitiesmanagementpj.ui.navigation.Screen
 import com.example.facilitiesmanagementpj.ui.screen.admin.getIconResForDevice
 import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestDetailViewModel.ChiTietYeuCauWithDisplayData
 import com.example.facilitiesmanagementpj.ui.viewmodel.QLDVChiTietYeuCauWithDisplayData
+import com.example.facilitiesmanagementpj.ui.viewmodel.ThongBaoViewModel
 import com.example.facilitiesmanagementpj.ui.viewmodel.sessionViewModel.SessionViewModel
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemYeuCauMoiScreen(
     navController: NavController,
     yeuCauId: Int?,
+    thongBaoViewModel: ThongBaoViewModel,
     viewModel: QLDVCreateYeuCauViewModel = hiltViewModel()
 ) {
     BackHandler { navController.popBackStack() }
@@ -320,6 +324,19 @@ fun ThemYeuCauMoiScreen(
                             if (chiTietList.isNotEmpty()) {
                                 viewModel.yeuCauId.value?.let {
                                     viewModel.updateYeuCauStatus(it, TrangThaiYeuCau.CHO_XAC_NHAN)
+
+                                    thongBaoViewModel.createAndPushThongBao(
+                                        ThongBao(
+                                            id = UUID.randomUUID().toString(),
+                                            nguoiNhanId = 1, // ID người nhận thông báo (ví dụ admin ID=1)
+                                            tieuDe = "Yêu cầu mới từ đơn vị",
+                                            noiDung = "Đơn vị ${currentUser?.hoTen ?: "Không rõ"} vừa gửi yêu cầu cần xác nhận.",
+                                            loai = "yeu_cau",
+                                            thoiGian = System.currentTimeMillis(),
+                                            daDoc = false
+                                        )
+                                    )
+
                                     navController.popBackStack()
                                 }
                             }

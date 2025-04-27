@@ -3,8 +3,8 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-04-26T01:27:21.217034300Z">
+        <option name="selectionMode" value="DIALOG" />
+        <DropdownSelection timestamp="2025-04-27T22:24:46.118556100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=38a51c23" />
@@ -15,12 +15,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=38a51c23" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\HP\.android\avd\Medium_Phone.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\HP\.android\avd\Medium_Phone.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=38a51c23" />
               </handle>
             </Target>
           </targets>

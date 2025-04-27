@@ -46,6 +46,8 @@ import com.example.facilitiesmanagementpj.ui.viewmodel.AdminRequestListViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +63,8 @@ fun AdminRequestListScreen(navController: NavController) {
     val selectedDonViLabel = selectedDonVi?.let { id ->
         donViList.find { it.id == id }?.tenDonVi
     }
+    val isRefreshing = remember { mutableStateOf(false) }
+
 
 
     ScaffoldLayout(
@@ -91,25 +95,35 @@ fun AdminRequestListScreen(navController: NavController) {
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             )
-
-            LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                items(requestList) { request ->
-                    RequestCard(
-                        moTa = request.yeuCau.moTa,
-                        donVi = request.tenDonVi,
-                        ngayYeuCau = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(request.yeuCau.ngayYeuCau)),
-                        trangThai = request.yeuCau.trangThai,
-                        soDaPhanCong = request.daPhanCong,
-                        tongSoPhanCong = request.tongChiTiet,
-                        onClick = {
-                            navController.navigate(
-                                Screen.AdminRequestDetail.createRoute(request.yeuCau.id)
-                            )
-                        }
-                    )
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = isRefreshing.value),
+                onRefresh = {
+                    isRefreshing.value = true
+                    viewModel.reloadYeuCauList() // Gọi reload lại danh sách yêu cầu
+                    isRefreshing.value = false
                 }
+            ){
+                LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(requestList) { request ->
+                        RequestCard(
+                            moTa = request.yeuCau.moTa,
+                            donVi = request.tenDonVi,
+                            ngayYeuCau = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(request.yeuCau.ngayYeuCau)),
+                            trangThai = request.yeuCau.trangThai,
+                            soDaPhanCong = request.daPhanCong,
+                            tongSoPhanCong = request.tongChiTiet,
+                            onClick = {
+                                navController.navigate(
+                                    Screen.AdminRequestDetail.createRoute(request.yeuCau.id)
+                                )
+                            }
+                        )
+                    }
 
+                }
             }
+
+
         }
 
         if (currentFilterSheet != FilterSheetType.NONE) {

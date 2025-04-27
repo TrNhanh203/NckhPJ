@@ -4,14 +4,18 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.facilitiesmanagementpj.data.entity.BaiViet
 import com.example.facilitiesmanagementpj.data.entity.ThongBao
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ThongBaoDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAndReturnId(thongBao: ThongBao): Long
+
     @Query("SELECT * FROM thong_bao")
     fun getAll(): Flow<List<ThongBao>>
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(thongBao: ThongBao)

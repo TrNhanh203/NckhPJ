@@ -41,6 +41,13 @@ class AdminRequestListViewModel @Inject constructor(
         loadDonViList()
     }
 
+    fun reloadYeuCauList() {
+        viewModelScope.launch {
+            loadYeuCauList()
+        }
+    }
+
+
     fun loadYeuCauList() {
 //        viewModelScope.launch {
 //            val danhSach = yeuCauRepository.getAllYeuCauTruNhapOnce()

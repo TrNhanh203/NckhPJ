@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
+
     implementation ("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
 
     implementation ("com.google.firebase:firebase-firestore:25.1.3")
