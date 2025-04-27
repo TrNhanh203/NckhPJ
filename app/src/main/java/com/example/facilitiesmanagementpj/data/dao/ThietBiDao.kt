@@ -71,6 +71,18 @@ INNER JOIN tang ON phong.tangId = tang.id
 """)
     fun getAllThietBiWithDetails(): Flow<List<ThietBiWithDetails>>
 
+    @Query("SELECT * FROM thiet_bi")
+    suspend fun getTatCaThietBi(): List<ThietBi>
+
+    @Query("""
+    SELECT thiet_bi.*
+    FROM thiet_bi
+    INNER JOIN phong ON thiet_bi.phongId = phong.id
+    WHERE phong.donViId = :donViId
+""")
+    suspend fun getThietBiTheoDonVi(donViId: Int): List<ThietBi>
+
+
 
     @Query("SELECT * FROM thiet_bi")
     fun getAll(): Flow<List<ThietBi>>

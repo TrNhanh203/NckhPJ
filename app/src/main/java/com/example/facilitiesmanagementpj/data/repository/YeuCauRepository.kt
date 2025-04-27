@@ -34,6 +34,14 @@ class YeuCauRepository @Inject constructor(
     private val phanCongSyncService: BaseFirestoreSyncService<PhanCong>,
     private val chiTietYeuCauSyncService: BaseFirestoreSyncService<ChiTietYeuCau>,
 ) {
+    suspend fun getYeuCauTrong1ThangGanNhat(): List<YeuCau> {
+        return yeuCauDao.getYeuCauTrong1ThangGanNhat()
+    }
+
+    suspend fun getYeuCauTheoDonViTrong1ThangGanNhat(donViId: Int): List<YeuCau> {
+        return yeuCauDao.getYeuCauTheoDonViTrong1ThangGanNhat(donViId)
+    }
+
     fun getAllYeuCauTruNhap(): Flow<List<YeuCau>> = yeuCauDao.getAllYeuCauTruNhap(TrangThaiYeuCau.NHAP)
 
     fun getAllYeuCau(): Flow<List<YeuCau>> = yeuCauDao.getAll()

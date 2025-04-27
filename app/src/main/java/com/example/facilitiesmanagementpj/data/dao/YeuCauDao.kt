@@ -28,6 +28,13 @@ interface YeuCauDao {
     @Query("DELETE FROM yeu_cau WHERE id = :yeuCauId")
     suspend fun deleteYeuCau(yeuCauId: Int)
 
+    @Query("SELECT * FROM yeu_cau WHERE ngayYeuCau >= :timestamp")
+    suspend fun getYeuCauTrong1ThangGanNhat(timestamp: Long = System.currentTimeMillis() - 6L * 30L * 24 * 60 * 60 * 1000): List<YeuCau>
+
+    @Query("SELECT * FROM yeu_cau WHERE ngayYeuCau >= :timestamp AND donViId = :donViId")
+    suspend fun getYeuCauTheoDonViTrong1ThangGanNhat(donViId: Int, timestamp: Long = System.currentTimeMillis() - 6L * 30L * 24 * 60 * 60 * 1000): List<YeuCau>
+
+
     @Query("SELECT * FROM yeu_cau WHERE donViId = :donViId")
     fun getYeuCauByDonVi(donViId: Int): Flow<List<YeuCau>>
 
